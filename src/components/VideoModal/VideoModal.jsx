@@ -14,7 +14,7 @@ export default function VideoModal({ driveFileId, title, onClose }) {
       <span className={styles.title}>🎬 {title}</span>
       <div className={styles.videoWrap}>
         <iframe
-          src={`https://drive.google.com/file/d/${driveFileId}/preview`}
+          src={`https://drive.google.com/uc?export=download&id=${driveFileId}`}
           allow="autoplay"
           allowFullScreen
           className={styles.iframe}
