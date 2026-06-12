@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { API_NAME_TO_CODE } from '../data/teamMap';
 import { TEAM_OWNER } from '../data/participants';
 
-const API_KEY = import.meta.env.VITE_API_KEY;
-const BASE    = 'https://v3.football.api-sports.io';
+// All API calls go through our Netlify proxy — API key stays server-side,
+// and Netlify CDN caches responses so 24 users share one call per minute.
+const SCORES_URL = '/api/scores';
 
 const LIVE_STATUSES   = new Set(['1H','HT','2H','ET','BT','P','LIVE']);
 const FINISH_STATUSES = new Set(['FT','AET','PEN']);
@@ -78,9 +79,7 @@ export function useMatches() {
   // Full fetch of all group stage fixtures — use sparingly
   async function fetchAll() {
     try {
-      const res = await fetch(`${BASE}/fixtures?league=1&season=2026`, {
-        headers: { 'x-apisports-key': API_KEY },
-      });
+      const res = await fetch(`${SCORES_URL}?endpoint=all`);
       if (!res.ok) throw new Error(`API ${res.status}`);
       const data = await res.json();
       if (data.errors && Object.keys(data.errors).length > 0)
@@ -102,9 +101,7 @@ export function useMatches() {
   // Lightweight live-only fetch — merges updated live fixtures into existing list
   async function fetchLive() {
     try {
-      const res = await fetch(`${BASE}/fixtures?live=all&league=1`, {
-        headers: { 'x-apisports-key': API_KEY },
-      });
+      const res = await fetch(`${SCORES_URL}?endpoint=live`);
       if (!res.ok) throw new Error(`API ${res.status}`);
       const data = await res.json();
       const liveNorm = (data.response || []).map(normalize);
