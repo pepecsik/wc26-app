@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styles from './Feed.module.css';
 import MatchCard from '../MatchCard/MatchCard';
 import VideoModal from '../VideoModal/VideoModal';
@@ -32,11 +32,18 @@ export default function Feed({ matches, videoMap, activeTab }) {
     ...upcoming.slice(0, 8),
   ];
 
-  // Scroll to focus card on first load
-  useEffect(() => {
-    if (!focusId || !itemRefs.current[focusId]) return;
-    itemRefs.current[focusId].scrollIntoView({ block: 'center', behavior: 'instant' });
-    setActiveId(focusId);
+  // Scroll to focus card once matches are loaded and DOM is painted
+  useLayoutEffect(() => {
+    if (!focusId) return;
+    const frame = requestAnimationFrame(() => {
+      const el = itemRefs.current[focusId];
+      if (!el || !scrollRef.current) return;
+      const container = scrollRef.current;
+      const offset = el.offsetTop - container.clientHeight / 2 + el.clientHeight / 2;
+      container.scrollTop = offset;
+      setActiveId(focusId);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [focusId, matches.length]);
 
   // Update active card while scrolling
