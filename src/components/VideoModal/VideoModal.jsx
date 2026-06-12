@@ -11,14 +11,13 @@ export default function VideoModal({ driveFileId, title, onClose }) {
   return (
     <div className={styles.overlay}>
       <button className={styles.backBtn} onClick={onClose}>← Back</button>
-      <span className={styles.title}>🎬 {title}</span>
       <div className={styles.videoWrap}>
-        <iframe
+        <video
+          className={styles.video}
           src={`https://drive.google.com/uc?export=download&id=${driveFileId}`}
-          allow="autoplay"
-          allowFullScreen
-          className={styles.iframe}
-          title={title}
+          controls
+          autoPlay
+          playsInline
         />
       </div>
     </div>
