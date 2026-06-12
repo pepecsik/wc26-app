@@ -1,0 +1,148 @@
+.card {
+  background: #16213e;
+  border-radius: 16px;
+  padding: 12px 14px 10px;
+  border: 1.5px solid rgba(255,255,255,0.07);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.card.focus {
+  transform: scale(1.02);
+  border-color: rgba(255,255,255,0.15);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+/* ── Live pulse ── */
+.card.live {
+  border-color: #00c844;
+  animation: pulseLive 2s ease-in-out infinite;
+}
+
+@keyframes pulseLive {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,200,68,0.5); }
+  50%     { box-shadow: 0 0 0 10px rgba(0,200,68,0); }
+}
+
+.card.finished {
+  border-color: rgba(255,255,255,0.1);
+}
+
+/* ── Top bar ── */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.group {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.livePill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0,200,68,0.15);
+  color: #00c844;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  background: #00c844;
+  border-radius: 50%;
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0.2; }
+}
+
+.ftPill {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.5);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.kickoff {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+}
+
+/* ── Body ── */
+.body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.scoreBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 60px;
+}
+
+.score {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.scoreWin {
+  color: #ffd700;
+}
+
+.scoreSep {
+  color: rgba(255,255,255,0.3);
+  font-size: 22px;
+}
+
+.vs {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 2px;
+}
+
+.groupFull {
+  font-size: 10px;
+  color: rgba(255,255,255,0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Team names ── */
+.teamNames {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+}

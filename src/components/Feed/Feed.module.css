@@ -1,0 +1,13 @@
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 32px;
+}
+
+.empty {
+  text-align: center;
+  color: rgba(255,255,255,0.3);
+  padding: 48px 0;
+  font-size: 14px;
+}
