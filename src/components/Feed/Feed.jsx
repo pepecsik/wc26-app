@@ -3,36 +3,25 @@ import styles from './Feed.module.css';
 import MatchCard from '../MatchCard/MatchCard';
 import VideoModal from '../VideoModal/VideoModal';
 
-const NOW = () => Date.now();
-const HISTORY_CUTOFF_MS = 48 * 60 * 60 * 1000;
-
-export default function Feed({ matches, videoMap, activeTab }) {
-  const now         = NOW();
-  const scrollRef   = useRef(null);
-  const itemRefs    = useRef({});
+export default function Feed({ matches, videoMap }) {
+  const scrollRef = useRef(null);
+  const itemRefs  = useRef({});
   const [activeId, setActiveId] = useState(null);
-  const [video, setVideo]       = useState(null); // { driveFileId, title }
+  const [video, setVideo]       = useState(null);
 
   const liveMatches    = matches.filter(m => m.isLive);
-  const recentFinished = matches.filter(m =>
-    m.isFinished && (now - m.kickoff.getTime()) < HISTORY_CUTOFF_MS
-  );
-  const upcoming = matches.filter(m => !m.isLive && !m.isFinished);
-  const history  = matches.filter(m =>
-    m.isFinished && (now - m.kickoff.getTime()) >= HISTORY_CUTOFF_MS
-  );
+  const recentFinished = matches.filter(m => m.isFinished);
 
+  // Focus: live match, or last finished, or first upcoming
   const focusId = liveMatches[0]?.id
     ?? recentFinished[recentFinished.length - 1]?.id
+    ?? matches[0]?.id
     ?? null;
 
-  const feedMatches = [
-    ...recentFinished,
-    ...liveMatches,
-    ...upcoming.slice(0, 8),
-  ];
+  // All matches chronological — scroll up for past, down for future
+  const allMatches = [...matches].sort((a, b) => a.kickoff - b.kickoff);
 
-  // Scroll to focus card once matches are loaded and DOM is painted
+  // Scroll to focus card on load
   useLayoutEffect(() => {
     if (!focusId) return;
     const frame = requestAnimationFrame(() => {
@@ -46,52 +35,30 @@ export default function Feed({ matches, videoMap, activeTab }) {
     return () => cancelAnimationFrame(frame);
   }, [focusId, matches.length]);
 
-  // Update active card while scrolling
+  // Track active card while scrolling
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
-
     const onScroll = () => {
-      const containerCenter = container.scrollTop + container.clientHeight / 2;
-      let closestId = null;
-      let closestDist = Infinity;
+      const center = container.scrollTop + container.clientHeight / 2;
+      let closestId = null, closestDist = Infinity;
       Object.entries(itemRefs.current).forEach(([id, el]) => {
         if (!el) return;
-        const elCenter = el.offsetTop + el.clientHeight / 2;
-        const dist = Math.abs(containerCenter - elCenter);
+        const dist = Math.abs((el.offsetTop + el.clientHeight / 2) - center);
         if (dist < closestDist) { closestDist = dist; closestId = Number(id); }
       });
       if (closestId !== null) setActiveId(closestId);
     };
-
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll);
-  }, [feedMatches.length]);
-
-  if (activeTab === 'history') {
-    return (
-      <div className={styles.feed}>
-        {history.length === 0
-          ? <div className={styles.empty}>No finished matches yet</div>
-          : history.map(m => (
-              <MatchCard key={m.id} match={m}
-                videoInfo={videoMap[`${m.hCode}-${m.aCode}`]}
-                isFocus={false}
-                onVideoOpen={(filename, title) => setVideo({ filename, title })}
-              />
-            ))
-        }
-        {video && <VideoModal {...video} onClose={() => setVideo(null)} />}
-      </div>
-    );
-  }
+  }, [allMatches.length]);
 
   return (
     <>
       <div className={styles.slotContainer} ref={scrollRef}>
-        {feedMatches.length === 0
+        {allMatches.length === 0
           ? <div className={styles.empty}>Loading matches…</div>
-          : feedMatches.map(m => {
+          : allMatches.map(m => {
               const isActive = m.id === activeId;
               return (
                 <div
