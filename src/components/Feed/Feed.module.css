@@ -3,7 +3,7 @@
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
-  padding: 80px 14px;
+  padding: 48px 14px;
 }
 .slotContainer::-webkit-scrollbar { display: none; }
 

@@ -1,13 +1,13 @@
 import styles from './AvatarBadge.module.css';
 
-// state: 'neutral' | 'winning' | 'losing' | 'draw'
-// matchState: 'upcoming' | 'live' | 'finished'
 export default function AvatarBadge({ participant, teamCode, teamFlag, state, matchState, hasVideo, onVideoClick }) {
   if (!participant) {
     return (
       <div className={styles.wrap}>
-        <div className={styles.avatar} style={{ background: '#555' }}>?</div>
-        <div className={styles.teamLabel}>{teamFlag} {teamCode}</div>
+        <div className={styles.avatarWrap}>
+          <div className={styles.avatar} style={{ background: '#555' }}>?</div>
+          <div className={styles.nameBar}><span className={styles.nameBarText}>{teamFlag} {teamCode}</span></div>
+        </div>
       </div>
     );
   }
@@ -20,14 +20,16 @@ export default function AvatarBadge({ participant, teamCode, teamFlag, state, ma
 
   const avatarClasses = [
     styles.avatar,
-    isShaking  ? styles.shake    : '',
-    isWinner   ? styles.winner   : '',
-    isLoser    ? styles.loser    : '',
+    isShaking ? styles.shake  : '',
+    isWinner  ? styles.winner : '',
+    isLoser   ? styles.loser  : '',
   ].filter(Boolean).join(' ');
 
   return (
     <div className={styles.wrap}>
       <div className={styles.avatarWrap}>
+        {isWinner && <span className={styles.crown}>👑</span>}
+
         <div
           className={avatarClasses}
           style={{ background: participant.color }}
@@ -40,18 +42,15 @@ export default function AvatarBadge({ participant, teamCode, teamFlag, state, ma
           }
         </div>
 
-        {isWinner && <span className={styles.crown}>👑</span>}
-        {isLoser  && <span className={styles.beer}>🍺</span>}
+        {isLoser && <span className={styles.beer}>🍺</span>}
         {isLoser && hasVideo && (
           <button className={styles.videoBadge} onClick={onVideoClick}>🎬</button>
         )}
-      </div>
 
-      <div className={styles.teamLabel}>
-        <span className={styles.flag}>{teamFlag}</span>
-        <span className={styles.teamCode}>{teamCode}</span>
+        <div className={styles.nameBar}>
+          <span className={styles.nameBarText}>{participant.name}</span>
+        </div>
       </div>
-      <div className={styles.name}>{participant.name}</div>
     </div>
   );
 }

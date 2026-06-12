@@ -9,7 +9,6 @@ function formatDate(date) {
   return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
-// VideoModal is rendered at Feed level to avoid being clipped by scale transforms
 export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
   const { hCode, aCode, hGoals, aGoals, hState, aState, hOwner, aOwner,
           isLive, isFinished, kickoff, elapsed } = match;
@@ -30,50 +29,53 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
 
   return (
     <div className={cardClass}>
-      <div className={styles.topBar}>
-        <span className={styles.group}>Group {hTeam.group}</span>
-        {isLive && (
-          <span className={styles.livePill}>
-            <span className={styles.liveDot} />LIVE {elapsed}'
-          </span>
-        )}
-        {isFinished && <span className={styles.ftPill}>FT</span>}
-        {!isLive && !isFinished && (
-          <span className={styles.kickoff}>{formatDate(kickoff)} · {formatKickoff(kickoff)}</span>
-        )}
-      </div>
+      <AvatarBadge
+        participant={hOwner} teamCode={hCode} teamFlag={hTeam.flag}
+        state={hState} matchState={matchState}
+        hasVideo={hasVideo && (hState === 'losing' || hState === 'draw')}
+        onVideoClick={() => onVideoOpen(videoInfo.filename, videoTitle)}
+      />
 
-      <div className={styles.body}>
-        <AvatarBadge
-          participant={hOwner} teamCode={hCode} teamFlag={hTeam.flag}
-          state={hState} matchState={matchState}
-          hasVideo={hasVideo && (hState === 'losing' || hState === 'draw')}
-          onVideoClick={() => onVideoOpen(videoInfo.filename, videoTitle)}
-        />
-        <div className={styles.scoreBlock}>
-          {(isLive || isFinished) ? (
-            <div className={styles.score}>
-              <span className={hState === 'winning' ? styles.scoreWin : ''}>{hGoals}</span>
-              <span className={styles.scoreSep}>–</span>
-              <span className={aState === 'winning' ? styles.scoreWin : ''}>{aGoals}</span>
-            </div>
-          ) : (
-            <div className={styles.vs}>VS</div>
+      <div className={styles.center}>
+        <div className={styles.meta}>
+          <span className={styles.groupLabel}>Group {hTeam.group}</span>
+          {isLive && (
+            <span className={styles.livePill}>
+              <span className={styles.liveDot} />LIVE {elapsed}'
+            </span>
           )}
-          <div className={styles.groupFull}>Group {hTeam.group}</div>
+          {isFinished && <span className={styles.ftPill}>FT</span>}
+          {!isLive && !isFinished && (
+            <span className={styles.kickoffLabel}>{formatDate(kickoff)}</span>
+          )}
         </div>
-        <AvatarBadge
-          participant={aOwner} teamCode={aCode} teamFlag={aTeam.flag}
-          state={aState} matchState={matchState}
-          hasVideo={hasVideo && (aState === 'losing' || aState === 'draw')}
-          onVideoClick={() => onVideoOpen(videoInfo.filename, videoTitle)}
-        />
+
+        <div className={styles.vs}>VS</div>
+
+        <div className={styles.scoreRow}>
+          {(isLive || isFinished) ? (
+            <>
+              <span className={hState === 'winning' ? styles.scoreWin : styles.scoreNum}>{hGoals}</span>
+              <span className={styles.scoreSep}>–</span>
+              <span className={aState === 'winning' ? styles.scoreWin : styles.scoreNum}>{aGoals}</span>
+            </>
+          ) : (
+            <span className={styles.kickoffTime}>{formatKickoff(kickoff)}</span>
+          )}
+        </div>
+
+        <div className={styles.teamsRow}>
+          <span>{hTeam.flag} {hCode}</span>
+          <span>{aCode} {aTeam.flag}</span>
+        </div>
       </div>
 
-      <div className={styles.teamNames}>
-        <span>{hTeam.full}</span>
-        <span>{aTeam.full}</span>
-      </div>
+      <AvatarBadge
+        participant={aOwner} teamCode={aCode} teamFlag={aTeam.flag}
+        state={aState} matchState={matchState}
+        hasVideo={hasVideo && (aState === 'losing' || aState === 'draw')}
+        onVideoClick={() => onVideoOpen(videoInfo.filename, videoTitle)}
+      />
     </div>
   );
 }
