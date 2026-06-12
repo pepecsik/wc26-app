@@ -1,3 +1,30 @@
+.slotContainer {
+  height: calc(100dvh - 88px);
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  padding: 12px 0 32px;
+  scrollbar-width: none;
+}
+.slotContainer::-webkit-scrollbar { display: none; }
+
+.slotItem {
+  scroll-snap-align: center;
+  padding: 6px 14px;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  transform-origin: center;
+}
+
+.slotFocus {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.slotSmall {
+  transform: scale(0.82);
+  opacity: 0.45;
+}
+
+/* history tab */
 .feed {
   display: flex;
   flex-direction: column;
