@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import styles from './VideoModal.module.css';
 
-const B2_BASE = 'https://f005.backblazeb2.com/file/wc26-videos';
+const B2_BASE = 'https://f005.backblazeb2.com/file/wc26-videos/01_GROUP_STAGE';
 
 export default function VideoModal({ filename, title, onClose }) {
   useEffect(() => {
