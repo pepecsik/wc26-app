@@ -2,16 +2,16 @@
   height: calc(100dvh - 88px);
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
-  padding: 12px 0 32px;
   scrollbar-width: none;
+  padding: 80px 14px;
 }
 .slotContainer::-webkit-scrollbar { display: none; }
 
 .slotItem {
   scroll-snap-align: center;
-  padding: 6px 14px;
-  transition: transform 0.35s ease, opacity 0.35s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
   transform-origin: center;
+  margin: 8px 0;
 }
 
 .slotFocus {
@@ -21,7 +21,7 @@
 
 .slotSmall {
   transform: scale(0.82);
-  opacity: 0.45;
+  opacity: 0.4;
 }
 
 /* history tab */
@@ -29,7 +29,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-bottom: 32px;
+  padding: 12px 14px 32px;
 }
 
 .empty {
