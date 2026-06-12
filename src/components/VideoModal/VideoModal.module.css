@@ -45,9 +45,10 @@
   background: #000;
 }
 
-.video {
+.iframe {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  background: #000;
+  border: none;
 }
