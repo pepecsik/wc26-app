@@ -77,7 +77,7 @@ export default function Feed({ matches, videoMap, activeTab }) {
               <MatchCard key={m.id} match={m}
                 videoInfo={videoMap[`${m.hCode}-${m.aCode}`]}
                 isFocus={false}
-                onVideoOpen={(id, title) => setVideo({ driveFileId: id, title })}
+                onVideoOpen={(filename, title) => setVideo({ filename, title })}
               />
             ))
         }
@@ -103,7 +103,7 @@ export default function Feed({ matches, videoMap, activeTab }) {
                     match={m}
                     videoInfo={videoMap[`${m.hCode}-${m.aCode}`]}
                     isFocus={isActive}
-                    onVideoOpen={(id, title) => setVideo({ driveFileId: id, title })}
+                    onVideoOpen={(filename, title) => setVideo({ filename, title })}
                   />
                 </div>
               );
