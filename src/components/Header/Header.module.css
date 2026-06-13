@@ -35,15 +35,6 @@
   background-clip: text;
 }
 
-.updatedPill {
-  position: absolute;
-  right: 16px;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  color: rgba(255,255,255,0.25);
-  text-transform: uppercase;
-}
 
 .tabs {
   display: flex;
@@ -77,10 +68,17 @@
 }
 
 .tabSmall {
-  flex: 0 0 auto;
-  padding: 4px 6px;
+  position: absolute;
+  right: 16px;
+  padding: 0;
   background: transparent !important;
-  border-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+.activeSmall .standingsLogo {
+  opacity: 1;
 }
 
 .standingsLogo {

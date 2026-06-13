@@ -8,11 +8,6 @@
   gap: 12px;
 }
 
-@media (max-width: 480px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
 
 .groupCard {
   background: rgba(255,255,255,0.04);

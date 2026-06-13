@@ -21,6 +21,18 @@
   font-size: 14px;
 }
 
+.updatedPill {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: rgba(255,255,255,0.2);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
 .error {
   text-align: center;
   color: #ff6b6b;
