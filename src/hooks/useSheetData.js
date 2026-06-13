@@ -40,7 +40,7 @@ export function useSheetData() {
 
   async function fetchSheet() {
     try {
-      const res  = await fetch(SHEET_CSV_URL);
+      const res  = await fetch(`${SHEET_CSV_URL}&_=${Date.now()}`, { cache: 'no-store' });
       const text = await res.text();
       const rows = parseCSV(text);
       const map  = {};
