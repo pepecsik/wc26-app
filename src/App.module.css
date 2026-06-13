@@ -1,6 +1,14 @@
 .app {
   min-height: 100dvh;
-  background: #0a0a19;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(255,255,255,0.018) 0px,
+      rgba(255,255,255,0.018) 48px,
+      transparent 48px,
+      transparent 96px
+    ),
+    linear-gradient(160deg, #071a0e 0%, #0a2410 40%, #061811 70%, #050f08 100%);
   color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
