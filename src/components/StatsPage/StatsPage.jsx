@@ -2,31 +2,28 @@ import { useState } from 'react';
 import styles from './StatsPage.module.css';
 import PlayerModal from '../PlayerModal/PlayerModal';
 
-const COLS = [
-  { key: 'wins',   label: 'W' },
-  { key: 'losses', label: 'L' },
-  { key: 'draws',  label: 'D' },
-  { key: 'drinks', label: '🍺' },
-];
+function rankPlayers(players) {
+  const sorted = [...players].sort((a, b) => {
+    if (b.wins   !== a.wins)   return b.wins   - a.wins;
+    if (a.losses !== b.losses) return a.losses  - b.losses;
+    return a.draws - b.draws;
+  });
+
+  let rank = 1;
+  return sorted.map((p, i) => {
+    if (i > 0) {
+      const prev = sorted[i - 1];
+      if (p.wins !== prev.wins || p.losses !== prev.losses || p.draws !== prev.draws) {
+        rank = i + 1;
+      }
+    }
+    return { ...p, rank };
+  });
+}
 
 export default function StatsPage({ players }) {
-  const [sortKey, setSortKey]     = useState('wins');
-  const [sortDir, setSortDir]     = useState('desc');
-  const [selected, setSelected]   = useState(null);
-
-  function handleSort(key) {
-    if (key === sortKey) {
-      setSortDir(d => d === 'desc' ? 'asc' : 'desc');
-    } else {
-      setSortKey(key);
-      setSortDir('desc');
-    }
-  }
-
-  const sorted = [...players].sort((a, b) => {
-    const diff = a[sortKey] - b[sortKey];
-    return sortDir === 'desc' ? -diff : diff;
-  });
+  const [selected, setSelected] = useState(null);
+  const ranked = rankPlayers(players);
 
   return (
     <div className={styles.page}>
@@ -35,24 +32,16 @@ export default function StatsPage({ players }) {
           <tr>
             <th className={styles.thRank}>#</th>
             <th className={styles.thPlayer}>Player</th>
-            {COLS.map(c => (
-              <th
-                key={c.key}
-                className={`${styles.thStat} ${sortKey === c.key ? styles.active : ''}`}
-                onClick={() => handleSort(c.key)}
-              >
-                {c.label}
-                {sortKey === c.key && (
-                  <span className={styles.arrow}>{sortDir === 'desc' ? '↓' : '↑'}</span>
-                )}
-              </th>
-            ))}
+            <th className={styles.thStat}>W</th>
+            <th className={styles.thStat}>L</th>
+            <th className={styles.thStat}>D</th>
+            <th className={styles.thStat}>🍺</th>
           </tr>
         </thead>
         <tbody>
-          {sorted.map((p, i) => (
+          {ranked.map(p => (
             <tr key={p.name} className={styles.row} onClick={() => setSelected(p)}>
-              <td className={styles.rank}>{i + 1}</td>
+              <td className={styles.rank}>{p.rank}</td>
               <td className={styles.player}>
                 <div className={styles.playerInner}>
                   {p.photo

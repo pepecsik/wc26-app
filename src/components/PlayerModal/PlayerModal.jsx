@@ -88,7 +88,7 @@ export default function PlayerModal({ player, onClose }) {
           {player.matches.map(m => {
             const opp = TEAM_MAP[m.oppCode] ?? { flag: '🏳️', full: m.oppCode };
             const my  = TEAM_MAP[m.teamCode] ?? { flag: '🏳️', full: m.teamCode };
-            const resultLabel = !m.isFinished ? (m.isLive ? 'LIVE' : 'Upcoming')
+            const resultLabel = !m.isFinished ? (m.isLive ? 'LIVE' : '')
               : m.myState === 'winning' ? 'W' : m.myState === 'losing' ? 'L' : 'D';
             const resultClass = !m.isFinished ? styles.upcoming
               : m.myState === 'winning' ? styles.win : m.myState === 'losing' ? styles.loss : styles.draw;
@@ -128,8 +128,17 @@ export default function PlayerModal({ player, onClose }) {
                     className={styles.videoCard}
                     onClick={() => setPlayVideo({ filename: m.myVideo, title: `${my.flag} vs ${opp.flag}` })}
                   >
-                    <span className={styles.videoPlay}>▶</span>
-                    <span className={styles.videoLabel}>{my.flag} vs {opp.flag}</span>
+                    <video
+                      className={styles.videoThumb}
+                      src={m.videoUrl}
+                      preload="metadata"
+                      muted
+                      playsInline
+                    />
+                    <div className={styles.videoOverlay}>
+                      <span className={styles.videoPlay}>▶</span>
+                      <span className={styles.videoLabel}>{my.flag} vs {opp.flag}</span>
+                    </div>
                   </button>
                 );
               })}
