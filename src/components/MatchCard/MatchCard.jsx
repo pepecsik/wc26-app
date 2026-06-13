@@ -71,7 +71,7 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
 
   // Who needs to send the punishment video
   const drinkers = isFinished && !hasVideo ? (() => {
-    if (hState === 'losing' && aState === 'losing') return `${hOwner?.name} & ${aOwner?.name}`;
+    if (hState === 'draw') return `${hOwner?.name ?? hCode} & ${aOwner?.name ?? aCode}`;
     if (hState === 'losing') return hOwner?.name ?? hCode;
     if (aState === 'losing') return aOwner?.name ?? aCode;
     return null;
