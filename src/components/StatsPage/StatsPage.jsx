@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './StatsPage.module.css';
 import PlayerModal from '../PlayerModal/PlayerModal';
 import { TEAM_MAP } from '../../data/teamMap';
 
-const LS_KEY = 'wc26-ranks';
+const LS_KEY    = 'wc26-ranks';
+const TTL_MS    = 24 * 60 * 60 * 1000;
 
 function rankPlayers(players) {
   const sorted = [...players].sort((a, b) => {
@@ -28,22 +29,43 @@ export default function StatsPage({ players }) {
   const [selected, setSelected] = useState(null);
   const ranked = rankPlayers(players);
 
-  // Read previous ranks once on mount (frozen baseline for this session)
-  const [prevRanks] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); }
-    catch { return null; }
-  });
+  const [arrows, setArrows] = useState({});
 
-  // On unmount (tab switch / close), save current ranks for next session
-  const rankedRef = useRef(ranked);
-  useEffect(() => { rankedRef.current = ranked; });
   useEffect(() => {
-    return () => {
-      const map = {};
-      rankedRef.current.forEach(p => { map[p.name] = p.rank; });
-      localStorage.setItem(LS_KEY, JSON.stringify(map));
-    };
-  }, []);
+    if (ranked.length === 0) return;
+    const now = Date.now();
+    let stored = {};
+    try { stored = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch {}
+
+    const newStored = {};
+    const newArrows = {};
+
+    ranked.forEach(({ name, rank }) => {
+      let { baseRank = rank, lastKnownRank = rank, lastMovedAt = null } = stored[name] ?? {};
+
+      // Detect movement since last poll → restart personal 24h clock
+      if (rank !== lastKnownRank) {
+        lastMovedAt = now;
+        lastKnownRank = rank;
+      }
+
+      const withinWindow = lastMovedAt !== null && (now - lastMovedAt) < TTL_MS;
+
+      if (!withinWindow) {
+        // 24h without movement → arrow expires, new baseline
+        baseRank    = rank;
+        lastMovedAt = null;
+      }
+
+      newStored[name] = { baseRank, lastKnownRank, lastMovedAt };
+      newArrows[name]  = withinWindow && rank !== baseRank
+        ? (rank < baseRank ? '↑' : '↓')
+        : null;
+    });
+
+    localStorage.setItem(LS_KEY, JSON.stringify(newStored));
+    setArrows(newArrows);
+  }, [ranked]);
 
   return (
     <div className={styles.page}>
@@ -63,9 +85,9 @@ export default function StatsPage({ players }) {
             <tr key={p.name} className={styles.row} onClick={() => setSelected(p)}>
               <td className={styles.rank}>
                 {p.rank}
-                {prevRanks?.[p.name] != null && prevRanks[p.name] !== p.rank && (
-                  <span className={prevRanks[p.name] > p.rank ? styles.rankUp : styles.rankDown}>
-                    {prevRanks[p.name] > p.rank ? '↑' : '↓'}
+                {arrows[p.name] && (
+                  <span className={arrows[p.name] === '↑' ? styles.rankUp : styles.rankDown}>
+                    {arrows[p.name]}
                   </span>
                 )}
               </td>
