@@ -20,7 +20,7 @@ export default function Header({ liveCount, activeTab, onTabChange }) {
           className={`${styles.tab} ${activeTab === 'stats' ? styles.active : ''}`}
           onClick={() => onTabChange('stats')}
         >
-          Leaderboard
+          Leaderboard / Stats
         </button>
       </nav>
     </header>

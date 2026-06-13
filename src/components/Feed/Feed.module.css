@@ -3,7 +3,9 @@
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
-  padding: 48px 14px;
+  /* padding-top/bottom = half container - half card height (~100px)
+     so the first and last card can snap to the center */
+  padding: calc((100dvh - 88px) / 2 - 100px) 14px;
 }
 .slotContainer::-webkit-scrollbar { display: none; }
 
