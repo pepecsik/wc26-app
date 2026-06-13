@@ -24,7 +24,8 @@ function useAgo(lastUpdated) {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('matches');
+  const [activeTab, setActiveTab]         = useState('matches');
+  const [standingsOpen, setStandingsOpen] = useState(false);
   const { matches, loading, error, lastUpdated } = useMatches();
   const videoMap = useSheetData();
   const players  = usePlayerStats(matches, videoMap);
@@ -37,13 +38,28 @@ export default function App() {
       <main className={styles.main}>
         {loading && <div className={styles.status}>Loading matches…</div>}
         {error   && <div className={styles.error}>⚠️ {error}</div>}
-        {!loading && activeTab === 'matches'   && <Feed matches={matches} videoMap={videoMap} />}
-        {!loading && activeTab === 'stats'     && <StatsPage players={players} />}
-        {!loading && activeTab === 'standings' && <StandingsPage matches={matches} />}
+        {!loading && activeTab === 'matches' && <Feed matches={matches} videoMap={videoMap} />}
+        {!loading && activeTab === 'stats'   && <StatsPage players={players} />}
         {activeTab === 'matches' && ago && (
           <div className={styles.updatedPill}>{ago}</div>
         )}
       </main>
+
+      {activeTab === 'matches' && (
+        <button className={styles.standingsBtn} onClick={() => setStandingsOpen(true)}>
+          <img src="/wc26-logo.svg" alt="Standings" className={styles.standingsBtnLogo} />
+        </button>
+      )}
+
+      {standingsOpen && (
+        <div className={styles.standingsModal} onClick={() => setStandingsOpen(false)}>
+          <div className={styles.standingsSheet} onClick={e => e.stopPropagation()}>
+            <button className={styles.standingsClose} onClick={() => setStandingsOpen(false)}>✕</button>
+            <div className={styles.standingsTitle}>WC 2026 Standings</div>
+            <StandingsPage matches={matches} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -67,32 +67,6 @@
   color: #fff;
 }
 
-.tabSmall {
-  position: absolute;
-  right: 16px;
-  padding: 0;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  cursor: pointer;
-}
-
-.activeSmall .standingsLogo {
-  opacity: 1;
-}
-
-.standingsLogo {
-  height: 40px;
-  width: auto;
-  display: block;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-}
-
-.tabSmall:hover .standingsLogo,
-.tabSmall.active .standingsLogo {
-  opacity: 1;
-}
 
 .tabSmall.active {
   color: rgba(255,255,255,0.7);

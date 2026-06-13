@@ -7,12 +7,6 @@ export default function Header({ liveCount, activeTab, onTabChange }) {
         <span className={styles.titleIcon}>⚽</span>
         <span className={styles.titleText}>WC Drinking Game 2026</span>
         <span className={styles.titleIcon}>🍺</span>
-        <button
-          className={`${styles.tabSmall} ${activeTab === 'standings' ? styles.activeSmall : ''}`}
-          onClick={() => onTabChange('standings')}
-        >
-          <img src="/wc26-logo.svg" alt="WC 2026" className={styles.standingsLogo} />
-        </button>
       </div>
       <nav className={styles.tabs}>
         <button
