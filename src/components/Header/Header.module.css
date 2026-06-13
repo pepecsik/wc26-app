@@ -60,10 +60,9 @@
 }
 
 .tab.active {
-  background: rgba(0,200,68,0.12);
-  border-color: rgba(0,200,68,0.35);
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.18);
   color: #fff;
-  box-shadow: 0 0 12px rgba(0,200,68,0.12);
 }
 
 .liveBadge {
