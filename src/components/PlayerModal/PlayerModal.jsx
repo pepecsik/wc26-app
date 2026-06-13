@@ -35,7 +35,7 @@ export default function PlayerModal({ player, onClose }) {
         {/* Avatar */}
         <div className={styles.avatarWrap}>
           {player.photo
-            ? <img src={player.photo} alt={player.name} className={styles.avatar} />
+            ? <img src={player.photo} alt={player.name} className={styles.avatar} style={{ borderColor: player.color }} />
             : <div className={styles.avatarInitials} style={{ background: player.color }}>{player.initials}</div>
           }
           <div className={styles.avatarGlow} style={{ background: player.color }} />
