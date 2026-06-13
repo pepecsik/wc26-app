@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './StatsPage.module.css';
 import PlayerModal from '../PlayerModal/PlayerModal';
 import { TEAM_MAP } from '../../data/teamMap';
+
+const LS_KEY = 'wc26-ranks';
 
 function rankPlayers(players) {
   const sorted = [...players].sort((a, b) => {
@@ -26,6 +28,23 @@ export default function StatsPage({ players }) {
   const [selected, setSelected] = useState(null);
   const ranked = rankPlayers(players);
 
+  // Read previous ranks once on mount (frozen baseline for this session)
+  const [prevRanks] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || 'null'); }
+    catch { return null; }
+  });
+
+  // On unmount (tab switch / close), save current ranks for next session
+  const rankedRef = useRef(ranked);
+  useEffect(() => { rankedRef.current = ranked; });
+  useEffect(() => {
+    return () => {
+      const map = {};
+      rankedRef.current.forEach(p => { map[p.name] = p.rank; });
+      localStorage.setItem(LS_KEY, JSON.stringify(map));
+    };
+  }, []);
+
   return (
     <div className={styles.page}>
       <table className={styles.table}>
@@ -42,7 +61,14 @@ export default function StatsPage({ players }) {
         <tbody>
           {ranked.map(p => (
             <tr key={p.name} className={styles.row} onClick={() => setSelected(p)}>
-              <td className={styles.rank}>{p.rank}</td>
+              <td className={styles.rank}>
+                {p.rank}
+                {prevRanks?.[p.name] != null && prevRanks[p.name] !== p.rank && (
+                  <span className={prevRanks[p.name] > p.rank ? styles.rankUp : styles.rankDown}>
+                    {prevRanks[p.name] > p.rank ? '↑' : '↓'}
+                  </span>
+                )}
+              </td>
               <td className={styles.player}>
                 <div className={styles.playerInner}>
                   {p.photo

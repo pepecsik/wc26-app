@@ -1,12 +1,30 @@
+import { useState, useEffect } from 'react';
 import styles from './Header.module.css';
 
-export default function Header({ liveCount, activeTab, onTabChange }) {
+function useAgo(lastUpdated) {
+  const [ago, setAgo] = useState('');
+  useEffect(() => {
+    if (!lastUpdated) return;
+    const tick = () => {
+      const s = Math.floor((Date.now() - lastUpdated) / 1000);
+      setAgo(s < 5 ? 'just now' : s < 60 ? `${s}s ago` : `${Math.floor(s / 60)}m ago`);
+    };
+    tick();
+    const t = setInterval(tick, 1000);
+    return () => clearInterval(t);
+  }, [lastUpdated]);
+  return ago;
+}
+
+export default function Header({ liveCount, activeTab, onTabChange, lastUpdated }) {
+  const ago = useAgo(lastUpdated);
   return (
     <header className={styles.header}>
       <div className={styles.title}>
         <span className={styles.titleIcon}>⚽</span>
         <span className={styles.titleText}>WC Drinking Game 2026</span>
         <span className={styles.titleIcon}>🍺</span>
+        {ago && <span className={styles.updatedPill}>{ago}</span>}
       </div>
       <nav className={styles.tabs}>
         <button

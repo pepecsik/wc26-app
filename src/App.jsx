@@ -9,14 +9,14 @@ import styles from './App.module.css';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('matches');
-  const { matches, loading, error } = useMatches();
+  const { matches, loading, error, lastUpdated } = useMatches();
   const videoMap = useSheetData();
   const players  = usePlayerStats(matches, videoMap);
   const liveCount = matches.filter(m => m.isLive).length;
 
   return (
     <div className={styles.app}>
-      <Header liveCount={liveCount} activeTab={activeTab} onTabChange={setActiveTab} />
+      <Header liveCount={liveCount} activeTab={activeTab} onTabChange={setActiveTab} lastUpdated={lastUpdated} />
       <main className={styles.main}>
         {loading && <div className={styles.status}>Loading matches…</div>}
         {error   && <div className={styles.error}>⚠️ {error}</div>}

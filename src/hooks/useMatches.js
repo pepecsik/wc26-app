@@ -110,9 +110,10 @@ function rowToMatch(row, index) {
 }
 
 export function useMatches() {
-  const [matches, setMatches] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [matches, setMatches]         = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
   const intervalRef = useRef(null);
 
   async function fetchSheet() {
@@ -125,6 +126,7 @@ export function useMatches() {
         .filter(Boolean)
         .sort((a, b) => a.kickoff - b.kickoff);
       setMatches(normalized);
+      setLastUpdated(Date.now());
       setError(null);
     } catch (e) {
       setError(e.message);
@@ -139,5 +141,5 @@ export function useMatches() {
     return () => clearInterval(intervalRef.current);
   }, []);
 
-  return { matches, loading, error };
+  return { matches, loading, error, lastUpdated };
 }

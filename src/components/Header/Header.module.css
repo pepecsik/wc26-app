@@ -11,6 +11,7 @@
 }
 
 .title {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -32,6 +33,16 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.updatedPill {
+  position: absolute;
+  right: 16px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
 }
 
 .tabs {

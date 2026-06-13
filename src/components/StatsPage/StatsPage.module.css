@@ -124,6 +124,9 @@ thead tr {
   font-variant-numeric: tabular-nums;
 }
 
+.rankUp   { color: #00c844; font-size: 10px; margin-left: 2px; }
+.rankDown { color: #ff3b3b; font-size: 10px; margin-left: 2px; }
+
 .win   { color: #00c844; }
 .loss  { color: #ff3b3b; }
 .draw  { color: #ffb300; }
