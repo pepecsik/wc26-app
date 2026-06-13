@@ -76,6 +76,30 @@
   color: #fff;
 }
 
+.tabSmall {
+  flex: 0 0 auto;
+  padding: 4px 6px;
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+.standingsLogo {
+  height: 40px;
+  width: auto;
+  display: block;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.tabSmall:hover .standingsLogo,
+.tabSmall.active .standingsLogo {
+  opacity: 1;
+}
+
+.tabSmall.active {
+  color: rgba(255,255,255,0.7);
+}
+
 .liveBadge {
   background: #00c844;
   color: #000;

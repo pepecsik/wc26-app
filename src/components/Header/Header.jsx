@@ -40,6 +40,12 @@ export default function Header({ liveCount, activeTab, onTabChange, lastUpdated 
         >
           Leaderboard
         </button>
+        <button
+          className={`${styles.tab} ${styles.tabSmall} ${activeTab === 'standings' ? styles.active : ''}`}
+          onClick={() => onTabChange('standings')}
+        >
+          <img src="/wc26-logo.svg" alt="WC 2026" className={styles.standingsLogo} />
+        </button>
       </nav>
     </header>
   );

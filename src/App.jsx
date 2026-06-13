@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Header from './components/Header/Header';
 import Feed from './components/Feed/Feed';
 import StatsPage from './components/StatsPage/StatsPage';
+import StandingsPage from './components/StandingsPage/StandingsPage';
 import { useMatches } from './hooks/useMatches';
 import { useSheetData } from './hooks/useSheetData';
 import { usePlayerStats } from './hooks/usePlayerStats';
@@ -20,8 +21,9 @@ export default function App() {
       <main className={styles.main}>
         {loading && <div className={styles.status}>Loading matches…</div>}
         {error   && <div className={styles.error}>⚠️ {error}</div>}
-        {!loading && activeTab === 'matches' && <Feed matches={matches} videoMap={videoMap} />}
-        {!loading && activeTab === 'stats'   && <StatsPage players={players} />}
+        {!loading && activeTab === 'matches'   && <Feed matches={matches} videoMap={videoMap} />}
+        {!loading && activeTab === 'stats'     && <StatsPage players={players} />}
+        {!loading && activeTab === 'standings' && <StandingsPage matches={matches} />}
       </main>
     </div>
   );
