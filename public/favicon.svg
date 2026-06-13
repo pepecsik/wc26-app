@@ -1,30 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- App icon background -->
   <rect width="100" height="100" rx="22" fill="#071a0e"/>
-
-  <!-- Ball base -->
-  <circle cx="50" cy="46" r="32" fill="#f2f2f2"/>
-
-  <!-- Classic soccer ball black patches -->
-  <!-- Top center pentagon -->
-  <path d="M50,16 L59,23 L56,34 L44,34 L41,23 Z" fill="#111"/>
-  <!-- Upper-left pentagon -->
-  <path d="M22,32 L32,28 L38,38 L31,46 L20,43 Z" fill="#111"/>
-  <!-- Upper-right pentagon -->
-  <path d="M78,32 L68,28 L62,38 L69,46 L80,43 Z" fill="#111"/>
-  <!-- Lower-left pentagon -->
-  <path d="M24,60 L32,54 L40,60 L37,70 L26,71 Z" fill="#111"/>
-  <!-- Lower-right pentagon -->
-  <path d="M76,60 L68,54 L60,60 L63,70 L74,71 Z" fill="#111"/>
-  <!-- Bottom pentagon -->
-  <path d="M50,76 L59,70 L62,60 L50,56 L38,60 L41,70 Z" fill="#111"/>
-
-  <!-- Ball outline -->
-  <circle cx="50" cy="46" r="32" fill="none" stroke="#111" stroke-width="2"/>
-
-  <!-- Gold banner at bottom -->
-  <rect x="8" y="82" width="84" height="14" rx="7" fill="#c9a227"/>
-  <text x="50" y="93" text-anchor="middle" fill="#071a0e"
+  <text x="50" y="64" text-anchor="middle" font-size="56"
+        font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif">⚽</text>
+  <rect x="10" y="74" width="80" height="16" rx="8" fill="#c9a227"/>
+  <text x="50" y="86" text-anchor="middle" fill="#071a0e"
         font-size="10" font-weight="900" font-family="Arial, sans-serif"
         letter-spacing="1.5">WC 26</text>
 </svg>
