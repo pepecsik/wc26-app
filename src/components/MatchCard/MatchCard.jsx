@@ -17,8 +17,9 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
   const aTeam = TEAM_MAP[aCode] ?? { full: aCode, flag: '🏳️', group: '?' };
 
   const matchState = isLive ? 'live' : isFinished ? 'finished' : 'upcoming';
-  const hasVideo   = !!(videoInfo?.filename);
-  const videoTitle = `${hTeam.flag} ${hCode} vs ${aCode} ${aTeam.flag}`;
+  const hasVideo    = !!(videoInfo?.filename);
+  const videoTitle  = `${hTeam.flag} ${hCode} vs ${aCode} ${aTeam.flag}`;
+  const aFilename   = videoInfo?.filename2 || videoInfo?.filename;
 
   const cardClass = [
     styles.card,
@@ -74,7 +75,7 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
         participant={aOwner} teamCode={aCode} teamFlag={aTeam.flag}
         state={aState} matchState={matchState}
         hasVideo={hasVideo && (aState === 'losing' || aState === 'draw')}
-        onVideoClick={() => onVideoOpen(videoInfo.filename, videoTitle)}
+        onVideoClick={() => onVideoOpen(aFilename, videoTitle)}
       />
     </div>
   );

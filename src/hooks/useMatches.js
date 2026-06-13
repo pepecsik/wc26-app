@@ -1,179 +1,114 @@
 import { useState, useEffect, useRef } from 'react';
-import { API_NAME_TO_CODE } from '../data/teamMap';
 import { TEAM_OWNER } from '../data/participants';
 
-// All API calls go through our Netlify proxy — API key stays server-side,
-// and Netlify CDN caches responses so 24 users share one call per minute.
-const SCORES_URL = '/api/scores';
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSRI1K-R_Q8O-WtXpqkAkdn9gyQzKFANWd_RI8jzco0g_1AH9rwXO0wKkU5Z7UQrH9ycBGOrkbOgY2t/pub?gid=364579506&single=true&output=csv';
 
-const LIVE_STATUSES   = new Set(['1H','HT','2H','ET','BT','P','LIVE']);
-const FINISH_STATUSES = new Set(['FT','AET','PEN']);
+const POLL_MS = 60_000; // poll sheet every 1 minute
 
-const CACHE_KEY      = 'wc26_matches_v1';
-const CACHE_TTL_MS   = 10 * 60_000;  // 10 min — reuse across page loads
-const LIVE_POLL_MS   = 60_000;        // 1 min during live matches
-const PRE_MATCH_MS   = 3 * 60_000;   // start watching 3 min before kickoff
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false, i = 0;
+  while (i < text.length) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"' && text[i+1] === '"') { field += '"'; i += 2; continue; }
+      if (ch === '"') { inQuotes = false; i++; continue; }
+      field += ch; i++; continue;
+    }
+    if (ch === '"') { inQuotes = true; i++; continue; }
+    if (ch === ',') { row.push(field.trim()); field = ''; i++; continue; }
+    if (ch === '\n') {
+      row.push(field.trim()); field = '';
+      rows.push(row); row = []; i++;
+      if (text[i] === '\r') i++;
+      continue;
+    }
+    if (ch === '\r') { i++; continue; }
+    field += ch; i++;
+  }
+  if (field || row.length) { row.push(field.trim()); rows.push(row); }
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.replace(/\n/g, ' ').trim());
+  return rows.slice(1).map(vals => {
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = vals[idx] ?? ''; });
+    return obj;
+  });
+}
 
-function normalize(fixture) {
-  const hRaw   = fixture.teams.home.name;
-  const aRaw   = fixture.teams.away.name;
-  const hCode  = API_NAME_TO_CODE[hRaw] ?? hRaw.slice(0,3).toUpperCase();
-  const aCode  = API_NAME_TO_CODE[aRaw] ?? aRaw.slice(0,3).toUpperCase();
-  const status = fixture.fixture.status.short;
-  const hGoals = fixture.goals.home ?? null;
-  const aGoals = fixture.goals.away ?? null;
-  const kickoff = new Date(fixture.fixture.date);
+function rowToMatch(row, index) {
+  const hCode = row['Home'] || '';
+  const aCode = row['Away'] || '';
+  if (!hCode || !aCode) return null;
+
+  const scoreHome = row['Score Home'] !== '' ? Number(row['Score Home']) : null;
+  const scoreAway = row['Score Away'] !== '' ? Number(row['Score Away']) : null;
+  const hasScore  = scoreHome !== null && scoreAway !== null;
+
+  const isFinished = hasScore;
+  const isLive     = false; // sheet only has final scores
 
   let hState = 'neutral', aState = 'neutral';
-  if (hGoals !== null && aGoals !== null) {
-    if (hGoals > aGoals)      { hState = 'winning'; aState = 'losing'; }
-    else if (aGoals > hGoals) { aState = 'winning'; hState = 'losing'; }
-    else                      { hState = 'draw';    aState = 'draw';   }
+  if (hasScore) {
+    if (scoreHome > scoreAway)      { hState = 'winning'; aState = 'losing'; }
+    else if (scoreAway > scoreHome) { aState = 'winning'; hState = 'losing'; }
+    else                            { hState = 'draw';    aState = 'draw';   }
+  }
+
+  // Date is stored as YYMMDD e.g. 260611 = June 11 2026
+  const dateRaw = String(row['Date'] || '');
+  let kickoff = new Date(0);
+  if (dateRaw.length === 6) {
+    const year  = 2000 + parseInt(dateRaw.slice(0, 2));
+    const month = parseInt(dateRaw.slice(2, 4)) - 1;
+    const day   = parseInt(dateRaw.slice(4, 6));
+    kickoff = new Date(year, month, day, 12, 0, 0); // noon local as placeholder
   }
 
   return {
-    id: fixture.fixture.id,
+    id: index + 1,
     kickoff,
-    status,
-    isLive:     LIVE_STATUSES.has(status),
-    isFinished: FINISH_STATUSES.has(status),
-    elapsed:    fixture.fixture.status.elapsed,
-    hCode, aCode, hGoals, aGoals, hState, aState,
+    status: isFinished ? 'FT' : 'NS',
+    isLive,
+    isFinished,
+    elapsed: null,
+    hCode, aCode,
+    hGoals: scoreHome,
+    aGoals: scoreAway,
+    hState, aState,
     hOwner: TEAM_OWNER[hCode] ?? null,
     aOwner: TEAM_OWNER[aCode] ?? null,
   };
 }
 
-// Serialize/deserialize dates through localStorage
-function saveCache(matches) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
-      ts: Date.now(),
-      matches: matches.map(m => ({ ...m, kickoff: m.kickoff.toISOString() })),
-    }));
-  } catch {}
-}
-
-function loadCache() {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const { ts, matches } = JSON.parse(raw);
-    if (Date.now() - ts > CACHE_TTL_MS) return null;
-    return matches.map(m => ({ ...m, kickoff: new Date(m.kickoff) }));
-  } catch { return null; }
-}
-
 export function useMatches() {
-  const [matches, setMatches] = useState(() => loadCache() ?? []);
-  const [loading, setLoading] = useState(matches.length === 0);
+  const [matches, setMatches] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
-  const timerRef = useRef(null);
-  const matchesRef = useRef(matches);
-  matchesRef.current = matches;
+  const intervalRef = useRef(null);
 
-  function clearTimer() {
-    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
-  }
-
-  // Full fetch of all group stage fixtures — use sparingly
-  async function fetchAll() {
+  async function fetchSheet() {
     try {
-      const res = await fetch(`${SCORES_URL}?endpoint=all`);
-      if (!res.ok) throw new Error(`API ${res.status}`);
-      const data = await res.json();
-      if (data.errors && Object.keys(data.errors).length > 0)
-        throw new Error(JSON.stringify(data.errors));
-      const normalized = (data.response || []).map(normalize);
-      normalized.sort((a, b) => a.kickoff - b.kickoff);
-      saveCache(normalized);
+      const res  = await fetch(SHEET_CSV_URL);
+      const text = await res.text();
+      const rows = parseCSV(text);
+      const normalized = rows
+        .map((row, i) => rowToMatch(row, i))
+        .filter(Boolean)
+        .sort((a, b) => a.kickoff - b.kickoff);
       setMatches(normalized);
       setError(null);
-      return normalized;
     } catch (e) {
       setError(e.message);
-      return matchesRef.current;
     } finally {
       setLoading(false);
     }
   }
 
-  // Lightweight live-only fetch — merges updated live fixtures into existing list
-  async function fetchLive() {
-    try {
-      const res = await fetch(`${SCORES_URL}?endpoint=live`);
-      if (!res.ok) throw new Error(`API ${res.status}`);
-      const data = await res.json();
-      const liveNorm = (data.response || []).map(normalize);
-
-      const updated = matchesRef.current.map(m => {
-        const live = liveNorm.find(l => l.id === m.id);
-        return live ?? m;
-      });
-      setMatches(updated);
-      setError(null);
-      return updated;
-    } catch (e) {
-      setError(e.message);
-      return matchesRef.current;
-    }
-  }
-
-  function schedule(current) {
-    clearTimer();
-    const now = Date.now();
-    const hasLive = current.some(m => m.isLive);
-
-    if (hasLive) {
-      // Poll live endpoint every 60s
-      timerRef.current = setTimeout(async () => {
-        const updated = await fetchLive();
-        const stillLive = updated.some(m => m.isLive);
-        if (!stillLive) {
-          // Match just ended — do one full refresh then reschedule
-          const full = await fetchAll();
-          schedule(full);
-        } else {
-          schedule(updated);
-        }
-      }, LIVE_POLL_MS);
-      return;
-    }
-
-    // Find the soonest upcoming match
-    const upcoming = current
-      .filter(m => !m.isFinished && !m.isLive)
-      .sort((a, b) => a.kickoff - b.kickoff);
-
-    if (upcoming.length === 0) return; // All done, no more polling needed
-
-    const nextKickoff = upcoming[0].kickoff.getTime();
-    const msUntilNext = nextKickoff - now - PRE_MATCH_MS;
-
-    if (msUntilNext <= 0) {
-      // Match starting very soon — poll now
-      timerRef.current = setTimeout(async () => {
-        const full = await fetchAll();
-        schedule(full);
-      }, LIVE_POLL_MS);
-    } else {
-      // Sleep until 3 min before the next kickoff, then wake up with full fetch
-      timerRef.current = setTimeout(async () => {
-        const full = await fetchAll();
-        schedule(full);
-      }, msUntilNext);
-    }
-  }
-
   useEffect(() => {
-    const cached = loadCache();
-    if (cached) {
-      // Use cache, but still schedule smart polling
-      schedule(cached);
-    } else {
-      fetchAll().then(schedule);
-    }
-    return clearTimer;
+    fetchSheet();
+    intervalRef.current = setInterval(fetchSheet, POLL_MS);
+    return () => clearInterval(intervalRef.current);
   }, []);
 
   return { matches, loading, error };

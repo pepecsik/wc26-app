@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react';
 
-// Replace with your published Google Sheet CSV URL once you publish it
-// File → Share → Publish to web → Sheet "Matches" → CSV → copy URL
-const SHEET_CSV_URL = import.meta.env.VITE_SHEET_CSV_URL || '';
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSRI1K-R_Q8O-WtXpqkAkdn9gyQzKFANWd_RI8jzco0g_1AH9rwXO0wKkU5Z7UQrH9ycBGOrkbOgY2t/pub?gid=364579506&single=true&output=csv';
 
-// RFC 4180-compliant CSV parser — handles quoted fields with embedded newlines/commas
 function parseCSV(text) {
   const rows = [];
   let row = [], field = '', inQuotes = false, i = 0;
@@ -27,34 +24,33 @@ function parseCSV(text) {
     field += ch; i++;
   }
   if (field || row.length) { row.push(field.trim()); rows.push(row); }
-
   if (rows.length < 2) return [];
   const headers = rows[0].map(h => h.replace(/\n/g, ' ').trim());
   return rows.slice(1).map(vals => {
     const obj = {};
-    headers.forEach((h, i) => { obj[h] = vals[i] ?? ''; });
+    headers.forEach((h, idx) => { obj[h] = vals[idx] ?? ''; });
     return obj;
   });
 }
 
-// Returns map: "HCODE-ACODE" → { driveFileId, filename }
+// Returns map: "HCODE-ACODE" → { filename, filename2 }
+// filename2 is only set for draws with two different drinkers
 export function useSheetData() {
   const [videoMap, setVideoMap] = useState({});
 
   async function fetchSheet() {
-    if (!SHEET_CSV_URL) return;
     try {
       const res  = await fetch(SHEET_CSV_URL);
       const text = await res.text();
       const rows = parseCSV(text);
       const map  = {};
       rows.forEach(row => {
-        const home = row['Home'] || row['D'] || '';
-        const away = row['Away'] || row['E'] || '';
-        const fileId = row['Drive File ID'] || row['P'] || '';
-        const filename = row['Generated Filename'] || row['O'] || '';
+        const home      = row['Home'] || '';
+        const away      = row['Away'] || '';
+        const filename  = row['Generated Filename'] || '';
+        const filename2 = row['Generated Filename 2'] || '';
         if (home && away) {
-          map[`${home}-${away}`] = { driveFileId: fileId, filename };
+          map[`${home}-${away}`] = { filename, filename2 };
         }
       });
       setVideoMap(map);
@@ -65,7 +61,7 @@ export function useSheetData() {
 
   useEffect(() => {
     fetchSheet();
-    const interval = setInterval(fetchSheet, 5 * 60_000);
+    const interval = setInterval(fetchSheet, 60_000);
     return () => clearInterval(interval);
   }, []);
 
