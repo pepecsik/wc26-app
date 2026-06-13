@@ -99,11 +99,23 @@
   text-align: center;
 }
 
+.vsRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.vsFlag {
+  font-size: 22px;
+  line-height: 1;
+}
+
 .vs {
-  font-size: 36px;
+  font-size: 26px;
   font-weight: 900;
   color: rgba(255,255,255,0.75);
-  letter-spacing: 4px;
+  letter-spacing: 3px;
   line-height: 1;
   text-shadow: 0 2px 12px rgba(0,0,0,0.6);
   font-style: italic;
@@ -152,4 +164,12 @@
   color: rgba(255,255,255,0.45);
   letter-spacing: 0.5px;
   padding: 0 2px;
+  gap: 4px;
+}
+
+.teamName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 48%;
 }

@@ -74,10 +74,10 @@
 /* ── Overlays ── */
 .crown {
   position: absolute;
-  top: -20px;
+  top: 4px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 28px;
+  font-size: 22px;
   animation: crownDrop 0.5s ease-out both;
   pointer-events: none;
   z-index: 2;
@@ -85,9 +85,9 @@
 
 .beer {
   position: absolute;
-  bottom: 32px;
-  right: -8px;
-  font-size: 28px;
+  bottom: 30px;
+  right: 4px;
+  font-size: 22px;
   animation: beerWobble 0.8s ease-in-out infinite;
   pointer-events: none;
   z-index: 2;
@@ -95,14 +95,14 @@
 
 .videoBadge {
   position: absolute;
-  top: -8px;
-  right: -8px;
+  top: 4px;
+  right: 4px;
   background: #ff4757;
   border: none;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  font-size: 15px;
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
   cursor: pointer;
   display: flex;
   align-items: center;

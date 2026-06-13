@@ -51,7 +51,11 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
           )}
         </div>
 
-        <div className={styles.vs}>VS</div>
+        <div className={styles.vsRow}>
+          <span className={styles.vsFlag}>{hTeam.flag}</span>
+          <span className={styles.vs}>VS</span>
+          <span className={styles.vsFlag}>{aTeam.flag}</span>
+        </div>
 
         <div className={styles.scoreRow}>
           {(isLive || isFinished) ? (
@@ -66,8 +70,8 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
         </div>
 
         <div className={styles.teamsRow}>
-          <span>{hTeam.flag} {hCode}</span>
-          <span>{aCode} {aTeam.flag}</span>
+          <span className={styles.teamName}>{hTeam.full}</span>
+          <span className={styles.teamName}>{aTeam.full}</span>
         </div>
       </div>
 

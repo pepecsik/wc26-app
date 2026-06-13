@@ -11,16 +11,14 @@
 .title {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 20px;
+  justify-content: center;
+  gap: 8px;
+  font-size: 18px;
   font-weight: 800;
   color: #fff;
-  letter-spacing: -0.5px;
+  letter-spacing: 0.5px;
   margin-bottom: 10px;
 }
-
-.trophy { font-size: 22px; }
-.beer   { font-size: 20px; }
 
 .tabs {
   display: flex;
