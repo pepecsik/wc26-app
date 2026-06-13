@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styles from './StatsPage.module.css';
 import PlayerModal from '../PlayerModal/PlayerModal';
+import { TEAM_MAP } from '../../data/teamMap';
 
 function rankPlayers(players) {
   const sorted = [...players].sort((a, b) => {
@@ -48,7 +49,12 @@ export default function StatsPage({ players }) {
                     ? <img src={p.photo} alt={p.name} className={styles.avatar} />
                     : <div className={styles.avatarInitials} style={{ background: p.color }}>{p.initials}</div>
                   }
-                  <span className={styles.playerName}>{p.name}</span>
+                  <div className={styles.playerNameBlock}>
+                    <span className={styles.playerName}>{p.name}</span>
+                    <span className={styles.teamFlags}>
+                      {p.teams.map(code => (TEAM_MAP[code]?.flag ?? '')).join('  ')}
+                    </span>
+                  </div>
                 </div>
               </td>
               <td className={`${styles.stat} ${styles.win}`}>{p.wins}</td>

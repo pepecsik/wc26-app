@@ -91,6 +91,13 @@ thead tr {
   flex-shrink: 0;
 }
 
+.playerNameBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
 .playerName {
   font-size: 14px;
   font-weight: 700;
@@ -98,6 +105,13 @@ thead tr {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.teamFlags {
+  font-size: 13px;
+  line-height: 1.2;
+  letter-spacing: 3px;
+  opacity: 0.85;
 }
 
 .stat {
