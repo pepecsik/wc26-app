@@ -1,0 +1,125 @@
+.page {
+  padding: 12px 0 32px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* ── Header row ── */
+thead tr {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.thRank {
+  width: 32px;
+  padding: 8px 4px 8px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.25);
+  text-align: center;
+}
+
+.thPlayer {
+  padding: 8px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.25);
+  text-align: left;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.thStat {
+  width: 40px;
+  padding: 8px 4px;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.thStat:hover { color: rgba(255,255,255,0.7); }
+.thStat.active { color: #fff; }
+
+.arrow {
+  font-size: 9px;
+  margin-left: 2px;
+  opacity: 0.7;
+}
+
+/* ── Body rows ── */
+.row {
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.row:hover { background: rgba(255,255,255,0.04); }
+.row:active { background: rgba(255,255,255,0.08); }
+
+.rank {
+  padding: 10px 4px 10px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.25);
+  text-align: center;
+}
+
+.player {
+  padding: 8px 8px;
+}
+
+.playerInner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+
+.avatarInitials {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.playerName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat {
+  padding: 10px 4px;
+  font-size: 16px;
+  font-weight: 800;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.win   { color: #00c844; }
+.loss  { color: #ff3b3b; }
+.draw  { color: #ffb300; }
+.drink { color: #60a5fa; }
