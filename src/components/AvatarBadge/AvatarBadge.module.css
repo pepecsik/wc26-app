@@ -3,11 +3,17 @@
   position: relative;
   border-radius: 16px;
   border: 3px solid rgba(255,255,255,0.15);
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   transition: border-color 0.3s, box-shadow 0.3s;
   min-height: 0;
+}
+
+/* clip only the photo/content area, not the overlays */
+.photoArea {
+  border-radius: 13px 13px 0 0;
+  overflow: hidden;
 }
 
 .wrap[role="button"] { cursor: pointer; }
@@ -22,7 +28,8 @@
   box-shadow: 0 0 14px rgba(255,59,59,0.4) !important;
 }
 .draw {
-  border-color: #888 !important;
+  border-color: #ff3b3b !important;
+  box-shadow: 0 0 14px rgba(255,59,59,0.4) !important;
 }
 .upcoming {
   border-color: rgba(255,255,255,0.12);
@@ -74,10 +81,10 @@
 /* ── Overlays ── */
 .crown {
   position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 22px;
+  top: -10px;
+  right: -10px;
+  font-size: 26px;
+  transform: rotate(20deg);
   animation: crownDrop 0.5s ease-out both;
   pointer-events: none;
   z-index: 2;
@@ -85,9 +92,9 @@
 
 .beer {
   position: absolute;
-  bottom: 30px;
+  bottom: 28px;
   right: 4px;
-  font-size: 22px;
+  font-size: 38px;
   animation: beerWobble 0.8s ease-in-out infinite;
   pointer-events: none;
   z-index: 2;
