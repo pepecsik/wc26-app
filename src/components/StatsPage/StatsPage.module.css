@@ -93,8 +93,9 @@ thead tr {
 
 .playerNameBlock {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
   min-width: 0;
 }
 
@@ -109,8 +110,9 @@ thead tr {
 
 .teamFlags {
   font-size: 13px;
-  line-height: 1.2;
-  letter-spacing: 3px;
+  line-height: 1;
+  letter-spacing: 2px;
+  flex-shrink: 0;
   opacity: 0.85;
 }
 
