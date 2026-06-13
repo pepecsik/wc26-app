@@ -55,14 +55,21 @@ function rowToMatch(row, index) {
     else                            { hState = 'draw';    aState = 'draw';   }
   }
 
-  // Date is stored as YYMMDD e.g. 260611 = June 11 2026
-  const dateRaw = String(row['Date'] || '');
-  let kickoff = new Date(0);
-  if (dateRaw.length === 6) {
-    const year  = 2000 + parseInt(dateRaw.slice(0, 2));
-    const month = parseInt(dateRaw.slice(2, 4)) - 1;
-    const day   = parseInt(dateRaw.slice(4, 6));
-    kickoff = new Date(year, month, day, 12, 0, 0); // noon local as placeholder
+  // Use real kickoff time from col Q if available, fall back to date at noon
+  const kickoffISO = row['Kickoff'] || '';
+  let kickoff;
+  if (kickoffISO) {
+    kickoff = new Date(kickoffISO);
+  } else {
+    const dateRaw = String(row['Date'] || '');
+    if (dateRaw.length === 6) {
+      const year  = 2000 + parseInt(dateRaw.slice(0, 2));
+      const month = parseInt(dateRaw.slice(2, 4)) - 1;
+      const day   = parseInt(dateRaw.slice(4, 6));
+      kickoff = new Date(year, month, day, 12, 0, 0);
+    } else {
+      kickoff = new Date(0);
+    }
   }
 
   return {
