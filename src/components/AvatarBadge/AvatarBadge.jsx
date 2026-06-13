@@ -1,6 +1,6 @@
 import styles from './AvatarBadge.module.css';
 
-export default function AvatarBadge({ participant, teamCode, teamFlag, state, matchState, hasVideo, onVideoClick }) {
+export default function AvatarBadge({ participant, teamCode, teamFlag, state, matchState, isFocus, hasVideo, onVideoClick }) {
   const isLive     = matchState === 'live';
   const isFinished = matchState === 'finished';
   const isLoser    = isFinished && (state === 'losing' || state === 'draw');
@@ -14,10 +14,10 @@ export default function AvatarBadge({ participant, teamCode, teamFlag, state, ma
 
   const wrapClasses = [
     styles.wrap,
-    isShaking ? styles.shake   : '',
-    isWinner  ? styles.winner  : '',
-    isLoser && !isDraw ? styles.loser : '',
-    isDraw    ? styles.draw    : '',
+    isShaking ? styles.shake : '',
+    isWinner  && isFocus ? styles.winner  : isWinner  ? styles.winnerStill  : '',
+    isLoser && !isDraw && isFocus ? styles.loser : isLoser && !isDraw ? styles.loserStill : '',
+    isDraw    && isFocus ? styles.draw    : isDraw    ? styles.drawStill    : '',
     !isFinished && !isLive ? styles.upcoming : '',
   ].filter(Boolean).join(' ');
 

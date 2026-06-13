@@ -32,7 +32,7 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
     <div className={cardClass}>
       <AvatarBadge
         participant={hOwner} teamCode={hCode} teamFlag={hTeam.flag}
-        state={hState} matchState={matchState}
+        state={hState} matchState={matchState} isFocus={isFocus}
         hasVideo={hasVideo && (hState === 'losing' || hState === 'draw')}
         onVideoClick={() => onVideoOpen(videoInfo.filename, videoTitle)}
       />
@@ -77,7 +77,7 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
 
       <AvatarBadge
         participant={aOwner} teamCode={aCode} teamFlag={aTeam.flag}
-        state={aState} matchState={matchState}
+        state={aState} matchState={matchState} isFocus={isFocus}
         hasVideo={hasVideo && (aState === 'losing' || aState === 'draw')}
         onVideoClick={() => onVideoOpen(aFilename, videoTitle)}
       />

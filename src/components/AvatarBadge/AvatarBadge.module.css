@@ -15,15 +15,27 @@
 /* ── State borders ── */
 .winner {
   border-color: #ffd700 !important;
-  animation: winnerPulse 1.8s ease-in-out infinite !important;
+  animation: winnerPulse 1.6s ease-in-out infinite !important;
+}
+.winnerStill {
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 8px rgba(255,215,0,0.3) !important;
 }
 .loser {
   border-color: #ff3b3b !important;
-  animation: loserPulse 1.2s ease-in-out infinite !important;
+  animation: loserPulse 1.6s ease-in-out infinite !important;
+}
+.loserStill {
+  border-color: #ff3b3b !important;
+  box-shadow: 0 0 6px rgba(255,59,59,0.25) !important;
 }
 .draw {
   border-color: #ff3b3b !important;
-  animation: loserPulse 1.2s ease-in-out infinite !important;
+  animation: loserPulse 1.6s ease-in-out infinite !important;
+}
+.drawStill {
+  border-color: #ff3b3b !important;
+  box-shadow: 0 0 6px rgba(255,59,59,0.25) !important;
 }
 .upcoming {
   border-color: rgba(255,255,255,0.12);
