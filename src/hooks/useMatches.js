@@ -96,7 +96,7 @@ function rowToMatch(row, index) {
   return {
     id: index + 1,
     kickoff,
-    status: isFinished ? 'FT' : isLive ? 'LIVE' : 'NS',
+    status: statusCode || (isFinished ? 'FT' : isLive ? 'LIVE' : 'NS'),
     isLive,
     isFinished,
     elapsed,

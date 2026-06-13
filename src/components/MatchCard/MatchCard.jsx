@@ -99,7 +99,8 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
           <span className={styles.groupLabel}>Group {hTeam.group}</span>
           {isLive && (
             <span className={styles.livePill}>
-              <span className={styles.liveDot} />LIVE {elapsed}'
+              <span className={styles.liveDot} />
+              {match.status === 'HT' ? 'HT' : elapsed != null ? `${elapsed}'` : 'LIVE'}
             </span>
           )}
           {isFinished && <span className={styles.ftPill}>FT</span>}
