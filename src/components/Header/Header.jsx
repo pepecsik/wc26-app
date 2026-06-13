@@ -4,9 +4,9 @@ export default function Header({ liveCount }) {
   return (
     <header className={styles.header}>
       <div className={styles.title}>
-        <span>⚽</span>
-        <span>WC DRINKING GAME 2026</span>
-        <span>🍺</span>
+        <span className={styles.titleIcon}>⚽</span>
+        <span className={styles.titleText}>WC Drinking Game 2026</span>
+        <span className={styles.titleIcon}>🍺</span>
       </div>
       <nav className={styles.tabs}>
         <button className={`${styles.tab} ${styles.active}`}>
