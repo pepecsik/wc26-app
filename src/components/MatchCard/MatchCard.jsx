@@ -70,6 +70,7 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
 
   return (
     <div className={cardClass}>
+      <div className={styles.cardRow}>
       <AvatarBadge
         participant={hOwner} teamCode={hCode} teamFlag={hTeam.flag}
         state={hState} matchState={matchState} isFocus={isFocus}
@@ -114,7 +115,6 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
           <span className={styles.teamName}>{aTeam.full}</span>
         </div>
 
-        {drinkers && <VideoCountdown kickoff={kickoff} drinkers={drinkers} />}
       </div>
 
       <AvatarBadge
@@ -123,6 +123,9 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
         hasVideo={hasVideo && (aState === 'losing' || aState === 'draw')}
         onVideoClick={() => onVideoOpen(aFilename, videoTitle)}
       />
+      </div>
+
+      {drinkers && <VideoCountdown kickoff={kickoff} drinkers={drinkers} />}
     </div>
   );
 }
