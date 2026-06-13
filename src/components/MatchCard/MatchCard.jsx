@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import styles from './MatchCard.module.css';
 import AvatarBadge from '../AvatarBadge/AvatarBadge';
 import { TEAM_MAP } from '../../data/teamMap';
@@ -7,6 +8,37 @@ function formatKickoff(date) {
 }
 function formatDate(date) {
   return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+// 24h after match ends (~26h after noon kickoff placeholder)
+const DEADLINE_MS = 26 * 60 * 60 * 1000;
+
+function VideoCountdown({ kickoff, drinkers }) {
+  const deadline = kickoff.getTime() + DEADLINE_MS;
+  const [remaining, setRemaining] = useState(deadline - Date.now());
+
+  useEffect(() => {
+    const t = setInterval(() => setRemaining(deadline - Date.now()), 60_000);
+    return () => clearInterval(t);
+  }, [deadline]);
+
+  if (remaining <= 0) {
+    return (
+      <div className={styles.countdown + ' ' + styles.countdownOverdue}>
+        ⚠️ OVERDUE — {drinkers}
+      </div>
+    );
+  }
+
+  const h = Math.floor(remaining / 3_600_000);
+  const m = Math.floor((remaining % 3_600_000) / 60_000);
+  const timeStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+
+  return (
+    <div className={styles.countdown}>
+      🎬 {drinkers} • {timeStr} left to send video
+    </div>
+  );
 }
 
 export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
@@ -20,6 +52,14 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
   const hasVideo    = !!(videoInfo?.filename);
   const videoTitle  = `${hTeam.flag} ${hCode} vs ${aCode} ${aTeam.flag}`;
   const aFilename   = videoInfo?.filename2 || videoInfo?.filename;
+
+  // Who needs to send the punishment video
+  const drinkers = isFinished && !hasVideo ? (() => {
+    if (hState === 'losing' && aState === 'losing') return `${hOwner?.name} & ${aOwner?.name}`;
+    if (hState === 'losing') return hOwner?.name ?? hCode;
+    if (aState === 'losing') return aOwner?.name ?? aCode;
+    return null;
+  })() : null;
 
   const cardClass = [
     styles.card,
@@ -73,6 +113,8 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
           <span className={styles.teamName}>{hTeam.full}</span>
           <span className={styles.teamName}>{aTeam.full}</span>
         </div>
+
+        {drinkers && <VideoCountdown kickoff={kickoff} drinkers={drinkers} />}
       </div>
 
       <AvatarBadge
