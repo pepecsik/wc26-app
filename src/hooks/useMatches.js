@@ -45,16 +45,6 @@ function rowToMatch(row, index) {
   const scoreAway = row['Score Away'] !== '' ? Number(row['Score Away']) : null;
   const hasScore  = scoreHome !== null && scoreAway !== null;
 
-  const isFinished = hasScore;
-  const isLive     = false; // sheet only has final scores
-
-  let hState = 'neutral', aState = 'neutral';
-  if (hasScore) {
-    if (scoreHome > scoreAway)      { hState = 'winning'; aState = 'losing'; }
-    else if (scoreAway > scoreHome) { aState = 'winning'; hState = 'losing'; }
-    else                            { hState = 'draw';    aState = 'draw';   }
-  }
-
   // Use real kickoff time from col Q if available, fall back to date at noon
   const kickoffISO = row['Kickoff'] || '';
   let kickoff;
@@ -72,13 +62,44 @@ function rowToMatch(row, index) {
     }
   }
 
+  // Read status/elapsed from sheet if Apps Script writes them (cols Status / Elapsed)
+  const statusCode  = row['Status']  || '';
+  const elapsedRaw  = row['Elapsed'] !== '' ? Number(row['Elapsed']) : null;
+
+  // Live status codes from api-football
+  const LIVE_CODES = new Set(['1H', 'HT', '2H', 'ET', 'BT', 'P', 'LIVE']);
+  const FT_CODES   = new Set(['FT', 'AET', 'PEN', 'AWD', 'WO']);
+
+  let isLive, isFinished, elapsed;
+
+  if (statusCode && (LIVE_CODES.has(statusCode) || FT_CODES.has(statusCode))) {
+    // Apps Script is writing status — use it directly
+    isLive     = LIVE_CODES.has(statusCode);
+    isFinished = FT_CODES.has(statusCode);
+    elapsed    = elapsedRaw;
+  } else {
+    // Fallback: infer from kickoff time
+    // A match runs ~105 min (90 + stoppage). Give 150 min total window.
+    const minSinceKickoff = (Date.now() - kickoff.getTime()) / 60_000;
+    isLive     = hasScore && minSinceKickoff >= 0 && minSinceKickoff < 150;
+    isFinished = hasScore && minSinceKickoff >= 150;
+    elapsed    = isLive ? Math.min(90, Math.floor(minSinceKickoff)) : null;
+  }
+
+  let hState = 'neutral', aState = 'neutral';
+  if (hasScore) {
+    if (scoreHome > scoreAway)      { hState = 'winning'; aState = 'losing'; }
+    else if (scoreAway > scoreHome) { aState = 'winning'; hState = 'losing'; }
+    else                            { hState = 'draw';    aState = 'draw';   }
+  }
+
   return {
     id: index + 1,
     kickoff,
-    status: isFinished ? 'FT' : 'NS',
+    status: isFinished ? 'FT' : isLive ? 'LIVE' : 'NS',
     isLive,
     isFinished,
-    elapsed: null,
+    elapsed,
     hCode, aCode,
     hGoals: scoreHome,
     aGoals: scoreAway,
