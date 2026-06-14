@@ -28,7 +28,7 @@ export default function Feed({ matches, videoMap }) {
       const el = itemRefs.current[focusId];
       if (!el || !scrollRef.current) return;
       const container = scrollRef.current;
-      const offset = el.offsetTop + el.clientHeight - container.clientHeight * 0.56;
+      const offset = el.offsetTop + el.clientHeight - container.clientHeight * 0.53;
       container.scrollTop = offset;
       setActiveId(focusId);
     });
@@ -40,7 +40,7 @@ export default function Feed({ matches, videoMap }) {
     const container = scrollRef.current;
     if (!container) return;
     const onScroll = () => {
-      const center = container.scrollTop + container.clientHeight * 0.38;
+      const center = container.scrollTop + container.clientHeight * 0.36;
       let closestId = null, closestDist = Infinity;
       Object.entries(itemRefs.current).forEach(([id, el]) => {
         if (!el) return;
