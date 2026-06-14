@@ -28,7 +28,7 @@ export default function Feed({ matches, videoMap }) {
       const el = itemRefs.current[focusId];
       if (!el || !scrollRef.current) return;
       const container = scrollRef.current;
-      const offset = el.offsetTop - container.clientHeight / 2 + el.clientHeight / 2;
+      const offset = el.offsetTop - container.clientHeight * 0.62 + el.clientHeight / 2;
       container.scrollTop = offset;
       setActiveId(focusId);
     });
