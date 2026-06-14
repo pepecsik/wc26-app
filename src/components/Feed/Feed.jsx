@@ -40,7 +40,7 @@ export default function Feed({ matches, videoMap }) {
     const container = scrollRef.current;
     if (!container) return;
     const onScroll = () => {
-      const center = container.scrollTop + container.clientHeight / 2;
+      const center = container.scrollTop + container.clientHeight * 0.62;
       let closestId = null, closestDist = Infinity;
       Object.entries(itemRefs.current).forEach(([id, el]) => {
         if (!el) return;
