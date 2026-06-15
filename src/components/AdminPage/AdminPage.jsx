@@ -154,7 +154,7 @@ export default function AdminPage() {
       if (m.hState === 'losing' || m.aState === 'losing') return !vi?.filename;
       return false;
     })
-    .sort((a, b) => b.kickoff - a.kickoff);
+    .sort((a, b) => a.kickoff - b.kickoff);
 
   async function setupCors() {
     setCorsMsg('Setting up…');
