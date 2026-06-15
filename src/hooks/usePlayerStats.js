@@ -59,9 +59,9 @@ export function usePlayerStats(matches, videoMap) {
 
       const videosSent  = playerMatches.filter(m => m.myVideo).length;
       const bonusDrinks = p.bonusDrinks ?? 0;
-      const drinks      = losses + draws + bonusDrinks;
+      const drinks      = losses + draws;   // owed from match outcomes only
       const sideBetDrinkCount = playerMatches
-        .filter(m => m.isFinished && (m.myState === 'losing' || m.myState === 'draw'))
+        .filter(m => m.myVideo)             // only count uploaded videos
         .reduce((sum, m) => sum + (m.sideBetDrinks ?? 0), 0);
       const drinksDone = bonusDrinks + playerMatches
         .filter(m => m.myVideo)

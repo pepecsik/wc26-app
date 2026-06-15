@@ -25,9 +25,9 @@ function FunStats({ players }) {
   const totalDrinks     = players.reduce((s, p) => s + p.drinks, 0);
   const totalDrinksDone = players.reduce((s, p) => s + p.drinksDone, 0);
   const totalSideBet    = players.reduce((s, p) => s + (p.sideBetDrinkCount ?? 0), 0);
-  const maxDrinks    = Math.max(...players.map(p => p.drinks));
-  const topDrinkers  = maxDrinks > 0 ? players.filter(p => p.drinks === maxDrinks) : [];
-  const cleanPlayers = players.filter(p => p.drinks === 0 && p.matches.some(m => m.isFinished));
+  const maxDrinks    = Math.max(...players.map(p => p.drinksDone));
+  const topDrinkers  = maxDrinks > 0 ? players.filter(p => p.drinksDone === maxDrinks) : [];
+  const cleanPlayers = players.filter(p => p.drinksDone === 0 && p.matches.some(m => m.isFinished));
   const maxStreak    = Math.max(...players.map(p => p.streak));
   const topStreakers  = maxStreak > 0 ? players.filter(p => p.streak === maxStreak) : [];
   const debtPlayers  = players.filter(p => p.videoDebt > 0).sort((a, b) => b.videoDebt - a.videoDebt);
@@ -51,7 +51,7 @@ function FunStats({ players }) {
                 <div key={p.name} className={styles.debtRow}>
                   <MiniAvatar p={p} />
                   <span className={styles.statCardName}>{p.name}</span>
-                  <span className={styles.statCardVal}>{p.drinks}x</span>
+                  <span className={styles.statCardVal}>{p.drinksDone}x</span>
                 </div>
               ))}
             </div>
@@ -204,8 +204,8 @@ export default function StatsPage({ players }) {
               <td className={`${styles.stat} ${styles.win}`}>{p.wins}</td>
               <td className={`${styles.stat} ${styles.loss}`}>{p.losses}</td>
               <td className={`${styles.stat} ${styles.draw}`}>{p.draws}</td>
-              <td className={`${styles.stat} ${styles.drink}`}>{p.drinks}</td>
-              <td className={`${styles.stat} ${styles.done}`}>{p.drinksDone}</td>
+              <td className={`${styles.stat} ${styles.drink}`}>{p.drinksDone}</td>
+              <td className={`${styles.stat} ${styles.done}`}>{p.drinks - p.drinksDone > 0 ? `${p.drinks - p.drinksDone} owed` : ''}</td>
             </tr>
           ))}
         </tbody>
