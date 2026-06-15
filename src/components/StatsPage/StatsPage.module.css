@@ -138,6 +138,19 @@ thead tr {
   padding: 0 14px 8px;
 }
 
+.totalDrinks {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 12px;
+  padding-left: 2px;
+}
+
+.totalDrinks span {
+  color: #60a5fa;
+  font-size: 16px;
+}
+
 .funStatsTitle {
   font-size: 10px;
   font-weight: 700;

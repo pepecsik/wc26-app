@@ -19,25 +19,39 @@ function StatCard({ emoji, label, children }) {
 }
 
 function FunStats({ players }) {
-  const finished = players.filter(p => p.matches.some(m => m.isFinished));
-  if (finished.length === 0) return null;
+  const hasFinished = players.some(p => p.matches.some(m => m.isFinished));
+  if (!hasFinished) return null;
 
-  const mostDrinks   = [...players].sort((a, b) => b.drinks - a.drinks)[0];
+  const totalDrinks  = players.reduce((s, p) => s + p.drinks, 0);
+  const maxDrinks    = Math.max(...players.map(p => p.drinks));
+  const topDrinkers  = maxDrinks > 0 ? players.filter(p => p.drinks === maxDrinks) : [];
   const cleanPlayers = players.filter(p => p.drinks === 0 && p.matches.some(m => m.isFinished));
-  const bestStreak   = [...players].sort((a, b) => b.streak - a.streak)[0];
-  const mostDraws    = [...players].sort((a, b) => b.draws - a.draws)[0];
+  const maxStreak    = Math.max(...players.map(p => p.streak));
+  const topStreakers  = maxStreak > 0 ? players.filter(p => p.streak === maxStreak) : [];
   const debtPlayers  = players.filter(p => p.videoDebt > 0).sort((a, b) => b.videoDebt - a.videoDebt);
 
   return (
     <div className={styles.funStats}>
       <div className={styles.funStatsTitle}>Group Stats</div>
 
+      {totalDrinks > 0 && (
+        <div className={styles.totalDrinks}>
+          🍺 <span>{totalDrinks}</span> total drinks in the group
+        </div>
+      )}
+
       <div className={styles.statGrid}>
-        {mostDrinks?.drinks > 0 && (
+        {topDrinkers.length > 0 && (
           <StatCard emoji="🍺" label="Most Drinks">
-            <MiniAvatar p={mostDrinks} />
-            <span className={styles.statCardName}>{mostDrinks.name}</span>
-            <span className={styles.statCardVal}>{mostDrinks.drinks}x</span>
+            <div className={styles.statCardDebt}>
+              {topDrinkers.map(p => (
+                <div key={p.name} className={styles.debtRow}>
+                  <MiniAvatar p={p} />
+                  <span className={styles.statCardName}>{p.name}</span>
+                  <span className={styles.statCardVal}>{p.drinks}x</span>
+                </div>
+              ))}
+            </div>
           </StatCard>
         )}
 
@@ -49,19 +63,17 @@ function FunStats({ players }) {
           </StatCard>
         )}
 
-        {bestStreak?.streak > 0 && (
+        {topStreakers.length > 0 && (
           <StatCard emoji="🔥" label="Win Streak">
-            <MiniAvatar p={bestStreak} />
-            <span className={styles.statCardName}>{bestStreak.name}</span>
-            <span className={styles.statCardVal}>{bestStreak.streak} in a row</span>
-          </StatCard>
-        )}
-
-        {mostDraws?.draws > 0 && (
-          <StatCard emoji="🤝" label="Most Draws">
-            <MiniAvatar p={mostDraws} />
-            <span className={styles.statCardName}>{mostDraws.name}</span>
-            <span className={styles.statCardVal}>{mostDraws.draws}x</span>
+            <div className={styles.statCardDebt}>
+              {topStreakers.map(p => (
+                <div key={p.name} className={styles.debtRow}>
+                  <MiniAvatar p={p} />
+                  <span className={styles.statCardName}>{p.name}</span>
+                  <span className={styles.statCardVal}>{p.streak} in a row</span>
+                </div>
+              ))}
+            </div>
           </StatCard>
         )}
 
