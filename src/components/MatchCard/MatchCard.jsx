@@ -67,13 +67,12 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
   const matchState = isLive ? 'live' : isFinished ? 'finished' : 'upcoming';
   const videoTitle  = `${hTeam.flag} ${hCode} vs ${aCode} ${aTeam.flag}`;
 
-  // For draws: filename = home video, filename2 = away video
-  // For non-draws: filename = the loser's video
+  // For draws, use drinks (written only on actual upload) not filename (formula auto-populates both)
   const hHasVideo = hState === 'losing' ? !!(videoInfo?.filename)
-                  : hState === 'draw'   ? !!(videoInfo?.filename)
+                  : hState === 'draw'   ? (videoInfo?.drinks1 != null)
                   : false;
   const aHasVideo = aState === 'losing' ? !!(videoInfo?.filename)
-                  : aState === 'draw'   ? !!(videoInfo?.filename2)
+                  : aState === 'draw'   ? (videoInfo?.drinks2 != null)
                   : false;
   const aFilename = videoInfo?.filename2 || videoInfo?.filename;
 

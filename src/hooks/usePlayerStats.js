@@ -31,12 +31,19 @@ export function usePlayerStats(matches, videoMap) {
           let myVideo = null;
           let myDrinkCount = 1;
           if (video && m.isFinished && (myState === 'losing' || myState === 'draw')) {
-            myVideo = myState === 'draw'
-              ? (isHome ? video.filename : video.filename2 || null)
-              : video.filename;
-            myDrinkCount = isHome
-              ? (video.drinks1 ?? 1)
-              : (video.drinks2 ?? video.drinks1 ?? 1);
+            if (myState === 'draw') {
+              // For draws, drinks col is only written on actual upload (filename is formula-auto-filled)
+              const uploaded = isHome ? video.drinks1 != null : video.drinks2 != null;
+              if (uploaded) {
+                myVideo = isHome ? video.filename : video.filename2;
+                myDrinkCount = isHome ? (video.drinks1 ?? 1) : (video.drinks2 ?? 1);
+              }
+            } else {
+              myVideo = video.filename;
+              myDrinkCount = isHome
+                ? (video.drinks1 ?? 1)
+                : (video.drinks2 ?? video.drinks1 ?? 1);
+            }
           }
 
           playerMatches.push({
