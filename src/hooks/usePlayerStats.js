@@ -51,13 +51,26 @@ export function usePlayerStats(matches, videoMap) {
 
       playerMatches.sort((a, b) => a.kickoff - b.kickoff);
 
+      const videosSent = playerMatches.filter(m => m.myVideo).length;
+      const drinks = losses + draws;
+
+      // Current win streak (consecutive wins from most recent finished match)
+      let streak = 0;
+      const finished = playerMatches.filter(m => m.isFinished);
+      for (let i = finished.length - 1; i >= 0; i--) {
+        if (finished[i].myState === 'winning') streak++;
+        else break;
+      }
+
       return {
         ...p,
         wins,
         losses,
         draws,
-        drinks: losses + draws,
-        videosSent: playerMatches.filter(m => m.myVideo).length,
+        drinks,
+        videosSent,
+        videoDebt: drinks - videosSent,
+        streak,
         matches: playerMatches,
       };
     });

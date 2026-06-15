@@ -3,6 +3,86 @@ import styles from './StatsPage.module.css';
 import PlayerModal from '../PlayerModal/PlayerModal';
 import { TEAM_MAP } from '../../data/teamMap';
 
+function MiniAvatar({ p }) {
+  return p.photo
+    ? <img src={p.photo} alt={p.name} className={styles.miniAvatar} />
+    : <div className={styles.miniAvatarInitials} style={{ background: p.color }}>{p.initials}</div>;
+}
+
+function StatCard({ emoji, label, children }) {
+  return (
+    <div className={styles.statCard}>
+      <div className={styles.statCardLabel}>{emoji} {label}</div>
+      <div className={styles.statCardBody}>{children}</div>
+    </div>
+  );
+}
+
+function FunStats({ players }) {
+  const finished = players.filter(p => p.matches.some(m => m.isFinished));
+  if (finished.length === 0) return null;
+
+  const mostDrinks   = [...players].sort((a, b) => b.drinks - a.drinks)[0];
+  const cleanPlayers = players.filter(p => p.drinks === 0 && p.matches.some(m => m.isFinished));
+  const bestStreak   = [...players].sort((a, b) => b.streak - a.streak)[0];
+  const mostDraws    = [...players].sort((a, b) => b.draws - a.draws)[0];
+  const debtPlayers  = players.filter(p => p.videoDebt > 0).sort((a, b) => b.videoDebt - a.videoDebt);
+
+  return (
+    <div className={styles.funStats}>
+      <div className={styles.funStatsTitle}>Group Stats</div>
+
+      <div className={styles.statGrid}>
+        {mostDrinks?.drinks > 0 && (
+          <StatCard emoji="🍺" label="Most Drinks">
+            <MiniAvatar p={mostDrinks} />
+            <span className={styles.statCardName}>{mostDrinks.name}</span>
+            <span className={styles.statCardVal}>{mostDrinks.drinks}x</span>
+          </StatCard>
+        )}
+
+        {cleanPlayers.length > 0 && (
+          <StatCard emoji="😇" label="Still Clean">
+            <div className={styles.statCardAvatars}>
+              {cleanPlayers.map(p => <MiniAvatar key={p.name} p={p} />)}
+            </div>
+          </StatCard>
+        )}
+
+        {bestStreak?.streak > 0 && (
+          <StatCard emoji="🔥" label="Win Streak">
+            <MiniAvatar p={bestStreak} />
+            <span className={styles.statCardName}>{bestStreak.name}</span>
+            <span className={styles.statCardVal}>{bestStreak.streak} in a row</span>
+          </StatCard>
+        )}
+
+        {mostDraws?.draws > 0 && (
+          <StatCard emoji="🤝" label="Most Draws">
+            <MiniAvatar p={mostDraws} />
+            <span className={styles.statCardName}>{mostDraws.name}</span>
+            <span className={styles.statCardVal}>{mostDraws.draws}x</span>
+          </StatCard>
+        )}
+
+        {debtPlayers.length > 0 && (
+          <StatCard emoji="🎬" label="Video Debt">
+            <div className={styles.statCardDebt}>
+              {debtPlayers.map(p => (
+                <div key={p.name} className={styles.debtRow}>
+                  <MiniAvatar p={p} />
+                  <span className={styles.statCardName}>{p.name}</span>
+                  <span className={styles.statCardVal}>owes {p.videoDebt}</span>
+                </div>
+              ))}
+            </div>
+          </StatCard>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const LS_KEY    = 'wc26-ranks';
 const TTL_MS    = 24 * 60 * 60 * 1000;
 
@@ -114,6 +194,7 @@ export default function StatsPage({ players }) {
         </tbody>
       </table>
 
+      <FunStats players={ranked} />
       {selected && <PlayerModal player={selected} onClose={() => setSelected(null)} />}
     </div>
   );
