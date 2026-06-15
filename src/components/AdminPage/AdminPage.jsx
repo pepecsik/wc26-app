@@ -21,8 +21,9 @@ function Avatar({ participant, teamCode }) {
   );
 }
 
-function UploadSlot({ match, slot, participant, teamCode, teamFlag }) {
+function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrinks }) {
   const [file, setFile] = useState(null);
+  const [drinkCount, setDrinkCount] = useState(defaultDrinks ?? 1);
   const [status, setStatus] = useState('idle');
   const [progress, setProgress] = useState(0);
   const [uploadedFilename, setUploadedFilename] = useState('');
@@ -40,7 +41,7 @@ function UploadSlot({ match, slot, participant, teamCode, teamFlag }) {
       const prepRes = await fetch('/.netlify/functions/prepare-upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ home: match.hCode, away: match.aCode }),
+        body: JSON.stringify({ home: match.hCode, away: match.aCode, slot, drinkCount }),
       });
       const prep = await prepRes.json();
       if (prep.error) throw new Error(prep.error);
@@ -86,6 +87,18 @@ function UploadSlot({ match, slot, participant, teamCode, teamFlag }) {
 
       {status !== 'done' && (
         <div className={styles.slotControls}>
+          <div className={styles.drinkRow}>
+            <span className={styles.drinkLabel}>🍺 drinks</span>
+            <select
+              value={drinkCount}
+              onChange={e => setDrinkCount(Number(e.target.value))}
+              className={styles.drinkSelect}
+            >
+              {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          </div>
           <label className={styles.fileLabel}>
             {file ? file.name.slice(0, 28) + (file.name.length > 28 ? '…' : '') : 'Choose video'}
             <input
@@ -113,10 +126,86 @@ function UploadSlot({ match, slot, participant, teamCode, teamFlag }) {
   );
 }
 
+function SideBetCard({ match }) {
+  const hTeam = TEAM_MAP[match.hCode] ?? { flag: '🏳️', full: match.hCode };
+  const aTeam = TEAM_MAP[match.aCode] ?? { flag: '🏳️', full: match.aCode };
+  const [drinks, setDrinks] = useState(match.sideBetDrinks || 1);
+  const [desc, setDesc] = useState(match.sideBetDesc || '');
+  const [status, setStatus] = useState('idle');
+
+  async function saveSideBet() {
+    setStatus('saving');
+    try {
+      const res = await fetch('/.netlify/functions/save-sidebet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ home: match.hCode, away: match.aCode, sideBetDrinks: drinks, sideBetDesc: desc }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setStatus('done');
+    } catch (err) {
+      setStatus('error');
+      alert(err.message);
+    }
+  }
+
+  return (
+    <div className={`${styles.matchCard} ${styles.sideBetCard}`}>
+      <div className={styles.matchHeader}>
+        <span className={styles.matchScore}>
+          {hTeam.flag} {match.hCode} vs {match.aCode} {aTeam.flag}
+        </span>
+        <span className={styles.matchMeta}>
+          {match.isLive ? '🟢 LIVE' : match.kickoff.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
+        </span>
+      </div>
+
+      <div className={styles.sideBetPlayers}>
+        <div className={styles.sideBetPlayer}>
+          <Avatar participant={match.hOwner} teamCode={match.hCode} />
+          <span className={styles.slotName}>{match.hOwner?.name ?? match.hCode}</span>
+        </div>
+        <span className={styles.sideBetVs}>VS</span>
+        <div className={styles.sideBetPlayer}>
+          <Avatar participant={match.aOwner} teamCode={match.aCode} />
+          <span className={styles.slotName}>{match.aOwner?.name ?? match.aCode}</span>
+        </div>
+      </div>
+
+      <div className={styles.sideBetForm}>
+        <div className={styles.sideBetRow}>
+          <span className={styles.drinkLabel}>💰 extra drinks on top of 1</span>
+          <select value={drinks} onChange={e => setDrinks(Number(e.target.value))} className={styles.drinkSelect}>
+            {[1,2,3,4,5,6,7,8,9,10].map(n => (
+              <option key={n} value={n}>+{n} = {n+1} total</option>
+            ))}
+          </select>
+        </div>
+        <input
+          type="text"
+          value={desc}
+          onChange={e => setDesc(e.target.value)}
+          placeholder="Side bet description (optional)"
+          className={styles.sideBetInput}
+        />
+        <button
+          onClick={saveSideBet}
+          disabled={status === 'saving' || status === 'done'}
+          className={styles.uploadBtn}
+        >
+          {status === 'saving' ? 'Saving…' : status === 'done' ? '✓ Saved' : '💰 Set Side Bet'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
   const [corsMsg, setCorsMsg] = useState('');
+  const [tab, setTab] = useState('uploads');
   const { matches } = useMatches();
   const videoMap = useSheetData();
 
@@ -156,6 +245,10 @@ export default function AdminPage() {
     })
     .sort((a, b) => a.kickoff - b.kickoff);
 
+  const upcomingOrLive = matches
+    .filter(m => !m.isFinished)
+    .sort((a, b) => a.kickoff - b.kickoff);
+
   async function setupCors() {
     setCorsMsg('Setting up…');
     const res = await fetch('/.netlify/functions/setup-b2-cors');
@@ -166,46 +259,78 @@ export default function AdminPage() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <span className={styles.title}>Admin Upload</span>
+        <span className={styles.title}>Admin</span>
         <button onClick={setupCors} className={styles.corsBtn}>
           {corsMsg || 'Setup B2 CORS'}
         </button>
       </div>
 
-      {pending.length === 0 ? (
-        <div className={styles.empty}>All videos uploaded 🎉</div>
-      ) : pending.map(m => {
-        const vi = videoMap[`${m.hCode}-${m.aCode}`];
-        const isDraw = m.hState === 'draw';
-        const hTeam = TEAM_MAP[m.hCode] ?? { flag: '🏳️', full: m.hCode };
-        const aTeam = TEAM_MAP[m.aCode] ?? { flag: '🏳️', full: m.aCode };
+      <div className={styles.tabs}>
+        <button
+          className={`${styles.tab} ${tab === 'uploads' ? styles.tabActive : ''}`}
+          onClick={() => setTab('uploads')}
+        >
+          🎬 Upload Videos {pending.length > 0 && <span className={styles.tabBadge}>{pending.length}</span>}
+        </button>
+        <button
+          className={`${styles.tab} ${tab === 'sidebets' ? styles.tabActive : ''}`}
+          onClick={() => setTab('sidebets')}
+        >
+          💰 Side Bets
+        </button>
+      </div>
 
-        return (
-          <div key={m.id} className={styles.matchCard}>
-            <div className={styles.matchHeader}>
-              <span className={styles.matchScore}>
-                {hTeam.flag} {m.hCode} {m.hGoals}–{m.aGoals} {m.aCode} {aTeam.flag}
-              </span>
-              <span className={styles.matchMeta}>Group {hTeam.group} · FT</span>
-            </div>
+      {tab === 'uploads' && (
+        pending.length === 0 ? (
+          <div className={styles.empty}>All videos uploaded 🎉</div>
+        ) : pending.map(m => {
+          const vi = videoMap[`${m.hCode}-${m.aCode}`];
+          const isDraw = m.hState === 'draw';
+          const hTeam = TEAM_MAP[m.hCode] ?? { flag: '🏳️', full: m.hCode };
+          const aTeam = TEAM_MAP[m.aCode] ?? { flag: '🏳️', full: m.aCode };
+          const sideBetDrinks = m.sideBetDrinks || 0;
+          const defaultDrinks = 1 + sideBetDrinks;
 
-            <div className={styles.slots}>
-              {isDraw && !vi?.filename && (
-                <UploadSlot match={m} slot={1} participant={m.hOwner} teamCode={m.hCode} teamFlag={hTeam.flag} />
+          return (
+            <div key={m.id} className={styles.matchCard}>
+              <div className={styles.matchHeader}>
+                <span className={styles.matchScore}>
+                  {hTeam.flag} {m.hCode} {m.hGoals}–{m.aGoals} {m.aCode} {aTeam.flag}
+                </span>
+                <span className={styles.matchMeta}>Group {hTeam.group} · FT</span>
+              </div>
+              {sideBetDrinks > 0 && (
+                <div className={styles.sideBetTag}>
+                  💰 Side bet · +{sideBetDrinks} drink{sideBetDrinks > 1 ? 's' : ''}{m.sideBetDesc ? ` · ${m.sideBetDesc}` : ''}
+                </div>
               )}
-              {isDraw && !vi?.filename2 && (
-                <UploadSlot match={m} slot={2} participant={m.aOwner} teamCode={m.aCode} teamFlag={aTeam.flag} />
-              )}
-              {m.hState === 'losing' && !vi?.filename && (
-                <UploadSlot match={m} slot={1} participant={m.hOwner} teamCode={m.hCode} teamFlag={hTeam.flag} />
-              )}
-              {m.aState === 'losing' && !vi?.filename && (
-                <UploadSlot match={m} slot={1} participant={m.aOwner} teamCode={m.aCode} teamFlag={aTeam.flag} />
-              )}
+
+              <div className={styles.slots}>
+                {isDraw && !vi?.filename && (
+                  <UploadSlot match={m} slot={1} participant={m.hOwner} teamCode={m.hCode} teamFlag={hTeam.flag} defaultDrinks={defaultDrinks} />
+                )}
+                {isDraw && !vi?.filename2 && (
+                  <UploadSlot match={m} slot={2} participant={m.aOwner} teamCode={m.aCode} teamFlag={aTeam.flag} defaultDrinks={defaultDrinks} />
+                )}
+                {m.hState === 'losing' && !vi?.filename && (
+                  <UploadSlot match={m} slot={1} participant={m.hOwner} teamCode={m.hCode} teamFlag={hTeam.flag} defaultDrinks={defaultDrinks} />
+                )}
+                {m.aState === 'losing' && !vi?.filename && (
+                  <UploadSlot match={m} slot={1} participant={m.aOwner} teamCode={m.aCode} teamFlag={aTeam.flag} defaultDrinks={defaultDrinks} />
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })
+      )}
+
+      {tab === 'sidebets' && (
+        upcomingOrLive.length === 0 ? (
+          <div className={styles.empty}>No upcoming matches</div>
+        ) : upcomingOrLive.map(m => (
+          <SideBetCard key={m.id} match={m} />
+        ))
+      )}
     </div>
   );
 }

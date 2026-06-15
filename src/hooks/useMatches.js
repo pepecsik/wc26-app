@@ -93,6 +93,9 @@ function rowToMatch(row, index) {
     else                            { hState = 'draw';    aState = 'draw';   }
   }
 
+  const sideBetDrinks = row['Side Bet Drinks'] !== '' ? Number(row['Side Bet Drinks']) : 0;
+  const sideBetDesc   = row['Side Bet Description'] || '';
+
   return {
     id: index + 1,
     kickoff,
@@ -106,6 +109,8 @@ function rowToMatch(row, index) {
     hState, aState,
     hOwner: TEAM_OWNER[hCode] ?? null,
     aOwner: TEAM_OWNER[aCode] ?? null,
+    sideBetDrinks: isNaN(sideBetDrinks) ? 0 : sideBetDrinks,
+    sideBetDesc,
   };
 }
 

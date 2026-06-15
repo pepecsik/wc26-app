@@ -29,8 +29,12 @@ export function usePlayerStats(matches, videoMap) {
           const key = `${m.hCode}-${m.aCode}`;
           const video = videoMap[key];
           let myVideo = null;
+          let myDrinkCount = 1;
           if (video && m.isFinished && (myState === 'losing' || myState === 'draw')) {
             myVideo = isHome ? video.filename : (video.filename2 || video.filename);
+            myDrinkCount = isHome
+              ? (video.drinks1 ?? 1)
+              : (video.drinks2 ?? video.drinks1 ?? 1);
           }
 
           playerMatches.push({
@@ -44,6 +48,8 @@ export function usePlayerStats(matches, videoMap) {
             isFinished: m.isFinished,
             isLive: m.isLive,
             myVideo,
+            myDrinkCount,
+            sideBetDrinks: m.sideBetDrinks ?? 0,
             videoUrl: myVideo ? `${B2_BASE}/${encodeURIComponent(myVideo)}.mp4` : null,
           });
         });
@@ -51,8 +57,15 @@ export function usePlayerStats(matches, videoMap) {
 
       playerMatches.sort((a, b) => a.kickoff - b.kickoff);
 
-      const videosSent = playerMatches.filter(m => m.myVideo).length;
-      const drinks = losses + draws;
+      const videosSent  = playerMatches.filter(m => m.myVideo).length;
+      const bonusDrinks = p.bonusDrinks ?? 0;
+      const drinks      = losses + draws + bonusDrinks;
+      const sideBetDrinkCount = playerMatches
+        .filter(m => m.isFinished && (m.myState === 'losing' || m.myState === 'draw'))
+        .reduce((sum, m) => sum + (m.sideBetDrinks ?? 0), 0);
+      const drinksDone = bonusDrinks + playerMatches
+        .filter(m => m.myVideo)
+        .reduce((sum, m) => sum + (m.myDrinkCount ?? 1), 0);
 
       // Current win streak (consecutive wins from most recent finished match)
       let streak = 0;
@@ -68,6 +81,8 @@ export function usePlayerStats(matches, videoMap) {
         losses,
         draws,
         drinks,
+        drinksDone,
+        sideBetDrinkCount,
         videosSent,
         videoDebt: drinks - videosSent,
         streak,

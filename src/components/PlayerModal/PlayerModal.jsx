@@ -103,12 +103,11 @@ export default function PlayerModal({ player, onClose }) {
                   </span>
                   <span>{m.oppCode} {opp.flag}</span>
                 </div>
-                {m.myVideo && (
-                  <button
-                    className={styles.videoBtn}
-                    onClick={() => setPlayVideo({ filename: m.myVideo, title: `${my.flag} vs ${opp.flag}` })}
-                  >▶</button>
-                )}
+                <button
+                  className={styles.videoBtn}
+                  style={m.myVideo ? {} : { visibility: 'hidden' }}
+                  onClick={() => m.myVideo && setPlayVideo({ filename: m.myVideo, title: `${my.flag} vs ${opp.flag}` })}
+                >▶</button>
               </div>
             );
           })}

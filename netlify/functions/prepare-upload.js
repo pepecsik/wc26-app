@@ -9,13 +9,13 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers: CORS, body: 'Method not allowed' };
 
   try {
-    const { home, away } = JSON.parse(event.body);
+    const { home, away, slot, drinkCount } = JSON.parse(event.body);
 
-    // 1. Tick sheet checkbox + get filenames from Apps Script
+    // 1. Tick sheet checkbox + write drink count + get filenames from Apps Script
     const scriptRes = await fetch(process.env.APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ home, away }),
+      body: JSON.stringify({ home, away, slot, drinkCount }),
       redirect: 'follow',
     });
     const script = await scriptRes.json();

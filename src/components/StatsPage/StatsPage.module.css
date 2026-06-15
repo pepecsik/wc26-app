@@ -131,6 +131,7 @@ thead tr {
 .loss  { color: #ff3b3b; }
 .draw  { color: #ffb300; }
 .drink { color: #60a5fa; }
+.done  { color: #00c844; }
 
 /* ── Fun Stats ── */
 .funStats {

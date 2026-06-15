@@ -183,6 +183,35 @@
   max-width: 48%;
 }
 
+/* ── Side bet gold glow ── */
+.card.sideBet {
+  border-color: rgba(255, 200, 0, 0.5);
+  animation: pulseSideBet 2.5s ease-in-out infinite;
+}
+
+.card.sideBet.live {
+  border-color: #00c844;
+  animation: pulseLive 2s ease-in-out infinite;
+}
+
+@keyframes pulseSideBet {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,200,0,0.4); }
+  50%     { box-shadow: 0 0 0 8px rgba(255,200,0,0); }
+}
+
+.sideBetBanner {
+  width: 100%;
+  padding: 6px 12px;
+  background: rgba(255, 200, 0, 0.1);
+  border-top: 1px solid rgba(255, 200, 0, 0.25);
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffd700;
+  text-align: center;
+  letter-spacing: 0.5px;
+  box-sizing: border-box;
+}
+
 /* ── Video countdown bar ── */
 .countdown {
   width: 100%;

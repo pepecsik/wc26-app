@@ -49,8 +49,10 @@ export function useSheetData() {
         const away      = row['Away'] || '';
         const filename  = row['Generated Filename'] || '';
         const filename2 = row['Generated Filename 2'] || '';
+        const drinks1 = row['Drinks 1'] !== '' ? Number(row['Drinks 1']) : null;
+        const drinks2 = row['Drinks 2'] !== '' ? Number(row['Drinks 2']) : null;
         if (home && away) {
-          map[`${home}-${away}`] = { filename, filename2 };
+          map[`${home}-${away}`] = { filename, filename2, drinks1, drinks2 };
         }
       });
       setVideoMap(map);

@@ -22,7 +22,9 @@ function FunStats({ players }) {
   const hasFinished = players.some(p => p.matches.some(m => m.isFinished));
   if (!hasFinished) return null;
 
-  const totalDrinks  = players.reduce((s, p) => s + p.drinks, 0);
+  const totalDrinks     = players.reduce((s, p) => s + p.drinks, 0);
+  const totalDrinksDone = players.reduce((s, p) => s + p.drinksDone, 0);
+  const totalSideBet    = players.reduce((s, p) => s + (p.sideBetDrinkCount ?? 0), 0);
   const maxDrinks    = Math.max(...players.map(p => p.drinks));
   const topDrinkers  = maxDrinks > 0 ? players.filter(p => p.drinks === maxDrinks) : [];
   const cleanPlayers = players.filter(p => p.drinks === 0 && p.matches.some(m => m.isFinished));
@@ -36,7 +38,8 @@ function FunStats({ players }) {
 
       {totalDrinks > 0 && (
         <div className={styles.totalDrinks}>
-          🍺 <span>{totalDrinks}</span> total drinks in the group
+          🍺 <span>{totalDrinks}</span> drinks owed · <span>{totalDrinksDone}</span> done
+          {totalSideBet > 0 && <> · 💰 <span>{totalSideBet}</span> from side bets</>}
         </div>
       )}
 
@@ -170,6 +173,7 @@ export default function StatsPage({ players }) {
             <th className={styles.thStat}>L</th>
             <th className={styles.thStat}>D</th>
             <th className={styles.thStat}>🍺</th>
+            <th className={styles.thStat}>✓</th>
           </tr>
         </thead>
         <tbody>
@@ -201,6 +205,7 @@ export default function StatsPage({ players }) {
               <td className={`${styles.stat} ${styles.loss}`}>{p.losses}</td>
               <td className={`${styles.stat} ${styles.draw}`}>{p.draws}</td>
               <td className={`${styles.stat} ${styles.drink}`}>{p.drinks}</td>
+              <td className={`${styles.stat} ${styles.done}`}>{p.drinksDone}</td>
             </tr>
           ))}
         </tbody>

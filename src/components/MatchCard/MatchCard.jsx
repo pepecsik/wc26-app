@@ -44,7 +44,7 @@ function VideoCountdown({ kickoff, drinkers }) {
     return (
       <div className={`${styles.countdown} ${styles.countdownAlarm}`}>
         <span className={styles.alarmLabel}>🚨 {timeStr}</span>
-        <span className={styles.alarmName}>{drinkers} — SEND VIDEO NOW</span>
+        <span className={styles.alarmName}>{drinkers} — SEND A VIDEO NOW</span>
       </div>
     );
   }
@@ -52,14 +52,14 @@ function VideoCountdown({ kickoff, drinkers }) {
   const timeStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
   return (
     <div className={styles.countdown}>
-      🎬 {drinkers} • {timeStr} left to send video
+      🎬 {drinkers} • {timeStr} left to send a video
     </div>
   );
 }
 
 export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
   const { hCode, aCode, hGoals, aGoals, hState, aState, hOwner, aOwner,
-          isLive, isFinished, kickoff, elapsed } = match;
+          isLive, isFinished, kickoff, elapsed, sideBetDrinks, sideBetDesc } = match;
 
   const hTeam = TEAM_MAP[hCode] ?? { full: hCode, flag: '🏳️', group: '?' };
   const aTeam = TEAM_MAP[aCode] ?? { full: aCode, flag: '🏳️', group: '?' };
@@ -93,9 +93,10 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
 
   const cardClass = [
     styles.card,
-    isLive     ? styles.live     : '',
-    isFinished ? styles.finished : '',
-    isFocus    ? styles.focus    : '',
+    isLive          ? styles.live     : '',
+    isFinished      ? styles.finished : '',
+    isFocus         ? styles.focus    : '',
+    sideBetDrinks > 0 ? styles.sideBet : '',
   ].filter(Boolean).join(' ');
 
   return (
@@ -156,6 +157,11 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
       />
       </div>
 
+      {sideBetDrinks > 0 && (
+        <div className={styles.sideBetBanner}>
+          💰 SIDE BET · {sideBetDesc || `+${sideBetDrinks} extra drink${sideBetDrinks > 1 ? 's' : ''}`}
+        </div>
+      )}
       {drinkers && <VideoCountdown kickoff={kickoff} drinkers={drinkers} />}
     </div>
   );

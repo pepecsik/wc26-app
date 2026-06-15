@@ -267,3 +267,131 @@
   border-radius: 6px;
   padding: 6px 10px;
 }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 14px 4px;
+}
+
+.tab {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: rgba(255,255,255,0.4);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tabActive {
+  background: rgba(0,200,68,0.1);
+  border-color: rgba(0,200,68,0.3);
+  color: #00c844;
+}
+
+.tabBadge {
+  background: #00c844;
+  color: #000;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* ── Drink count picker ── */
+.drinkRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drinkLabel {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  white-space: nowrap;
+}
+
+.drinkSelect {
+  background: rgba(255,200,0,0.1);
+  border: 1px solid rgba(255,200,0,0.3);
+  border-radius: 8px;
+  color: #ffd700;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 10px;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ── Side bet card ── */
+.sideBetCard {
+  border-color: rgba(255,200,0,0.25);
+}
+
+.sideBetTag {
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffd700;
+  background: rgba(255,200,0,0.08);
+  border-bottom: 1px solid rgba(255,200,0,0.15);
+}
+
+.sideBetPlayers {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 14px 0;
+}
+
+.sideBetPlayer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.sideBetVs {
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 2px;
+}
+
+.sideBetForm {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sideBetRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sideBetInput {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  padding: 8px 12px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sideBetInput::placeholder {
+  color: rgba(255,255,255,0.25);
+}
