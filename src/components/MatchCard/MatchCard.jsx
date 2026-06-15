@@ -65,17 +65,31 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
   const aTeam = TEAM_MAP[aCode] ?? { full: aCode, flag: '🏳️', group: '?' };
 
   const matchState = isLive ? 'live' : isFinished ? 'finished' : 'upcoming';
-  const hasVideo    = !!(videoInfo?.filename);
   const videoTitle  = `${hTeam.flag} ${hCode} vs ${aCode} ${aTeam.flag}`;
-  const aFilename   = videoInfo?.filename2 || videoInfo?.filename;
 
-  // Who needs to send the punishment video
-  const drinkers = isFinished && !hasVideo ? (() => {
-    if (hState === 'draw') return `${hOwner?.name ?? hCode} & ${aOwner?.name ?? aCode}`;
-    if (hState === 'losing') return hOwner?.name ?? hCode;
-    if (aState === 'losing') return aOwner?.name ?? aCode;
+  // For draws: filename = home video, filename2 = away video
+  // For non-draws: filename = the loser's video
+  const hHasVideo = hState === 'losing' ? !!(videoInfo?.filename)
+                  : hState === 'draw'   ? !!(videoInfo?.filename)
+                  : false;
+  const aHasVideo = aState === 'losing' ? !!(videoInfo?.filename)
+                  : aState === 'draw'   ? !!(videoInfo?.filename2)
+                  : false;
+  const aFilename = videoInfo?.filename2 || videoInfo?.filename;
+
+  // Who still needs to send a punishment video
+  const drinkers = (() => {
+    if (!isFinished) return null;
+    if (hState === 'draw') {
+      if (hHasVideo && aHasVideo) return null;
+      if (hHasVideo) return aOwner?.name ?? aCode;
+      if (aHasVideo) return hOwner?.name ?? hCode;
+      return `${hOwner?.name ?? hCode} & ${aOwner?.name ?? aCode}`;
+    }
+    if (hState === 'losing' && !hHasVideo) return hOwner?.name ?? hCode;
+    if (aState === 'losing' && !aHasVideo) return aOwner?.name ?? aCode;
     return null;
-  })() : null;
+  })();
 
   const cardClass = [
     styles.card,
@@ -90,8 +104,8 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
       <AvatarBadge
         participant={hOwner} teamCode={hCode} teamFlag={hTeam.flag}
         state={hState} matchState={matchState} isFocus={isFocus}
-        hasVideo={hasVideo && (hState === 'losing' || hState === 'draw')}
-        onVideoClick={() => onVideoOpen(videoInfo.filename, videoTitle)}
+        hasVideo={hHasVideo}
+        onVideoClick={() => onVideoOpen(videoInfo?.filename, videoTitle)}
       />
 
       <div className={styles.center}>
@@ -137,7 +151,7 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
       <AvatarBadge
         participant={aOwner} teamCode={aCode} teamFlag={aTeam.flag}
         state={aState} matchState={matchState} isFocus={isFocus}
-        hasVideo={hasVideo && (aState === 'losing' || aState === 'draw')}
+        hasVideo={aHasVideo}
         onVideoClick={() => onVideoOpen(aFilename, videoTitle)}
       />
       </div>
