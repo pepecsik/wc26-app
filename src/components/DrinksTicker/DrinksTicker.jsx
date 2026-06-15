@@ -7,7 +7,7 @@ export default function DrinksTicker({ players }) {
   if (debtors.length === 0) return null;
 
   const content = debtors
-    .map(p => `🍺 ${p.name}  —  ${p.drinksOwed} drink${p.drinksOwed > 1 ? 's' : ''} owed`)
+    .map(p => `🍺 ${p.name}  —  owes ${p.drinksOwed} drink${p.drinksOwed > 1 ? 's' : ''}`)
     .join('          ·          ');
 
   return (
