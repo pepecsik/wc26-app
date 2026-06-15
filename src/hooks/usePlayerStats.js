@@ -59,13 +59,20 @@ export function usePlayerStats(matches, videoMap) {
 
       const videosSent  = playerMatches.filter(m => m.myVideo).length;
       const bonusDrinks = p.bonusDrinks ?? 0;
-      const drinks      = losses + draws;   // owed from match outcomes only
+      const drinks      = losses + draws;   // match count only, for leaderboard display
       const sideBetDrinkCount = playerMatches
-        .filter(m => m.myVideo)             // only count uploaded videos
+        .filter(m => m.myVideo)
         .reduce((sum, m) => sum + (m.sideBetDrinks ?? 0), 0);
       const drinksDone = bonusDrinks + playerMatches
         .filter(m => m.myVideo)
         .reduce((sum, m) => sum + (m.myDrinkCount ?? 1), 0);
+      // Total drinks including side bets (done + still pending)
+      const drinksTotal = bonusDrinks + playerMatches
+        .filter(m => m.isFinished && (m.myState === 'losing' || m.myState === 'draw'))
+        .reduce((sum, m) => {
+          if (m.myVideo) return sum + (m.myDrinkCount ?? 1);
+          return sum + 1 + (m.sideBetDrinks ?? 0); // estimate for pending
+        }, 0);
 
       // Current win streak (consecutive wins from most recent finished match)
       let streak = 0;
@@ -82,6 +89,7 @@ export function usePlayerStats(matches, videoMap) {
         draws,
         drinks,
         drinksDone,
+        drinksTotal,
         sideBetDrinkCount,
         videosSent,
         videoDebt: drinks - videosSent,

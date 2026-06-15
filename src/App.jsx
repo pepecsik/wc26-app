@@ -4,6 +4,8 @@ import Feed from './components/Feed/Feed';
 import StatsPage from './components/StatsPage/StatsPage';
 import StandingsPage from './components/StandingsPage/StandingsPage';
 import AdminPage from './components/AdminPage/AdminPage';
+import DrinksTicker from './components/DrinksTicker/DrinksTicker';
+import AlarmModal from './components/AlarmModal/AlarmModal';
 import { useMatches } from './hooks/useMatches';
 import { useSheetData } from './hooks/useSheetData';
 import { usePlayerStats } from './hooks/usePlayerStats';
@@ -44,6 +46,8 @@ export default function App() {
 
   return (
     <div className={styles.app}>
+      <AlarmModal matches={matches} videoMap={videoMap} players={players} />
+      <DrinksTicker players={players} />
       <Header liveCount={liveCount} activeTab={activeTab} onTabChange={handleTabChange} />
       <main className={styles.main}>
         {loading && <div className={styles.status}>Loading matches…</div>}
