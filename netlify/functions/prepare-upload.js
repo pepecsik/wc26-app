@@ -18,7 +18,15 @@ exports.handler = async (event) => {
       body: JSON.stringify({ home, away, slot, drinkCount }),
       redirect: 'follow',
     });
-    const script = await scriptRes.json();
+    const scriptText = await scriptRes.text();
+    console.log('Apps Script status:', scriptRes.status);
+    console.log('Apps Script response:', scriptText.slice(0, 500));
+    let script;
+    try {
+      script = JSON.parse(scriptText);
+    } catch {
+      throw new Error(`Apps Script returned non-JSON (status ${scriptRes.status}): ${scriptText.slice(0, 200)}`);
+    }
     if (script.error) throw new Error(`Sheet: ${script.error}`);
 
     // 2. Authorize with Backblaze B2
