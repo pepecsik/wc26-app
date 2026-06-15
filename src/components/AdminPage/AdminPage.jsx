@@ -21,7 +21,7 @@ function Avatar({ participant, teamCode }) {
   );
 }
 
-function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrinks }) {
+function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrinks, currentFilename }) {
   const [file, setFile] = useState(null);
   const [drinkCount, setDrinkCount] = useState(defaultDrinks ?? 1);
   const [status, setStatus] = useState('idle');
@@ -118,6 +118,9 @@ function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrink
         </div>
       )}
 
+      {currentFilename && status === 'idle' && (
+        <div className={styles.doneName}>replaces: {currentFilename}.mp4</div>
+      )}
       {status === 'done' && (
         <div className={styles.doneName}>{uploadedFilename}.mp4</div>
       )}
@@ -278,6 +281,12 @@ export default function AdminPage() {
         >
           💰 Side Bets
         </button>
+        <button
+          className={`${styles.tab} ${tab === 'reupload' ? styles.tabActive : ''}`}
+          onClick={() => setTab('reupload')}
+        >
+          🔄 Reupload
+        </button>
       </div>
 
       {tab === 'uploads' && (
@@ -331,6 +340,45 @@ export default function AdminPage() {
           <SideBetCard key={m.id} match={m} />
         ))
       )}
+
+      {tab === 'reupload' && (() => {
+        const done = matches
+          .filter(m => m.isFinished && videoMap[`${m.hCode}-${m.aCode}`]?.filename)
+          .sort((a, b) => a.kickoff - b.kickoff);
+        if (done.length === 0) return <div className={styles.empty}>No uploaded videos yet</div>;
+        return done.map(m => {
+          const vi = videoMap[`${m.hCode}-${m.aCode}`];
+          const isDraw = m.hState === 'draw';
+          const hTeam = TEAM_MAP[m.hCode] ?? { flag: '🏳️', full: m.hCode };
+          const aTeam = TEAM_MAP[m.aCode] ?? { flag: '🏳️', full: m.aCode };
+          const sideBetDrinks = m.sideBetDrinks || 0;
+          const defaultDrinks = 1 + sideBetDrinks;
+          return (
+            <div key={m.id} className={styles.matchCard}>
+              <div className={styles.matchHeader}>
+                <span className={styles.matchScore}>
+                  {hTeam.flag} {m.hCode} {m.hGoals}–{m.aGoals} {m.aCode} {aTeam.flag}
+                </span>
+                <span className={styles.matchMeta}>Group {hTeam.group} · FT</span>
+              </div>
+              <div className={styles.slots}>
+                {isDraw && (
+                  <UploadSlot match={m} slot={1} participant={m.hOwner} teamCode={m.hCode} teamFlag={hTeam.flag} defaultDrinks={defaultDrinks} currentFilename={vi?.filename} />
+                )}
+                {isDraw && vi?.filename2 && (
+                  <UploadSlot match={m} slot={2} participant={m.aOwner} teamCode={m.aCode} teamFlag={aTeam.flag} defaultDrinks={defaultDrinks} currentFilename={vi?.filename2} />
+                )}
+                {m.hState === 'losing' && (
+                  <UploadSlot match={m} slot={1} participant={m.hOwner} teamCode={m.hCode} teamFlag={hTeam.flag} defaultDrinks={defaultDrinks} currentFilename={vi?.filename} />
+                )}
+                {m.aState === 'losing' && (
+                  <UploadSlot match={m} slot={1} participant={m.aOwner} teamCode={m.aCode} teamFlag={aTeam.flag} defaultDrinks={defaultDrinks} currentFilename={vi?.filename} />
+                )}
+              </div>
+            </div>
+          );
+        });
+      })()}
     </div>
   );
 }
