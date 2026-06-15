@@ -204,8 +204,8 @@ export default function StatsPage({ players }) {
               <td className={`${styles.stat} ${styles.win}`}>{p.wins}</td>
               <td className={`${styles.stat} ${styles.loss}`}>{p.losses}</td>
               <td className={`${styles.stat} ${styles.draw}`}>{p.draws}</td>
-              <td className={`${styles.stat} ${styles.drink}`}>{p.drinksDone}</td>
-              <td className={`${styles.stat} ${styles.done}`}>{p.drinks - p.drinksDone > 0 ? `${p.drinks - p.drinksDone} owed` : ''}</td>
+              <td className={`${styles.stat} ${styles.drink}`}>{p.drinks}</td>
+              <td className={`${styles.stat} ${styles.done}`}>{p.drinksDone || ''}</td>
             </tr>
           ))}
         </tbody>
