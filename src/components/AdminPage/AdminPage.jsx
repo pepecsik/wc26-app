@@ -177,7 +177,7 @@ function SideBetCard({ match }) {
         <div className={styles.sideBetRow}>
           <span className={styles.drinkLabel}>💰 extra drinks on top of 1</span>
           <select value={drinks} onChange={e => setDrinks(Number(e.target.value))} className={styles.drinkSelect}>
-            {[1,2,3,4,5,6,7,8,9,10].map(n => (
+            {[0.5,1,2,3,4,5,6,7,8,9,10].map(n => (
               <option key={n} value={n}>+{n} = {n+1} total</option>
             ))}
           </select>
