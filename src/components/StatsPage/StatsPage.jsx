@@ -192,7 +192,7 @@ export default function StatsPage({ players }) {
                 {p.rank}
                 {arrows[p.name] && (
                   <span className={arrows[p.name] === '↑' ? styles.rankUp : styles.rankDown}>
-                    {arrows[p.name]}
+                    {arrows[p.name] === '↑' ? '▲' : '▼'}
                   </span>
                 )}
               </td>
