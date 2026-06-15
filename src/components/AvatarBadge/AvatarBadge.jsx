@@ -36,6 +36,7 @@ export default function AvatarBadge({ participant, teamCode, teamFlag, state, ma
         }
       </div>
 
+      {isShaking && <span className={styles.sweat}>😰</span>}
       {isLoser && <span className={styles.beer}>🍺</span>}
       {isLoser && hasVideo && (
         <button className={styles.videoBadge} onClick={e => { e.stopPropagation(); onVideoClick(); }}>🎬</button>

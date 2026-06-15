@@ -6,6 +6,7 @@ import StandingsPage from './components/StandingsPage/StandingsPage';
 import AdminPage from './components/AdminPage/AdminPage';
 import DrinksTicker from './components/DrinksTicker/DrinksTicker';
 import AlarmModal from './components/AlarmModal/AlarmModal';
+import WallOfShame from './components/WallOfShame/WallOfShame';
 import { useMatches } from './hooks/useMatches';
 import { useSheetData } from './hooks/useSheetData';
 import { usePlayerStats } from './hooks/usePlayerStats';
@@ -44,16 +45,22 @@ export default function App() {
   const liveCount = matches.filter(m => m.isLive).length;
   const ago = useAgo(lastUpdated);
 
+  const isShame = activeTab === 'shame';
+
   return (
     <div className={styles.app}>
       <AlarmModal matches={matches} videoMap={videoMap} players={players} />
-      <DrinksTicker players={players} />
-      <Header liveCount={liveCount} activeTab={activeTab} onTabChange={handleTabChange} />
-      <main className={styles.main}>
+      {!isShame && <DrinksTicker players={players} />}
+      {!isShame && <Header liveCount={liveCount} activeTab={activeTab} onTabChange={handleTabChange} />}
+      {isShame && (
+        <button className={styles.shameBack} onClick={() => handleTabChange('matches')}>✕</button>
+      )}
+      <main className={isShame ? styles.mainShame : styles.main}>
         {loading && <div className={styles.status}>Loading matches…</div>}
         {error   && <div className={styles.error}>⚠️ {error}</div>}
         {!loading && activeTab === 'matches' && <Feed matches={matches} videoMap={videoMap} />}
         {!loading && activeTab === 'stats'   && <StatsPage players={players} />}
+        {!loading && activeTab === 'shame'   && <WallOfShame matches={matches} videoMap={videoMap} />}
         {activeTab === 'matches' && ago && (
           <div className={styles.updatedPill}>{ago}</div>
         )}

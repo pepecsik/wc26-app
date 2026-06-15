@@ -22,6 +22,12 @@ export default function Header({ liveCount, activeTab, onTabChange }) {
         >
           Table / Stats
         </button>
+        <button
+          className={styles.shameTab}
+          onClick={() => onTabChange('shame')}
+        >
+          😳
+        </button>
       </nav>
     </header>
   );

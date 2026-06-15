@@ -99,6 +99,16 @@
   z-index: 2;
 }
 
+.sweat {
+  position: absolute;
+  top: -10px;
+  left: -8px;
+  font-size: 24px;
+  animation: sweatBob 1.2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
 .beer {
   position: absolute;
   bottom: 28px;
@@ -149,6 +159,11 @@
   0%,100% { transform: rotate(0deg); }
   25%     { transform: rotate(-22deg); }
   75%     { transform: rotate(22deg); }
+}
+
+@keyframes sweatBob {
+  0%,100% { transform: translateY(0) rotate(-10deg); opacity: 1; }
+  50%      { transform: translateY(-4px) rotate(-10deg); opacity: 0.7; }
 }
 
 @keyframes shake {
