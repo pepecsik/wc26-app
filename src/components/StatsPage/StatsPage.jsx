@@ -172,6 +172,7 @@ export default function StatsPage({ players }) {
 
   return (
     <div className={styles.page}>
+      <FunStats players={ranked} />
       <table className={styles.table}>
         <thead>
           <tr>
@@ -219,7 +220,6 @@ export default function StatsPage({ players }) {
         </tbody>
       </table>
 
-      <FunStats players={ranked} />
       {selected && <PlayerModal player={selected} onClose={() => setSelected(null)} />}
     </div>
   );

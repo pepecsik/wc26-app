@@ -29,8 +29,13 @@ function useAgo(lastUpdated) {
 export default function App() {
   if (IS_ADMIN) return <AdminPage />;
 
-  const [activeTab, setActiveTab]         = useState('matches');
+  const [activeTab, setActiveTab]         = useState(() => localStorage.getItem('wc26-tab') || 'matches');
   const [standingsOpen, setStandingsOpen] = useState(false);
+
+  function handleTabChange(tab) {
+    setActiveTab(tab);
+    localStorage.setItem('wc26-tab', tab);
+  }
   const { matches, loading, error, lastUpdated } = useMatches();
   const videoMap = useSheetData();
   const players  = usePlayerStats(matches, videoMap);
@@ -39,7 +44,7 @@ export default function App() {
 
   return (
     <div className={styles.app}>
-      <Header liveCount={liveCount} activeTab={activeTab} onTabChange={setActiveTab} />
+      <Header liveCount={liveCount} activeTab={activeTab} onTabChange={handleTabChange} />
       <main className={styles.main}>
         {loading && <div className={styles.status}>Loading matches…</div>}
         {error   && <div className={styles.error}>⚠️ {error}</div>}
