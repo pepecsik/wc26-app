@@ -26,7 +26,7 @@
   font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.4);
   text-align: center;
   margin-bottom: 4px;
 }
@@ -56,6 +56,7 @@
   text-transform: uppercase;
 }
 
+/* ── Header ── */
 .header {
   position: sticky;
   top: 0;
@@ -63,14 +64,14 @@
   background: rgba(4,14,7,0.96);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(0,200,68,0.15);
-  padding: 16px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -78,13 +79,13 @@
 }
 
 .corsBtn {
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
-  color: rgba(255,255,255,0.4);
-  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  font-size: 10px;
   font-weight: 700;
-  padding: 6px 10px;
+  padding: 5px 10px;
   cursor: pointer;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -97,49 +98,147 @@
   font-size: 14px;
 }
 
+/* ── Match card ── */
 .matchCard {
   margin: 12px 14px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
-  padding: 14px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.matchHeader {
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.matchScore {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+}
+
+.matchMeta {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+
+.slots {
   display: flex;
   flex-direction: column;
+  gap: 0;
+}
+
+/* ── Upload slot ── */
+.slot {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.slot:last-child {
+  border-bottom: none;
+}
+
+.slotDone {
+  background: rgba(0,200,68,0.05);
+}
+
+.slotPlayer {
+  display: flex;
+  align-items: center;
   gap: 12px;
 }
 
-.matchTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.7);
+/* ── Avatar ── */
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.slot {
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitials {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.slotInfo {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
 }
 
-.slotLabel {
-  font-size: 12px;
+.slotFlag {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.slotName {
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
+  color: #fff;
 }
 
-.slotRow {
+.doneTag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #00c844;
+  letter-spacing: 0.3px;
+}
+
+.doneName {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  word-break: break-all;
+  padding-left: 60px;
+}
+
+/* ── Controls ── */
+.slotControls {
   display: flex;
   gap: 8px;
   align-items: center;
-  flex-wrap: wrap;
+}
+
+.fileLabel {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.5);
+  font-size: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 
 .fileInput {
-  flex: 1;
-  min-width: 0;
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
+  display: none;
 }
 
 .uploadBtn {
@@ -149,24 +248,16 @@
   color: #00c844;
   font-size: 12px;
   font-weight: 700;
-  padding: 8px 16px;
+  padding: 8px 14px;
   cursor: pointer;
   white-space: nowrap;
-  min-width: 80px;
-  letter-spacing: 0.5px;
+  min-width: 90px;
+  letter-spacing: 0.3px;
 }
 
 .uploadBtn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
-}
-
-.slotDone {
-  font-size: 12px;
-  color: #00c844;
-  font-weight: 700;
-  padding: 4px 0;
-  word-break: break-all;
 }
 
 .slotError {
