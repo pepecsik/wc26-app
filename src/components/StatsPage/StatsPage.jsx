@@ -39,7 +39,7 @@ function FunStats({ players }) {
       {totalDrinks > 0 && (
         <div className={styles.totalDrinks}>
           🍺 <span>{totalDrinks}</span> drinks owed · <span>{totalDrinksDone}</span> done
-          {totalSideBet > 0 && <> · 💰 <span>{totalSideBet}</span> from side bets</>}
+          {totalSideBet > 0 && <> · 🎉 <span>{totalSideBet}</span> extra drinks</>}
         </div>
       )}
 
