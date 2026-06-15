@@ -27,7 +27,7 @@ function FunStats({ players }) {
   const totalSideBet    = players.reduce((s, p) => s + (p.sideBetDrinkCount ?? 0) + (p.bonusDrinks ?? 0), 0);
   const maxDrinks    = Math.max(...players.map(p => p.drinksDone));
   const topDrinkers  = maxDrinks > 0 ? players.filter(p => p.drinksDone === maxDrinks) : [];
-  const cleanPlayers = players.filter(p => p.drinksDone === 0 && p.matches.some(m => m.isFinished));
+  const cleanPlayers = players.filter(p => p.drinks === 0 && p.matches.some(m => m.isFinished));
   const maxStreak    = Math.max(...players.map(p => p.streak));
   const topStreakers  = maxStreak > 0 ? players.filter(p => p.streak === maxStreak) : [];
   const debtPlayers  = players.filter(p => p.videoDebt > 0).sort((a, b) => b.videoDebt - a.videoDebt);
@@ -60,8 +60,16 @@ function FunStats({ players }) {
 
         {cleanPlayers.length > 0 && (
           <StatCard emoji="😇" label="Still Clean">
-            <div className={styles.statCardAvatars}>
-              {cleanPlayers.map(p => <MiniAvatar key={p.name} p={p} />)}
+            <div className={styles.statCardDebt}>
+              {cleanPlayers.map(p => (
+                <div key={p.name} className={styles.debtRow}>
+                  <MiniAvatar p={p} />
+                  <span className={styles.statCardName}>{p.name}</span>
+                  <span className={styles.statCardVal}>
+                    {p.teams.map(code => (TEAM_MAP[code]?.flag ?? '')).join(' ')}
+                  </span>
+                </div>
+              ))}
             </div>
           </StatCard>
         )}
