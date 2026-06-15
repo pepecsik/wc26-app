@@ -1,5 +1,5 @@
 .page {
-  padding: 12px 0 32px;
+  padding: 0 0 32px;
 }
 
 .table {
@@ -57,6 +57,18 @@ thead tr {
   font-weight: 700;
   color: rgba(255,255,255,0.25);
   text-align: center;
+  white-space: nowrap;
+  position: relative;
+}
+
+.rankArrow {
+  position: absolute;
+  left: calc(100% - 2px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .player {
@@ -124,8 +136,8 @@ thead tr {
   font-variant-numeric: tabular-nums;
 }
 
-.rankUp   { color: #00c844; font-size: 14px; margin-left: 2px; font-weight: 900; }
-.rankDown { color: #ff3b3b; font-size: 14px; margin-left: 2px; font-weight: 900; }
+.rankUp   { color: #00c844; }
+.rankDown { color: #ff3b3b; }
 
 .win   { color: #00c844; }
 .loss  { color: #ff3b3b; }

@@ -191,7 +191,7 @@ export default function StatsPage({ players }) {
               <td className={styles.rank}>
                 {p.rank}
                 {arrows[p.name] && (
-                  <span className={arrows[p.name] === '↑' ? styles.rankUp : styles.rankDown}>
+                  <span className={`${styles.rankArrow} ${arrows[p.name] === '↑' ? styles.rankUp : styles.rankDown}`}>
                     {arrows[p.name] === '↑' ? '▲' : '▼'}
                   </span>
                 )}
