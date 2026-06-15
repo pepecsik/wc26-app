@@ -93,7 +93,7 @@ function rowToMatch(row, index) {
     else                            { hState = 'draw';    aState = 'draw';   }
   }
 
-  const sideBetDrinks = row['Side Bet Drinks'] !== '' ? Number(row['Side Bet Drinks']) : 0;
+  const sideBetDrinks = row['Side Bet Drinks'] !== '' ? Number(String(row['Side Bet Drinks']).replace(',', '.')) : 0;
   const sideBetDesc   = row['Side Bet Description'] || '';
 
   return {
