@@ -1,12 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header/Header';
 import Feed from './components/Feed/Feed';
 import StatsPage from './components/StatsPage/StatsPage';
 import StandingsPage from './components/StandingsPage/StandingsPage';
+import AdminPage from './components/AdminPage/AdminPage';
 import { useMatches } from './hooks/useMatches';
 import { useSheetData } from './hooks/useSheetData';
 import { usePlayerStats } from './hooks/usePlayerStats';
 import styles from './App.module.css';
+
+const IS_ADMIN = window.location.pathname.startsWith('/admin');
 
 function useAgo(lastUpdated) {
   const [ago, setAgo] = useState('');
@@ -24,6 +27,8 @@ function useAgo(lastUpdated) {
 }
 
 export default function App() {
+  if (IS_ADMIN) return <AdminPage />;
+
   const [activeTab, setActiveTab]         = useState('matches');
   const [standingsOpen, setStandingsOpen] = useState(false);
   const { matches, loading, error, lastUpdated } = useMatches();
