@@ -344,7 +344,7 @@ export default function AdminPage() {
       {tab === 'reupload' && (() => {
         const done = matches
           .filter(m => m.isFinished && videoMap[`${m.hCode}-${m.aCode}`]?.filename)
-          .sort((a, b) => a.kickoff - b.kickoff);
+          .sort((a, b) => b.kickoff - a.kickoff);
         if (done.length === 0) return <div className={styles.empty}>No uploaded videos yet</div>;
         return done.map(m => {
           const vi = videoMap[`${m.hCode}-${m.aCode}`];
