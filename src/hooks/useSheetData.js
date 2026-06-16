@@ -49,8 +49,8 @@ export function useSheetData() {
         const away      = row['Away'] || '';
         const filename  = row['Generated Filename'] || '';
         const filename2 = row['Generated Filename 2'] || '';
-        const drinks1 = row['Drinks 1'] !== '' ? Number(row['Drinks 1']) : null;
-        const drinks2 = row['Drinks 2'] !== '' ? Number(row['Drinks 2']) : null;
+        const drinks1 = row['Drinks 1'] !== '' ? Number(String(row['Drinks 1']).replace(',', '.')) : null;
+        const drinks2 = row['Drinks 2'] !== '' ? Number(String(row['Drinks 2']).replace(',', '.')) : null;
         if (home && away) {
           map[`${home}-${away}`] = { filename, filename2, drinks1, drinks2 };
         }
