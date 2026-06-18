@@ -47,22 +47,6 @@ export default function AvatarBadge({
       role={isLoser && hasVideo ? 'button' : undefined}
     >
       {isWinner && <span className={styles.crown}>👑</span>}
-
-      <div className={styles.inner}>
-      <div className={styles.photoArea}>
-        {participant?.photo
-          ? <img src={participant.photo} alt={name} className={styles.photo} />
-          : <span className={styles.initials} style={{ color }}>{initials}</span>
-        }
-        {/* Play button overlay when video uploaded */}
-        {isLoser && hasVideo && (
-          <div className={styles.playOverlay}>
-            <span className={styles.playBtn}>▶</span>
-            {hasVideo2 && <span className={styles.video2Badge}>×2</span>}
-          </div>
-        )}
-      </div>
-
       {isShaking && <span className={styles.sweat}>😰</span>}
 
       {/* Waiting: animated emojis */}
@@ -83,9 +67,23 @@ export default function AvatarBadge({
         </div>
       )}
 
-      <div className={styles.chin} style={{ background: color }}>
-        <span className={styles.chinName}>{name}</span>
-      </div>
+      <div className={styles.inner}>
+        <div className={styles.photoArea}>
+          {participant?.photo
+            ? <img src={participant.photo} alt={name} className={styles.photo} />
+            : <span className={styles.initials} style={{ color }}>{initials}</span>
+          }
+          {/* Play button overlay when video uploaded */}
+          {isLoser && hasVideo && (
+            <div className={styles.playOverlay}>
+              <span className={styles.playBtn}>▶</span>
+              {hasVideo2 && <span className={styles.video2Badge}>×2</span>}
+            </div>
+          )}
+        </div>
+        <div className={styles.chin} style={{ background: color }}>
+          <span className={styles.chinName}>{name}</span>
+        </div>
       </div>
     </div>
   );
