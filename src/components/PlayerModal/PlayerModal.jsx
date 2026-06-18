@@ -23,7 +23,7 @@ export default function PlayerModal({ player, onClose }) {
   const videos = player.matches.filter(m => m.myVideo);
 
   if (playVideo) {
-    return <VideoModal filename={playVideo.filename} title={playVideo.title} onClose={() => setPlayVideo(null)} />;
+    return <VideoModal filenames={playVideo.filenames} title={playVideo.title} onClose={() => setPlayVideo(null)} />;
   }
 
   return (
@@ -106,8 +106,8 @@ export default function PlayerModal({ player, onClose }) {
                 <button
                   className={styles.videoBtn}
                   style={m.myVideo ? {} : { visibility: 'hidden' }}
-                  onClick={() => m.myVideo && setPlayVideo({ filename: m.myVideo, title: `${my.flag} vs ${opp.flag}` })}
-                >▶</button>
+                  onClick={() => m.myVideo && setPlayVideo({ filenames: [m.myVideo, ...(m.myVideo2 ? [m.myVideo2] : [])], title: `${my.flag} vs ${opp.flag}` })}
+                >▶{m.myVideo2 ? <span className={styles.videoBtnCount}>×2</span> : null}</button>
               </div>
             );
           })}
@@ -116,30 +116,41 @@ export default function PlayerModal({ player, onClose }) {
         {/* Videos */}
         {videos.length > 0 && (
           <>
-            <h3 className={styles.section}>Punishment Videos ({videos.length})</h3>
+            <h3 className={styles.section}>Punishment Videos ({videos.reduce((n, m) => n + 1 + (m.myVideo2 ? 1 : 0), 0)})</h3>
             <div className={styles.videoGrid}>
-              {videos.map(m => {
+              {videos.flatMap(m => {
                 const opp = TEAM_MAP[m.oppCode] ?? { flag: '🏳️', full: m.oppCode };
                 const my  = TEAM_MAP[m.teamCode] ?? { flag: '🏳️', full: m.teamCode };
-                return (
+                const label = `${my.flag} vs ${opp.flag}`;
+                const cards = [
                   <button
                     key={m.id}
                     className={styles.videoCard}
-                    onClick={() => setPlayVideo({ filename: m.myVideo, title: `${my.flag} vs ${opp.flag}` })}
+                    onClick={() => setPlayVideo({ filenames: [m.myVideo], title: label })}
                   >
-                    <video
-                      className={styles.videoThumb}
-                      src={m.videoUrl}
-                      preload="metadata"
-                      muted
-                      playsInline
-                    />
+                    <video className={styles.videoThumb} src={m.videoUrl} preload="metadata" muted playsInline />
                     <div className={styles.videoOverlay}>
                       <span className={styles.videoPlay}>▶</span>
-                      <span className={styles.videoLabel}>{my.flag} vs {opp.flag}</span>
+                      <span className={styles.videoLabel}>{label}</span>
                     </div>
                   </button>
-                );
+                ];
+                if (m.myVideo2) {
+                  cards.push(
+                    <button
+                      key={m.id + '_2'}
+                      className={styles.videoCard}
+                      onClick={() => setPlayVideo({ filenames: [m.myVideo2], title: label + ' #2' })}
+                    >
+                      <video className={styles.videoThumb} src={m.videoUrl2} preload="metadata" muted playsInline />
+                      <div className={styles.videoOverlay}>
+                        <span className={styles.videoPlay}>▶</span>
+                        <span className={styles.videoLabel}>{label} #2</span>
+                      </div>
+                    </button>
+                  );
+                }
+                return cards;
               })}
             </div>
           </>
