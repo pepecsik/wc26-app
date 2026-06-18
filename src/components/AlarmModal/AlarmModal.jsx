@@ -48,7 +48,7 @@ export default function AlarmModal({ matches, videoMap, sheetLoaded }) {
     urgent.sort((a, b) => a.left - b.left);
     setQueue(urgent);
     if (urgent.length > 0) setRemaining(urgent[0].left);
-  }, [matches, videoMap]);
+  }, [matches, videoMap, sheetLoaded]);
 
   // tick countdown for current person
   useEffect(() => {
