@@ -260,6 +260,21 @@
   cursor: not-allowed;
 }
 
+.extraVideoBtn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  background: rgba(0,200,68,0.08);
+  border: 1px dashed rgba(0,200,68,0.35);
+  border-radius: 10px;
+  color: #00c844;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+.extraVideoBtn:hover { background: rgba(0,200,68,0.15); }
+
 .slotError {
   font-size: 11px;
   color: #ff6b6b;

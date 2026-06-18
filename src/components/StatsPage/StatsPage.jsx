@@ -24,7 +24,7 @@ function FunStats({ players }) {
 
   const totalDrinks     = players.reduce((s, p) => s + p.drinks, 0);
   const totalDrinksDone = players.reduce((s, p) => s + p.drinksDone, 0);
-  const totalSideBet    = players.reduce((s, p) => s + (p.sideBetDrinkCount ?? 0) + (p.bonusDrinks ?? 0), 0);
+  const totalSideBet    = players.reduce((s, p) => s + (p.sideBetDrinkCount ?? 0) + (p.bonusDrinks ?? 0) + (p.extraVideoDrinks ?? 0), 0);
   const maxDrinks    = Math.max(...players.map(p => p.drinksDone));
   const topDrinkers  = maxDrinks > 0 ? players.filter(p => p.drinksDone === maxDrinks) : [];
   const cleanPlayers = players.filter(p => p.drinks === 0 && p.matches.some(m => m.isFinished));

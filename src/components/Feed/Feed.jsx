@@ -70,7 +70,7 @@ export default function Feed({ matches, videoMap }) {
                     match={m}
                     videoInfo={videoMap[`${m.hCode}-${m.aCode}`]}
                     isFocus={isActive}
-                    onVideoOpen={(filename, title) => setVideo({ filename, title })}
+                    onVideoOpen={(filenames, title) => setVideo({ filenames, title })}
                   />
                 </div>
               );

@@ -250,6 +250,13 @@
 }
 .videoBtn:hover { background: rgba(255,71,87,0.28); }
 
+.videoBtnCount {
+  font-size: 8px;
+  font-weight: 900;
+  color: #00c844;
+  margin-left: 1px;
+}
+
 /* ── Video grid ── */
 .videoGrid {
   display: grid;

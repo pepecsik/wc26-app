@@ -54,6 +54,8 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         filename1: script.filename1,
         filename2: script.filename2,
+        filename3: script.filename3,
+        filename4: script.filename4,
         uploadUrl: urlData.uploadUrl,
         uploadAuthToken: urlData.authorizationToken,
       }),

@@ -1,13 +1,9 @@
 .header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
   background: rgba(4,14,7,0.96);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(0,200,68,0.15);
   box-shadow: 0 1px 24px rgba(0,0,0,0.5);
   padding: 14px 16px 0;
+  flex-shrink: 0;
 }
 
 .title {

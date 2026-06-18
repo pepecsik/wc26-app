@@ -13,13 +13,13 @@ function formatRemaining(ms) {
   return h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
 }
 
-export default function AlarmModal({ matches, videoMap }) {
+export default function AlarmModal({ matches, videoMap, sheetLoaded }) {
   const [queue, setQueue] = useState(null); // null = not yet computed
   const [index, setIndex] = useState(0);
   const [remaining, setRemaining] = useState(null);
 
   useEffect(() => {
-    if (matches.length === 0) return;
+    if (matches.length === 0 || !sheetLoaded) return;
     const now = Date.now();
     const urgent = [];
 

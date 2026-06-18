@@ -1,5 +1,7 @@
 .app {
-  min-height: 100dvh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
   background:
     radial-gradient(ellipse 120% 60% at 50% 0%, rgba(12, 80, 35, 0.35) 0%, transparent 70%),
     radial-gradient(ellipse 80% 40% at 50% 100%, rgba(6, 40, 18, 0.4) 0%, transparent 60%),
@@ -9,9 +11,21 @@
 }
 
 .main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.mainPadded {
+  flex: 1;
+  overflow-y: auto;
   padding: 12px 14px 0;
   max-width: 480px;
+  width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .mainShame {

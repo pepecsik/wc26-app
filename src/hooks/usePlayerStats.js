@@ -29,6 +29,7 @@ export function usePlayerStats(matches, videoMap) {
           const key = `${m.hCode}-${m.aCode}`;
           const video = videoMap[key];
           let myVideo = null;
+          let myVideo2 = null;
           let myDrinkCount = 1;
           if (video && m.isFinished && (myState === 'losing' || myState === 'draw')) {
             if (myState === 'draw') {
@@ -36,10 +37,12 @@ export function usePlayerStats(matches, videoMap) {
               const uploaded = isHome ? video.drinks1 != null : video.drinks2 != null;
               if (uploaded) {
                 myVideo = isHome ? video.filename : video.filename2;
+                myVideo2 = isHome ? (video.filename3 || null) : (video.filename4 || null);
                 myDrinkCount = isHome ? (video.drinks1 ?? 1) : (video.drinks2 ?? 1);
               }
             } else {
               myVideo = video.filename;
+              myVideo2 = video.filename3 || null; // extra video (col X)
               myDrinkCount = isHome
                 ? (video.drinks1 ?? 1)
                 : (video.drinks2 ?? video.drinks1 ?? 1);
@@ -57,9 +60,11 @@ export function usePlayerStats(matches, videoMap) {
             isFinished: m.isFinished,
             isLive: m.isLive,
             myVideo,
+            myVideo2,
             myDrinkCount,
             sideBetDrinks: m.sideBetDrinks ?? 0,
             videoUrl: myVideo ? `${B2_BASE}/${encodeURIComponent(myVideo)}.mp4` : null,
+            videoUrl2: myVideo2 ? `${B2_BASE}/${encodeURIComponent(myVideo2)}.mp4` : null,
           });
         });
       });
@@ -72,6 +77,9 @@ export function usePlayerStats(matches, videoMap) {
       const sideBetDrinkCount = playerMatches
         .filter(m => m.myVideo)
         .reduce((sum, m) => sum + (m.sideBetDrinks ?? 0), 0);
+      const extraVideoDrinks = playerMatches
+        .filter(m => m.myVideo)
+        .reduce((sum, m) => sum + Math.max(0, (m.myDrinkCount ?? 1) - 1 - (m.sideBetDrinks ?? 0)), 0);
       const drinksDone = bonusDrinks + playerMatches
         .filter(m => m.myVideo)
         .reduce((sum, m) => sum + (m.myDrinkCount ?? 1), 0);
@@ -100,6 +108,7 @@ export function usePlayerStats(matches, videoMap) {
         drinksDone,
         drinksTotal,
         sideBetDrinkCount,
+        extraVideoDrinks,
         videosSent,
         videoDebt: drinks - videosSent,
         streak,

@@ -22,7 +22,10 @@ function Avatar({ participant, teamCode }) {
 }
 
 function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrinks, currentFilename }) {
+  const isExtra = slot === 3 || slot === 4;
   const [file, setFile] = useState(null);
+  const [redoDrink, setRedoDrink] = useState(0);
+  const [bonusDrinks, setBonusDrinks] = useState(0);
   const [drinkCount, setDrinkCount] = useState(defaultDrinks ?? 1);
   const [status, setStatus] = useState('idle');
   const [progress, setProgress] = useState(0);
@@ -41,12 +44,12 @@ function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrink
       const prepRes = await fetch('/.netlify/functions/prepare-upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ home: match.hCode, away: match.aCode, slot, drinkCount }),
+        body: JSON.stringify({ home: match.hCode, away: match.aCode, slot, drinkCount: isExtra ? redoDrink + bonusDrinks : drinkCount }),
       });
       const prep = await prepRes.json();
       if (prep.error) throw new Error(prep.error);
 
-      const filename = slot === 1 ? prep.filename1 : prep.filename2;
+      const filename = slot === 1 ? prep.filename1 : slot === 2 ? prep.filename2 : slot === 3 ? prep.filename3 : prep.filename4;
       if (!filename) throw new Error('No filename returned from sheet');
 
       await new Promise((resolve, reject) => {
@@ -87,6 +90,22 @@ function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrink
 
       {status !== 'done' && (
         <div className={styles.slotControls}>
+          {isExtra ? (
+            <>
+              <div className={styles.drinkRow}>
+                <span className={styles.drinkLabel}>🔄 redo drink</span>
+                <select value={redoDrink} onChange={e => setRedoDrink(Number(e.target.value))} className={styles.drinkSelect}>
+                  {[0,1].map(n => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </div>
+              <div className={styles.drinkRow}>
+                <span className={styles.drinkLabel}>🍺 bonus drinks</span>
+                <select value={bonusDrinks} onChange={e => setBonusDrinks(Number(e.target.value))} className={styles.drinkSelect}>
+                  {[0,1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </div>
+            </>
+          ) : (
           <div className={styles.drinkRow}>
             <span className={styles.drinkLabel}>🍺 drinks</span>
             <select
@@ -99,6 +118,7 @@ function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrink
               ))}
             </select>
           </div>
+          )}
           <label className={styles.fileLabel}>
             {file ? file.name.slice(0, 28) + (file.name.length > 28 ? '…' : '') : 'Choose video'}
             <input
@@ -204,13 +224,58 @@ function SideBetCard({ match }) {
   );
 }
 
+function ExtraVideoSection({ match, participant, teamCode, teamFlag, slot, existingFilename }) {
+  const [show, setShow] = useState(false);
+  if (existingFilename) {
+    return <UploadSlot match={match} slot={slot} participant={participant} teamCode={teamCode} teamFlag={teamFlag} defaultDrinks={1} currentFilename={existingFilename} />;
+  }
+  if (!show) {
+    return <button className={styles.extraVideoBtn} onClick={() => setShow(true)}>+ Add extra video for {participant?.name ?? teamCode}</button>;
+  }
+  return <UploadSlot match={match} slot={slot} participant={participant} teamCode={teamCode} teamFlag={teamFlag} defaultDrinks={1} />;
+}
+
+function ReuploadCard({ match: m, vi }) {
+  const isDraw = m.hState === 'draw';
+  const hTeam = TEAM_MAP[m.hCode] ?? { flag: '🏳️', full: m.hCode };
+  const aTeam = TEAM_MAP[m.aCode] ?? { flag: '🏳️', full: m.aCode };
+  const sideBetDrinks = m.sideBetDrinks || 0;
+  const defaultDrinks = 1 + sideBetDrinks;
+  const loser = m.hState === 'losing' ? { owner: m.hOwner, code: m.hCode, flag: hTeam.flag }
+              : m.aState === 'losing' ? { owner: m.aOwner, code: m.aCode, flag: aTeam.flag }
+              : null;
+
+  return (
+    <div className={styles.matchCard}>
+      <div className={styles.matchHeader}>
+        <span className={styles.matchScore}>
+          {hTeam.flag} {m.hCode} {m.hGoals}–{m.aGoals} {m.aCode} {aTeam.flag}
+        </span>
+        <span className={styles.matchMeta}>Group {hTeam.group} · FT</span>
+      </div>
+      <div className={styles.slots}>
+        {isDraw && <>
+          <UploadSlot match={m} slot={1} participant={m.hOwner} teamCode={m.hCode} teamFlag={hTeam.flag} defaultDrinks={defaultDrinks} currentFilename={vi?.filename} />
+          {vi?.filename2 && <UploadSlot match={m} slot={2} participant={m.aOwner} teamCode={m.aCode} teamFlag={aTeam.flag} defaultDrinks={defaultDrinks} currentFilename={vi.filename2} />}
+          <ExtraVideoSection match={m} participant={m.hOwner} teamCode={m.hCode} teamFlag={hTeam.flag} slot={3} existingFilename={vi?.filename3} />
+          {vi?.filename2 && <ExtraVideoSection match={m} participant={m.aOwner} teamCode={m.aCode} teamFlag={aTeam.flag} slot={4} existingFilename={vi?.filename4} />}
+        </>}
+        {loser && <>
+          <UploadSlot match={m} slot={1} participant={loser.owner} teamCode={loser.code} teamFlag={loser.flag} defaultDrinks={defaultDrinks} currentFilename={vi?.filename} />
+          <ExtraVideoSection match={m} participant={loser.owner} teamCode={loser.code} teamFlag={loser.flag} slot={3} existingFilename={vi?.filename3} />
+        </>}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
   const [corsMsg, setCorsMsg] = useState('');
   const [tab, setTab] = useState('uploads');
   const { matches } = useMatches();
-  const videoMap = useSheetData();
+  const { videoMap } = useSheetData();
 
   function tryLogin() {
     if (password === ADMIN_PASSWORD) setAuthed(true);
@@ -346,38 +411,7 @@ export default function AdminPage() {
           .filter(m => m.isFinished && videoMap[`${m.hCode}-${m.aCode}`]?.filename)
           .sort((a, b) => b.kickoff - a.kickoff);
         if (done.length === 0) return <div className={styles.empty}>No uploaded videos yet</div>;
-        return done.map(m => {
-          const vi = videoMap[`${m.hCode}-${m.aCode}`];
-          const isDraw = m.hState === 'draw';
-          const hTeam = TEAM_MAP[m.hCode] ?? { flag: '🏳️', full: m.hCode };
-          const aTeam = TEAM_MAP[m.aCode] ?? { flag: '🏳️', full: m.aCode };
-          const sideBetDrinks = m.sideBetDrinks || 0;
-          const defaultDrinks = 1 + sideBetDrinks;
-          return (
-            <div key={m.id} className={styles.matchCard}>
-              <div className={styles.matchHeader}>
-                <span className={styles.matchScore}>
-                  {hTeam.flag} {m.hCode} {m.hGoals}–{m.aGoals} {m.aCode} {aTeam.flag}
-                </span>
-                <span className={styles.matchMeta}>Group {hTeam.group} · FT</span>
-              </div>
-              <div className={styles.slots}>
-                {isDraw && (
-                  <UploadSlot match={m} slot={1} participant={m.hOwner} teamCode={m.hCode} teamFlag={hTeam.flag} defaultDrinks={defaultDrinks} currentFilename={vi?.filename} />
-                )}
-                {isDraw && vi?.filename2 && (
-                  <UploadSlot match={m} slot={2} participant={m.aOwner} teamCode={m.aCode} teamFlag={aTeam.flag} defaultDrinks={defaultDrinks} currentFilename={vi?.filename2} />
-                )}
-                {m.hState === 'losing' && (
-                  <UploadSlot match={m} slot={1} participant={m.hOwner} teamCode={m.hCode} teamFlag={hTeam.flag} defaultDrinks={defaultDrinks} currentFilename={vi?.filename} />
-                )}
-                {m.aState === 'losing' && (
-                  <UploadSlot match={m} slot={1} participant={m.aOwner} teamCode={m.aCode} teamFlag={aTeam.flag} defaultDrinks={defaultDrinks} currentFilename={vi?.filename} />
-                )}
-              </div>
-            </div>
-          );
-        });
+        return done.map(m => <ReuploadCard key={m.id} match={m} vi={videoMap[`${m.hCode}-${m.aCode}`]} />);
       })()}
     </div>
   );

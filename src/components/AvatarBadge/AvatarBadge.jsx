@@ -1,6 +1,6 @@
 import styles from './AvatarBadge.module.css';
 
-export default function AvatarBadge({ participant, teamCode, teamFlag, state, matchState, isFocus, hasVideo, onVideoClick }) {
+export default function AvatarBadge({ participant, teamCode, teamFlag, state, matchState, isFocus, hasVideo, hasVideo2, onVideoClick }) {
   const isLive     = matchState === 'live';
   const isFinished = matchState === 'finished';
   const isLoser    = isFinished && (state === 'losing' || state === 'draw');
@@ -39,7 +39,9 @@ export default function AvatarBadge({ participant, teamCode, teamFlag, state, ma
       {isShaking && <span className={styles.sweat}>😰</span>}
       {isLoser && <span className={styles.beer}>🍺</span>}
       {isLoser && hasVideo && (
-        <button className={styles.videoBadge} onClick={e => { e.stopPropagation(); onVideoClick(); }}>🎬</button>
+        <button className={styles.videoBadge} onClick={e => { e.stopPropagation(); onVideoClick(); }}>
+          🎬{hasVideo2 && <span className={styles.videoBadgeCount}>×2</span>}
+        </button>
       )}
 
       <div className={styles.chin} style={{ background: color }}>

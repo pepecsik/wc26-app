@@ -76,6 +76,29 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
                   : false;
   const aFilename = videoInfo?.filename2 || videoInfo?.filename;
 
+  // Extra videos — col X (filename3) for home/loser, col Y (filename4) for away in draws
+  const hHasVideo2 = hState === 'losing' ? !!(videoInfo?.filename3)
+                   : hState === 'draw'   ? !!(videoInfo?.filename3)
+                   : false;
+  const aHasVideo2 = aState === 'losing' ? !!(videoInfo?.filename3)
+                   : aState === 'draw'   ? !!(videoInfo?.filename4)
+                   : false;
+
+  const hFilenames = [
+    ...(videoInfo?.filename ? [videoInfo.filename] : []),
+    ...(hState === 'draw' && videoInfo?.filename3 ? [videoInfo.filename3] : []),
+    ...(hState === 'losing' && videoInfo?.filename3 ? [videoInfo.filename3] : []),
+  ];
+  const aFilenames = aState === 'draw'
+    ? [
+        ...(aFilename ? [aFilename] : []),
+        ...(videoInfo?.filename4 ? [videoInfo.filename4] : []),
+      ]
+    : [
+        ...(aFilename ? [aFilename] : []),
+        ...(aState === 'losing' && videoInfo?.filename3 ? [videoInfo.filename3] : []),
+      ];
+
   // Who still needs to send a punishment video
   const drinkers = (() => {
     if (!isFinished) return null;
@@ -104,8 +127,8 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
       <AvatarBadge
         participant={hOwner} teamCode={hCode} teamFlag={hTeam.flag}
         state={hState} matchState={matchState} isFocus={isFocus}
-        hasVideo={hHasVideo}
-        onVideoClick={() => onVideoOpen(videoInfo?.filename, videoTitle)}
+        hasVideo={hHasVideo} hasVideo2={hHasVideo2}
+        onVideoClick={() => onVideoOpen(hFilenames, videoTitle)}
       />
 
       <div className={styles.center}>
@@ -151,8 +174,8 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
       <AvatarBadge
         participant={aOwner} teamCode={aCode} teamFlag={aTeam.flag}
         state={aState} matchState={matchState} isFocus={isFocus}
-        hasVideo={aHasVideo}
-        onVideoClick={() => onVideoOpen(aFilename, videoTitle)}
+        hasVideo={aHasVideo} hasVideo2={aHasVideo2}
+        onVideoClick={() => onVideoOpen(aFilenames, videoTitle)}
       />
       </div>
 

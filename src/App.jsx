@@ -40,7 +40,7 @@ export default function App() {
     localStorage.setItem('wc26-tab', tab);
   }
   const { matches, loading, error, lastUpdated } = useMatches();
-  const videoMap = useSheetData();
+  const { videoMap, sheetLoaded } = useSheetData();
   const players  = usePlayerStats(matches, videoMap);
   const liveCount = matches.filter(m => m.isLive).length;
   const ago = useAgo(lastUpdated);
@@ -49,13 +49,13 @@ export default function App() {
 
   return (
     <div className={styles.app}>
-      <AlarmModal matches={matches} videoMap={videoMap} players={players} />
+      <AlarmModal matches={matches} videoMap={videoMap} players={players} sheetLoaded={sheetLoaded} />
       {!isShame && <DrinksTicker players={players} />}
       {!isShame && <Header liveCount={liveCount} activeTab={activeTab} onTabChange={handleTabChange} />}
       {isShame && (
         <button className={styles.shameBack} onClick={() => handleTabChange('matches')}>✕</button>
       )}
-      <main className={isShame ? styles.mainShame : styles.main}>
+      <main className={isShame ? styles.mainShame : activeTab === 'matches' ? styles.main : styles.mainPadded}>
         {loading && <div className={styles.status}>Loading matches…</div>}
         {error   && <div className={styles.error}>⚠️ {error}</div>}
         {!loading && activeTab === 'matches' && <Feed matches={matches} videoMap={videoMap} />}

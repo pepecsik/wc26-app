@@ -37,6 +37,7 @@ function parseCSV(text) {
 // filename2 is only set for draws with two different drinkers
 export function useSheetData() {
   const [videoMap, setVideoMap] = useState({});
+  const [sheetLoaded, setSheetLoaded] = useState(false);
 
   async function fetchSheet() {
     try {
@@ -49,15 +50,19 @@ export function useSheetData() {
         const away      = row['Away'] || '';
         const filename  = row['Generated Filename'] || '';
         const filename2 = row['Generated Filename 2'] || '';
+        const filename3 = row['Generated Extra Filename 3'] || '';
+        const filename4 = row['Generated Extra Filename 4'] || '';
         const drinks1 = row['Drinks 1'] !== '' ? Number(String(row['Drinks 1']).replace(',', '.')) : null;
         const drinks2 = row['Drinks 2'] !== '' ? Number(String(row['Drinks 2']).replace(',', '.')) : null;
         if (home && away) {
-          map[`${home}-${away}`] = { filename, filename2, drinks1, drinks2 };
+          map[`${home}-${away}`] = { filename, filename2, filename3, filename4, drinks1, drinks2 };
         }
       });
       setVideoMap(map);
     } catch (e) {
       console.warn('Sheet fetch failed:', e.message);
+    } finally {
+      setSheetLoaded(true);
     }
   }
 
@@ -67,5 +72,5 @@ export function useSheetData() {
     return () => clearInterval(interval);
   }, []);
 
-  return videoMap;
+  return { videoMap, sheetLoaded };
 }

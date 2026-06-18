@@ -1,9 +1,10 @@
 .slotContainer {
-  height: calc(100dvh - 118px);
+  flex: 1;
+  min-height: 0;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   scrollbar-width: none;
-  padding: calc((100dvh - 118px) / 2 - 100px) 14px;
+  padding: 30vh 14px;
 }
 .slotContainer::-webkit-scrollbar { display: none; }
 

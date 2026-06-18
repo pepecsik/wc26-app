@@ -139,6 +139,19 @@
 }
 .videoBadge:hover { transform: scale(1.15); }
 
+.videoBadgeCount {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: #00c844;
+  color: #000;
+  font-size: 8px;
+  font-weight: 900;
+  padding: 1px 4px;
+  border-radius: 8px;
+  line-height: 1.4;
+}
+
 /* ── Animations ── */
 @keyframes crownDrop {
   from { opacity: 0; transform: rotate(30deg) translateY(-10px); }
