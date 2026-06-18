@@ -60,7 +60,7 @@ export default function App() {
       if (!m.isFinished) return;
       const deadline = m.kickoff.getTime() + DEADLINE_MS;
       const left = deadline - now;
-      const inWindow = TEST_MODE ? true : (left > 0 && left <= ALARM_MS);
+      const inWindow = TEST_MODE ? true : (left <= ALARM_MS);
       if (!inWindow) return;
       const vi = videoMap[`${m.hCode}-${m.aCode}`];
       // Mirror MatchCard's hHasVideo / aHasVideo exactly

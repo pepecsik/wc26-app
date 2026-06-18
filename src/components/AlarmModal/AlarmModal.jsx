@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import styles from './AlarmModal.module.css';
 
 function formatRemaining(ms) {
-  if (ms <= 0) return 'OVERDUE';
+  if (ms <= 0) return 'NO TIME TO WASTE!';
   const h = Math.floor(ms / 3_600_000);
   const m = Math.floor((ms % 3_600_000) / 60_000);
   const s = Math.floor((ms % 60_000) / 1_000);
