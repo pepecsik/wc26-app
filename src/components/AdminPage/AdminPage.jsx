@@ -93,35 +93,33 @@ function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrink
 
       {status !== 'done' && (
         <div className={styles.slotControls}>
-          {isExtra ? (
-            <>
-              <div className={styles.drinkRow}>
-                <span className={styles.drinkLabel}>🔄 redo drink</span>
-                <select value={redoDrink} onChange={e => setRedoDrink(Number(e.target.value))} className={styles.drinkSelect}>
-                  {[0,1].map(n => <option key={n} value={n}>{n}</option>)}
+          {/* Row 1: drink count + file picker + upload button */}
+          <div className={styles.slotControlsRow}>
+            {isExtra ? (
+              <>
+                <select value={redoDrink} onChange={e => setRedoDrink(Number(e.target.value))} className={styles.drinkSelect} title="Redo drink">
+                  {[0,1].map(n => <option key={n} value={n}>🔄{n}</option>)}
                 </select>
-              </div>
-              <div className={styles.drinkRow}>
-                <span className={styles.drinkLabel}>🍺 bonus drinks</span>
-                <select value={bonusDrinks} onChange={e => setBonusDrinks(Number(e.target.value))} className={styles.drinkSelect}>
-                  {[0,1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
+                <select value={bonusDrinks} onChange={e => setBonusDrinks(Number(e.target.value))} className={styles.drinkSelect} title="Bonus drinks">
+                  {[0,1,2,3,4,5].map(n => <option key={n} value={n}>🍺+{n}</option>)}
                 </select>
-              </div>
-            </>
-          ) : (
-          <div className={styles.drinkRow}>
-            <span className={styles.drinkLabel}>🍺 drinks</span>
-            <select
-              value={drinkCount}
-              onChange={e => setDrinkCount(Number(e.target.value))}
-              className={styles.drinkSelect}
-            >
-              {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                <option key={n} value={n}>{n}</option>
-              ))}
-            </select>
+              </>
+            ) : (
+              <select value={drinkCount} onChange={e => setDrinkCount(Number(e.target.value))} className={styles.drinkSelect} title="Drinks">
+                {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                  <option key={n} value={n}>🍺×{n}</option>
+                ))}
+              </select>
+            )}
+            <label className={styles.fileLabel}>
+              {file ? file.name.slice(0, 20) + (file.name.length > 20 ? '…' : '') : 'Choose video'}
+              <input type="file" accept="video/*" onChange={e => setFile(e.target.files[0])} className={styles.fileInput} />
+            </label>
+            <button onClick={handleUpload} disabled={!file || status === 'uploading'} className={styles.uploadBtn}>
+              {status === 'uploading' ? `${progress}%` : '⬆'}
+            </button>
           </div>
-          )}
+          {/* Row 2: emoji picker per drink */}
           <div className={styles.emojiPickerWrap}>
             {Array.from({ length: isExtra ? (redoDrink + bonusDrinks) || 1 : drinkCount }).map((_, i) => (
               <div key={i} className={styles.emojiSlot}>
@@ -139,22 +137,6 @@ function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrink
               </div>
             ))}
           </div>
-          <label className={styles.fileLabel}>
-            {file ? file.name.slice(0, 28) + (file.name.length > 28 ? '…' : '') : 'Choose video'}
-            <input
-              type="file"
-              accept="video/*"
-              onChange={e => setFile(e.target.files[0])}
-              className={styles.fileInput}
-            />
-          </label>
-          <button
-            onClick={handleUpload}
-            disabled={!file || status === 'uploading'}
-            className={styles.uploadBtn}
-          >
-            {status === 'uploading' ? `${progress}%` : '⬆ Upload'}
-          </button>
         </div>
       )}
 

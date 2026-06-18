@@ -217,6 +217,12 @@
 /* ── Controls ── */
 .slotControls {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.slotControlsRow {
+  display: flex;
   gap: 8px;
   align-items: center;
 }
@@ -292,12 +298,12 @@
   border: 1px solid rgba(0,200,68,0.3);
   border-radius: 8px;
   color: #00c844;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  padding: 8px 14px;
+  padding: 8px 12px;
   cursor: pointer;
   white-space: nowrap;
-  min-width: 90px;
+  flex-shrink: 0;
   letter-spacing: 0.3px;
 }
 
