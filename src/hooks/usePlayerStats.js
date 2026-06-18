@@ -48,8 +48,14 @@ export function usePlayerStats(matches, videoMap) {
                 ? (video.drinks1 ?? 1)
                 : (video.drinks2 ?? video.drinks1 ?? 1);
             }
-            myEmoji  = isHome ? (video.emoji1 || '') : (video.emoji2 || '');
-            myEmoji2 = isHome ? (video.emoji3 || '') : (video.emoji4 || '');
+            if (myState === 'draw') {
+              myEmoji  = isHome ? (video.emoji1 || '') : (video.emoji2 || '');
+              myEmoji2 = isHome ? (video.emoji3 || '') : (video.emoji4 || '');
+            } else {
+              // Losses always use slot 1 regardless of home/away → emoji1
+              myEmoji  = video.emoji1 || '';
+              myEmoji2 = video.emoji3 || '';
+            }
           }
 
           playerMatches.push({
