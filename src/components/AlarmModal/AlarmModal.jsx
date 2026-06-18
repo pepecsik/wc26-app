@@ -13,13 +13,13 @@ function formatRemaining(ms) {
   return h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
 }
 
-export default function AlarmModal({ matches, videoMap }) {
+export default function AlarmModal({ matches, videoMap, sheetLoaded }) {
   const [queue, setQueue] = useState(null); // null = not yet computed
   const [index, setIndex] = useState(0);
   const [remaining, setRemaining] = useState(null);
 
   useEffect(() => {
-    if (matches.length === 0 || Object.keys(videoMap).length === 0) return;
+    if (matches.length === 0 || !sheetLoaded) return;
     const now = Date.now();
     const urgent = [];
 
@@ -34,6 +34,8 @@ export default function AlarmModal({ matches, videoMap }) {
       const vi = videoMap[key];
       const isDraw = m.hState === 'draw';
 
+      console.log('[AlarmModal] checking', key, { isDraw, hState: m.hState, aState: m.aState, vi, left: Math.round(left/60000) + 'm' });
+
       if ((isDraw || m.hState === 'losing') && !vi?.filename && m.hOwner) {
         urgent.push({ player: m.hOwner, deadline, left: TEST_MODE ? ALARM_WINDOW_MS : left });
       }
@@ -45,10 +47,11 @@ export default function AlarmModal({ matches, videoMap }) {
       }
     });
 
+    console.log('[AlarmModal] urgent:', urgent.map(u => u.player?.name));
     urgent.sort((a, b) => a.left - b.left);
     setQueue(urgent);
     if (urgent.length > 0) setRemaining(urgent[0].left);
-  }, [matches, videoMap]);
+  }, [matches, videoMap, sheetLoaded]);
 
   // tick countdown for current person
   useEffect(() => {

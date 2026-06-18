@@ -49,7 +49,7 @@ export default function App() {
 
   return (
     <div className={styles.app}>
-      <AlarmModal matches={matches} videoMap={videoMap} />
+      <AlarmModal matches={matches} videoMap={videoMap} sheetLoaded={sheetLoaded} />
       {!isShame && <DrinksTicker players={players} />}
       {!isShame && <Header liveCount={liveCount} activeTab={activeTab} onTabChange={handleTabChange} />}
       {isShame && (
