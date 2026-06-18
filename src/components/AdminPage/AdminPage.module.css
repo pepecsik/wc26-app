@@ -237,6 +237,52 @@
   display: block;
 }
 
+/* ── Emoji picker ── */
+.emojiPickerWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.emojiSlot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.emojiSlotLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.35);
+}
+
+.emojiOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.emojiBtn {
+  font-size: 20px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s;
+}
+
+.emojiBtnActive {
+  background: rgba(255,179,0,0.25);
+  border-color: rgba(255,179,0,0.6);
+}
+
 .fileInput {
   display: none;
 }

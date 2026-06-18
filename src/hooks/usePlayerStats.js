@@ -31,9 +31,10 @@ export function usePlayerStats(matches, videoMap) {
           let myVideo = null;
           let myVideo2 = null;
           let myDrinkCount = 1;
+          let myEmoji = '';
+          let myEmoji2 = '';
           if (video && m.isFinished && (myState === 'losing' || myState === 'draw')) {
             if (myState === 'draw') {
-              // For draws, drinks col is only written on actual upload (filename is formula-auto-filled)
               const uploaded = isHome ? video.drinks1 != null : video.drinks2 != null;
               if (uploaded) {
                 myVideo = isHome ? video.filename : video.filename2;
@@ -42,11 +43,13 @@ export function usePlayerStats(matches, videoMap) {
               }
             } else {
               myVideo = video.filename;
-              myVideo2 = video.filename3 || null; // extra video (col X)
+              myVideo2 = video.filename3 || null;
               myDrinkCount = isHome
                 ? (video.drinks1 ?? 1)
                 : (video.drinks2 ?? video.drinks1 ?? 1);
             }
+            myEmoji  = isHome ? (video.emoji1 || '') : (video.emoji2 || '');
+            myEmoji2 = isHome ? (video.emoji3 || '') : (video.emoji4 || '');
           }
 
           playerMatches.push({
@@ -62,6 +65,8 @@ export function usePlayerStats(matches, videoMap) {
             myVideo,
             myVideo2,
             myDrinkCount,
+            myEmoji,
+            myEmoji2,
             sideBetDrinks: m.sideBetDrinks ?? 0,
             videoUrl: myVideo ? `${B2_BASE}/${encodeURIComponent(myVideo)}.mp4` : null,
             videoUrl2: myVideo2 ? `${B2_BASE}/${encodeURIComponent(myVideo2)}.mp4` : null,

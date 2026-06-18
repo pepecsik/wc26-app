@@ -248,27 +248,32 @@
   letter-spacing: 1px;
 }
 
+.videoBtnWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 .videoBtn {
   background: rgba(255,71,87,0.15);
   border: 1px solid rgba(255,71,87,0.35);
   color: #ff4757;
   border-radius: 8px;
-  width: 28px;
   height: 28px;
+  padding: 0 7px;
   font-size: 11px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  gap: 3px;
+  white-space: nowrap;
 }
 .videoBtn:hover { background: rgba(255,71,87,0.28); }
 
-.videoBtnCount {
-  font-size: 8px;
-  font-weight: 900;
-  color: #00c844;
-  margin-left: 1px;
+.videoBtnEmoji {
+  font-size: 13px;
+  line-height: 1;
 }
 
 /* ── Video grid ── */

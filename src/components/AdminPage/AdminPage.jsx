@@ -7,6 +7,8 @@ import { TEAM_MAP } from '../../data/teamMap';
 const ADMIN_PASSWORD = import.meta.env.VITE_API_KEY;
 const B2_FOLDER = '01_GROUP_STAGE';
 
+const DRINK_EMOJIS = ['🍺','🍻','🍾','🥂','🍷','🥃','🍸','🍹','🧃'];
+
 function Avatar({ participant, teamCode }) {
   const name = participant?.name ?? teamCode;
   const color = participant?.color ?? '#555';
@@ -27,6 +29,7 @@ function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrink
   const [redoDrink, setRedoDrink] = useState(0);
   const [bonusDrinks, setBonusDrinks] = useState(0);
   const [drinkCount, setDrinkCount] = useState(defaultDrinks ?? 1);
+  const [drinkEmojis, setDrinkEmojis] = useState(['🍺']);
   const [status, setStatus] = useState('idle');
   const [progress, setProgress] = useState(0);
   const [uploadedFilename, setUploadedFilename] = useState('');
@@ -44,7 +47,7 @@ function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrink
       const prepRes = await fetch('/.netlify/functions/prepare-upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ home: match.hCode, away: match.aCode, slot, drinkCount: isExtra ? redoDrink + bonusDrinks : drinkCount }),
+        body: JSON.stringify({ home: match.hCode, away: match.aCode, slot, drinkCount: isExtra ? redoDrink + bonusDrinks : drinkCount, emoji: drinkEmojis.join('') }),
       });
       const prep = await prepRes.json();
       if (prep.error) throw new Error(prep.error);
@@ -119,6 +122,23 @@ function UploadSlot({ match, slot, participant, teamCode, teamFlag, defaultDrink
             </select>
           </div>
           )}
+          <div className={styles.emojiPickerWrap}>
+            {Array.from({ length: isExtra ? (redoDrink + bonusDrinks) || 1 : drinkCount }).map((_, i) => (
+              <div key={i} className={styles.emojiSlot}>
+                <span className={styles.emojiSlotLabel}>drink {i + 1}</span>
+                <div className={styles.emojiOptions}>
+                  {DRINK_EMOJIS.map(e => (
+                    <button
+                      key={e}
+                      type="button"
+                      className={`${styles.emojiBtn} ${(drinkEmojis[i] ?? '🍺') === e ? styles.emojiBtnActive : ''}`}
+                      onClick={() => setDrinkEmojis(prev => { const next = [...prev]; next[i] = e; return next; })}
+                    >{e}</button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
           <label className={styles.fileLabel}>
             {file ? file.name.slice(0, 28) + (file.name.length > 28 ? '…' : '') : 'Choose video'}
             <input

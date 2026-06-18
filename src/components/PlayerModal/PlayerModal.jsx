@@ -113,11 +113,22 @@ export default function PlayerModal({ player, onClose }) {
                   </span>
                   <span>{m.oppCode} {opp.flag}</span>
                 </div>
-                <button
-                  className={styles.videoBtn}
-                  style={m.myVideo ? {} : { visibility: 'hidden' }}
-                  onClick={() => m.myVideo && setPlayVideo({ filenames: [m.myVideo, ...(m.myVideo2 ? [m.myVideo2] : [])], title: `${my.flag} vs ${opp.flag}` })}
-                >▶{m.myVideo2 ? <span className={styles.videoBtnCount}>×2</span> : null}</button>
+                <div className={styles.videoBtnWrap} style={m.myVideo ? {} : { visibility: 'hidden' }}>
+                  <button
+                    className={styles.videoBtn}
+                    onClick={() => m.myVideo && setPlayVideo({ filenames: [m.myVideo], title: `${my.flag} vs ${opp.flag}` })}
+                  >
+                    ▶ <span className={styles.videoBtnEmoji}>{m.myEmoji || '🍺'}{m.myDrinkCount % 1 === 0.5 ? ' +½' : ''}</span>
+                  </button>
+                  {m.myVideo2 && (
+                    <button
+                      className={styles.videoBtn}
+                      onClick={() => setPlayVideo({ filenames: [m.myVideo2], title: `${my.flag} vs ${opp.flag} #2` })}
+                    >
+                      ▶ <span className={styles.videoBtnEmoji}>{m.myEmoji2 || '🍺'}</span>
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}
