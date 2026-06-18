@@ -56,6 +56,11 @@ export default function PlayerModal({ player, onClose }) {
           })}
         </div>
 
+        {/* Note */}
+        {player.note && (
+          <div className={styles.note}>{player.note}</div>
+        )}
+
         {/* Stats */}
         <div className={styles.statsRow}>
           <div className={styles.stat}>

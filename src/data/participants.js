@@ -29,7 +29,7 @@ const raw = [
   { name: 'Scotty2Hotty', teams: ['GHA','POR'], photo: '/avatars/Scotty2Hotty.png' },
   { name: 'Sebastian',    teams: ['PAR','FRA'], photo: '/avatars/Sebastian SS Sparenberg.png' },
   { name: 'Sjaak',        teams: ['SAU','ESP'], photo: '/avatars/Sjaak.png' },
-  { name: 'Tim',          teams: ['NZL','SWI'], photo: '/avatars/Tim.png', bonusDrinks: 1 },
+  { name: 'Tim',          teams: ['NZL','SWI'], photo: '/avatars/Tim.png', bonusDrinks: 1, note: '🍺 Timbo drank an extra beer at the start of the tournament!' },
   { name: 'Tobias',       teams: ['EGY','ARG'], photo: '/avatars/Tobias.png' },
   { name: 'Will Hunt',    teams: ['IRQ','AUS'], photo: '/avatars/Will Hunt.png' },
 ];
