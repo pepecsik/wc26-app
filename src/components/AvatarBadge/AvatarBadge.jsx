@@ -48,6 +48,7 @@ export default function AvatarBadge({
     >
       {isWinner && <span className={styles.crown}>👑</span>}
 
+      <div className={styles.inner}>
       <div className={styles.photoArea}>
         {participant?.photo
           ? <img src={participant.photo} alt={name} className={styles.photo} />
@@ -84,6 +85,7 @@ export default function AvatarBadge({
 
       <div className={styles.chin} style={{ background: color }}>
         <span className={styles.chinName}>{name}</span>
+      </div>
       </div>
     </div>
   );

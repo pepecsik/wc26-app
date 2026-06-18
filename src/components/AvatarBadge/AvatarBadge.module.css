@@ -10,6 +10,15 @@
   min-height: 0;
 }
 
+.inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-radius: 13px;
+  overflow: hidden;
+  min-height: 0;
+}
+
 .wrap[role="button"] { cursor: pointer; }
 
 /* ── State borders ── */
@@ -115,7 +124,7 @@
 .beerWrap {
   position: absolute;
   bottom: 26px;
-  right: -8px;
+  right: 2px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -181,7 +190,7 @@
 .drinkCorner {
   position: absolute;
   bottom: 26px;
-  right: -4px;
+  right: 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
