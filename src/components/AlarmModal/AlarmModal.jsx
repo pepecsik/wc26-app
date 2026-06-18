@@ -12,10 +12,12 @@ function formatTime(ms) {
 // queue: [{ player, left }] — computed externally by App.jsx
 export default function AlarmModal({ queue }) {
   const [index, setIndex] = useState(0);
-  const [remaining, setRemaining] = useState(() => queue?.[0]?.left ?? null);
+  const [remaining, setRemaining] = useState(null);
 
+  // Set initial remaining when queue first arrives, then tick every second
   useEffect(() => {
     if (!queue || queue.length === 0 || index >= queue.length) return;
+    setRemaining(queue[index].left);
     const t = setInterval(() => setRemaining(r => (r !== null ? r - 1000 : null)), 1000);
     return () => clearInterval(t);
   }, [queue, index]);
