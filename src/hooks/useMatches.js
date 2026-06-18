@@ -95,6 +95,7 @@ function rowToMatch(row, index) {
 
   const sideBetDrinks = row['Side Bet Drinks'] !== '' ? Number(String(row['Side Bet Drinks']).replace(',', '.')) : 0;
   const sideBetDesc   = row['Side Bet Description'] || '';
+  const sideBetEmoji  = row['SideBet Emoji'] || '';
 
   return {
     id: index + 1,
@@ -111,6 +112,7 @@ function rowToMatch(row, index) {
     aOwner: TEAM_OWNER[aCode] ?? null,
     sideBetDrinks: isNaN(sideBetDrinks) ? 0 : sideBetDrinks,
     sideBetDesc,
+    sideBetEmoji,
   };
 }
 

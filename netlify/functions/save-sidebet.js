@@ -9,12 +9,12 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers: CORS, body: 'Method not allowed' };
 
   try {
-    const { home, away, sideBetDrinks, sideBetDesc } = JSON.parse(event.body);
+    const { home, away, sideBetDrinks, sideBetDesc, sideBetEmoji } = JSON.parse(event.body);
 
     const scriptRes = await fetch(process.env.APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'saveSideBet', home, away, sideBetDrinks, sideBetDesc }),
+      body: JSON.stringify({ action: 'saveSideBet', home, away, sideBetDrinks, sideBetDesc, sideBetEmoji }),
       redirect: 'follow',
     });
     const result = await scriptRes.json();

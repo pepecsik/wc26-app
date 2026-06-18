@@ -109,47 +109,97 @@
   z-index: 2;
 }
 
-.beer {
+.clickable { cursor: pointer; }
+
+/* ── Waiting: animated drink emojis ── */
+.beerWrap {
   position: absolute;
-  bottom: 28px;
-  right: -6px;
-  font-size: 38px;
-  animation: beerWobble 0.8s ease-in-out infinite;
+  bottom: 26px;
+  right: -8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
   pointer-events: none;
   z-index: 2;
 }
 
-.videoBadge {
+.beer {
+  font-size: 30px;
+  animation: beerWobble 0.8s ease-in-out infinite;
+  line-height: 1;
+}
+
+.halfLabel {
+  font-size: 9px;
+  font-weight: 900;
+  color: #fff;
+  background: rgba(0,0,0,0.6);
+  border-radius: 4px;
+  padding: 1px 4px;
+  line-height: 1.4;
+}
+
+/* ── Uploaded: play overlay ── */
+.playOverlay {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #ff4757;
-  border: none;
-  border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  font-size: 13px;
-  cursor: pointer;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-  transition: transform 0.15s;
-  z-index: 3;
+  background: rgba(0,0,0,0.35);
+  border-radius: 13px 13px 0 0;
 }
-.videoBadge:hover { transform: scale(1.15); }
 
-.videoBadgeCount {
+.playBtn {
+  width: 32px;
+  height: 32px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #000;
+  padding-left: 3px;
+}
+
+.video2Badge {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
+  top: 4px;
+  right: 4px;
   background: #00c844;
   color: #000;
   font-size: 8px;
   font-weight: 900;
-  padding: 1px 4px;
+  padding: 2px 5px;
   border-radius: 8px;
   line-height: 1.4;
+}
+
+/* ── Uploaded: drink emoji corner ── */
+.drinkCorner {
+  position: absolute;
+  bottom: 26px;
+  right: -4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  pointer-events: none;
+  z-index: 2;
+  background: rgba(0,0,0,0.5);
+  border-radius: 6px;
+  padding: 2px 3px;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.halfSmall {
+  font-size: 8px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.2;
 }
 
 /* ── Animations ── */

@@ -156,7 +156,13 @@ function SideBetCard({ match }) {
   const aTeam = TEAM_MAP[match.aCode] ?? { flag: '🏳️', full: match.aCode };
   const [drinks, setDrinks] = useState(match.sideBetDrinks || 1);
   const [desc, setDesc] = useState(match.sideBetDesc || '');
+  const [betEmojis, setBetEmojis] = useState(() => {
+    if (match.sideBetEmoji) return [...match.sideBetEmoji];
+    return ['🍺'];
+  });
   const [status, setStatus] = useState('idle');
+
+  const betDrinkCount = drinks === 0.5 ? 1 : Math.ceil(drinks);
 
   async function saveSideBet() {
     setStatus('saving');
@@ -164,7 +170,7 @@ function SideBetCard({ match }) {
       const res = await fetch('/.netlify/functions/save-sidebet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ home: match.hCode, away: match.aCode, sideBetDrinks: drinks, sideBetDesc: desc }),
+        body: JSON.stringify({ home: match.hCode, away: match.aCode, sideBetDrinks: drinks, sideBetDesc: desc, sideBetEmoji: betEmojis.join('') }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -206,6 +212,23 @@ function SideBetCard({ match }) {
               <option key={n} value={n}>+{n} = {n+1} total</option>
             ))}
           </select>
+        </div>
+        <div className={styles.emojiPickerWrap}>
+          {Array.from({ length: betDrinkCount }).map((_, i) => (
+            <div key={i} className={styles.emojiSlot}>
+              <span className={styles.emojiSlotLabel}>{drinks === 0.5 ? 'pint +½' : `drink ${i + 1}`}</span>
+              <div className={styles.emojiOptions}>
+                {DRINK_EMOJIS.map(e => (
+                  <button
+                    key={e}
+                    type="button"
+                    className={`${styles.emojiBtn} ${(betEmojis[i] ?? '🍺') === e ? styles.emojiBtnActive : ''}`}
+                    onClick={() => setBetEmojis(prev => { const next = [...prev]; next[i] = e; return next; })}
+                  >{e}</button>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
         <input
           type="text"

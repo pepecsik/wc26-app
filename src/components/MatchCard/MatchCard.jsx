@@ -59,7 +59,7 @@ function VideoCountdown({ kickoff, drinkers }) {
 
 export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
   const { hCode, aCode, hGoals, aGoals, hState, aState, hOwner, aOwner,
-          isLive, isFinished, kickoff, elapsed, sideBetDrinks, sideBetDesc } = match;
+          isLive, isFinished, kickoff, elapsed, sideBetDrinks, sideBetDesc, sideBetEmoji } = match;
 
   const hTeam = TEAM_MAP[hCode] ?? { full: hCode, flag: '🏳️', group: '?' };
   const aTeam = TEAM_MAP[aCode] ?? { full: aCode, flag: '🏳️', group: '?' };
@@ -129,6 +129,9 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
         state={hState} matchState={matchState} isFocus={isFocus}
         hasVideo={hHasVideo} hasVideo2={hHasVideo2}
         onVideoClick={() => onVideoOpen(hFilenames, videoTitle)}
+        drinkEmoji={videoInfo?.emoji1 || ''}
+        sideBetDrinks={sideBetDrinks}
+        sideBetEmoji={sideBetEmoji}
       />
 
       <div className={styles.center}>
@@ -176,6 +179,9 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
         state={aState} matchState={matchState} isFocus={isFocus}
         hasVideo={aHasVideo} hasVideo2={aHasVideo2}
         onVideoClick={() => onVideoOpen(aFilenames, videoTitle)}
+        drinkEmoji={aState === 'draw' ? (videoInfo?.emoji2 || '') : (videoInfo?.emoji1 || '')}
+        sideBetDrinks={sideBetDrinks}
+        sideBetEmoji={sideBetEmoji}
       />
       </div>
 
