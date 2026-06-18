@@ -151,6 +151,7 @@ export default function PlayerModal({ player, onClose }) {
                   >
                     <video className={styles.videoThumb} src={m.videoUrl} preload="metadata" muted playsInline />
                     <div className={styles.videoOverlay}>
+                      <span className={styles.videoEmoji}>{m.myEmoji || '🍺'}{m.myDrinkCount % 1 === 0.5 ? ' +½' : ''}</span>
                       <span className={styles.videoPlay}>▶</span>
                       <span className={styles.videoLabel}>{label}</span>
                     </div>
@@ -165,6 +166,7 @@ export default function PlayerModal({ player, onClose }) {
                     >
                       <video className={styles.videoThumb} src={m.videoUrl2} preload="metadata" muted playsInline />
                       <div className={styles.videoOverlay}>
+                        <span className={styles.videoEmoji}>{m.myEmoji2 || '🍺'}</span>
                         <span className={styles.videoPlay}>▶</span>
                         <span className={styles.videoLabel}>{label} #2</span>
                       </div>

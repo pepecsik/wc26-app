@@ -317,6 +317,12 @@
   transition: background 0.15s;
 }
 
+.videoEmoji {
+  font-size: 22px;
+  line-height: 1;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+}
+
 .videoPlay {
   width: 36px;
   height: 36px;
