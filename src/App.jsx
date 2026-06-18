@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Header from './components/Header/Header';
 import Feed from './components/Feed/Feed';
 import StatsPage from './components/StatsPage/StatsPage';
@@ -45,11 +45,47 @@ export default function App() {
   const liveCount = matches.filter(m => m.isLive).length;
   const ago = useAgo(lastUpdated);
 
+  // Compute alarm queue once — same video-detection logic as MatchCard
+  const [alarmQueue, setAlarmQueue] = useState(null);
+  const alarmComputed = useRef(false);
+  useEffect(() => {
+    if (alarmComputed.current || !sheetLoaded || matches.length === 0) return;
+    alarmComputed.current = true;
+    const ALARM_MS    = 3 * 60 * 60 * 1000;
+    const DEADLINE_MS = 26 * 60 * 60 * 1000;
+    const TEST_MODE   = new URLSearchParams(window.location.search).has('testAlarm');
+    const now = Date.now();
+    const urgent = [];
+    matches.forEach(m => {
+      if (!m.isFinished) return;
+      const deadline = m.kickoff.getTime() + DEADLINE_MS;
+      const left = deadline - now;
+      const inWindow = TEST_MODE ? true : (left > 0 && left <= ALARM_MS);
+      if (!inWindow) return;
+      const vi = videoMap[`${m.hCode}-${m.aCode}`];
+      // Mirror MatchCard's hHasVideo / aHasVideo exactly
+      const hHasVideo = m.hState === 'losing' ? !!(vi?.filename)
+                      : m.hState === 'draw'   ? (vi?.drinks1 != null)
+                      : false;
+      const aHasVideo = m.aState === 'losing' ? !!(vi?.filename)
+                      : m.aState === 'draw'   ? (vi?.drinks2 != null)
+                      : false;
+      if ((m.hState === 'losing' || m.hState === 'draw') && !hHasVideo && m.hOwner)
+        urgent.push({ player: m.hOwner, left: TEST_MODE ? ALARM_MS : left });
+      if (m.hState === 'draw' && !aHasVideo && m.aOwner)
+        urgent.push({ player: m.aOwner, left: TEST_MODE ? ALARM_MS : left });
+      if (m.aState === 'losing' && !aHasVideo && m.aOwner)
+        urgent.push({ player: m.aOwner, left: TEST_MODE ? ALARM_MS : left });
+    });
+    urgent.sort((a, b) => a.left - b.left);
+    setAlarmQueue(urgent);
+  }, [matches, videoMap, sheetLoaded]);
+
   const isShame = activeTab === 'shame';
 
   return (
     <div className={styles.app}>
-      <AlarmModal matches={matches} videoMap={videoMap} sheetLoaded={sheetLoaded} />
+      <AlarmModal queue={alarmQueue} />
       {!isShame && <DrinksTicker players={players} />}
       {!isShame && <Header liveCount={liveCount} activeTab={activeTab} onTabChange={handleTabChange} />}
       {isShame && (
