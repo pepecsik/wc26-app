@@ -77,6 +77,11 @@ export default function PlayerModal({ player, onClose }) {
             <span className={styles.statVal + ' ' + styles.drink}>{player.drinks}</span>
             <span className={styles.statLabel}>🍺 Drinks</span>
           </div>
+          <div className={styles.statDivider} />
+          <div className={styles.stat}>
+            <span className={styles.statVal + ' ' + styles.done}>{player.drinksDone}</span>
+            <span className={styles.statLabel}>✅ Done</span>
+          </div>
         </div>
 
         {/* Match history */}
