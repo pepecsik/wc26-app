@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import styles from './AlarmModal.module.css';
 
-function formatRemaining(ms) {
-  if (ms <= 0) return 'NO TIME TO WASTE!';
-  const h = Math.floor(ms / 3_600_000);
-  const m = Math.floor((ms % 3_600_000) / 60_000);
-  const s = Math.floor((ms % 60_000) / 1_000);
+function formatTime(ms) {
+  const abs = Math.abs(ms);
+  const h = Math.floor(abs / 3_600_000);
+  const m = Math.floor((abs % 3_600_000) / 60_000);
+  const s = Math.floor((abs % 60_000) / 1_000);
   return h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
 }
 
@@ -44,10 +44,14 @@ export default function AlarmModal({ queue }) {
         }
 
         <div className={styles.name}>{p.name}</div>
-        <div className={styles.label}>SEND A VIDEO NOW</div>
+        {isOverdue
+          ? <div className={styles.label}>NO TIME TO WASTE!</div>
+          : <div className={styles.label}>SEND A VIDEO NOW</div>
+        }
         <div className={`${styles.countdown} ${isOverdue ? styles.overdue : ''}`}>
-          {formatRemaining(remaining ?? 0)}
+          {formatTime(remaining ?? 0)}
         </div>
+        {isOverdue && <div className={styles.label}>SEND A VIDEO NOW</div>}
 
         {total > 1 && (
           <div className={styles.counter}>{index + 1} / {total}</div>
