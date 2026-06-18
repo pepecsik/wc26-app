@@ -94,9 +94,18 @@
   text-shadow: 0 0 24px rgba(255, 59, 59, 0.6);
 }
 
-.overdue {
-  color: #ff3b3b;
-  animation: flash 0.5s ease-in-out infinite;
+.overdueLine {
+  font-size: 20px;
+  animation: flash 0.7s ease-in-out infinite;
+}
+
+.overdueMsg {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  text-align: center;
+  line-height: 1.4;
+  padding: 0 16px;
 }
 
 @keyframes flash {

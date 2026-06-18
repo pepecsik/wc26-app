@@ -1,0 +1,33 @@
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: #ff3b3b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  animation: slideDown 0.3s ease both;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+}
+
+.icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.text {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

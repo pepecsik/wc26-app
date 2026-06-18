@@ -14,11 +14,14 @@ export default function AlarmModal({ queue }) {
   const [index, setIndex] = useState(0);
   const [remaining, setRemaining] = useState(null);
 
-  // Set initial remaining when queue first arrives, then tick every second
+  // Set initial remaining when queue first arrives, tick only while not overdue
   useEffect(() => {
     if (!queue || queue.length === 0 || index >= queue.length) return;
     setRemaining(queue[index].left);
-    const t = setInterval(() => setRemaining(r => (r !== null ? r - 1000 : null)), 1000);
+    const t = setInterval(() => setRemaining(r => {
+      if (r === null || r <= 0) { clearInterval(t); return r; }
+      return r - 1000;
+    }), 1000);
     return () => clearInterval(t);
   }, [queue, index]);
 
@@ -46,14 +49,17 @@ export default function AlarmModal({ queue }) {
         }
 
         <div className={styles.name}>{p.name}</div>
-        {isOverdue
-          ? <div className={styles.label}>NO TIME TO WASTE!</div>
-          : <div className={styles.label}>SEND A VIDEO NOW</div>
-        }
-        <div className={`${styles.countdown} ${isOverdue ? styles.overdue : ''}`}>
-          {formatTime(remaining ?? 0)}
-        </div>
-        {isOverdue && <div className={styles.label}>SEND A VIDEO NOW</div>}
+        {isOverdue ? (
+          <>
+            <div className={`${styles.label} ${styles.overdueLine}`}>YOUR TIME IS UP!</div>
+            <div className={styles.overdueMsg}>The punishment will be decided without you.</div>
+          </>
+        ) : (
+          <>
+            <div className={styles.label}>SEND A VIDEO NOW</div>
+            <div className={`${styles.countdown}`}>{formatTime(remaining ?? 0)}</div>
+          </>
+        )}
 
         {total > 1 && (
           <div className={styles.counter}>{index + 1} / {total}</div>

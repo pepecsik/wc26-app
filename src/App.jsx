@@ -6,6 +6,7 @@ import StandingsPage from './components/StandingsPage/StandingsPage';
 import AdminPage from './components/AdminPage/AdminPage';
 import DrinksTicker from './components/DrinksTicker/DrinksTicker';
 import AlarmModal from './components/AlarmModal/AlarmModal';
+import ShameBanner from './components/ShameBanner/ShameBanner';
 import WallOfShame from './components/WallOfShame/WallOfShame';
 import { useMatches } from './hooks/useMatches';
 import { useSheetData } from './hooks/useSheetData';
@@ -45,8 +46,9 @@ export default function App() {
   const liveCount = matches.filter(m => m.isLive).length;
   const ago = useAgo(lastUpdated);
 
-  // Compute alarm queue once — same video-detection logic as MatchCard
-  const [alarmQueue, setAlarmQueue] = useState(null);
+  // Compute alarm + overdue queues once — same video-detection logic as MatchCard
+  const [alarmQueue, setAlarmQueue]   = useState(null);
+  const [overdueQueue, setOverdueQueue] = useState([]);
   const alarmComputed = useRef(false);
   useEffect(() => {
     if (alarmComputed.current || !sheetLoaded || matches.length === 0) return;
@@ -56,6 +58,7 @@ export default function App() {
     const TEST_MODE   = new URLSearchParams(window.location.search).has('testAlarm');
     const now = Date.now();
     const urgent = [];
+    const overdue = [];
     matches.forEach(m => {
       if (!m.isFinished) return;
       const deadline = m.kickoff.getTime() + DEADLINE_MS;
@@ -63,28 +66,31 @@ export default function App() {
       const inWindow = TEST_MODE ? true : (left <= ALARM_MS);
       if (!inWindow) return;
       const vi = videoMap[`${m.hCode}-${m.aCode}`];
-      // Mirror MatchCard's hHasVideo / aHasVideo exactly
       const hHasVideo = m.hState === 'losing' ? !!(vi?.filename)
                       : m.hState === 'draw'   ? (vi?.drinks1 != null)
                       : false;
       const aHasVideo = m.aState === 'losing' ? !!(vi?.filename)
                       : m.aState === 'draw'   ? (vi?.drinks2 != null)
                       : false;
-      if ((m.hState === 'losing' || m.hState === 'draw') && !hHasVideo && m.hOwner)
-        urgent.push({ player: m.hOwner, left: TEST_MODE ? ALARM_MS : left });
-      if (m.hState === 'draw' && !aHasVideo && m.aOwner)
-        urgent.push({ player: m.aOwner, left: TEST_MODE ? ALARM_MS : left });
-      if (m.aState === 'losing' && !aHasVideo && m.aOwner)
-        urgent.push({ player: m.aOwner, left: TEST_MODE ? ALARM_MS : left });
+      const push = (player) => {
+        const entry = { player, left: TEST_MODE ? ALARM_MS : left, deadline };
+        (left <= 0 ? overdue : urgent).push(entry);
+      };
+      if ((m.hState === 'losing' || m.hState === 'draw') && !hHasVideo && m.hOwner) push(m.hOwner);
+      if (m.hState === 'draw' && !aHasVideo && m.aOwner) push(m.aOwner);
+      if (m.aState === 'losing' && !aHasVideo && m.aOwner) push(m.aOwner);
     });
     urgent.sort((a, b) => a.left - b.left);
-    setAlarmQueue(urgent);
+    overdue.sort((a, b) => a.left - b.left);
+    setAlarmQueue([...overdue, ...urgent]);
+    setOverdueQueue(overdue);
   }, [matches, videoMap, sheetLoaded]);
 
   const isShame = activeTab === 'shame';
 
   return (
     <div className={styles.app}>
+      <ShameBanner overdueQueue={overdueQueue} />
       <AlarmModal queue={alarmQueue} />
       {!isShame && <DrinksTicker players={players} />}
       {!isShame && <Header liveCount={liveCount} activeTab={activeTab} onTabChange={handleTabChange} />}
