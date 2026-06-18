@@ -13,13 +13,13 @@ function formatRemaining(ms) {
   return h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
 }
 
-export default function AlarmModal({ matches, videoMap, sheetLoaded }) {
+export default function AlarmModal({ matches, videoMap }) {
   const [queue, setQueue] = useState(null); // null = not yet computed
   const [index, setIndex] = useState(0);
   const [remaining, setRemaining] = useState(null);
 
   useEffect(() => {
-    if (matches.length === 0 || !sheetLoaded) return;
+    if (matches.length === 0) return;
     const now = Date.now();
     const urgent = [];
 
@@ -48,7 +48,7 @@ export default function AlarmModal({ matches, videoMap, sheetLoaded }) {
     urgent.sort((a, b) => a.left - b.left);
     setQueue(urgent);
     if (urgent.length > 0) setRemaining(urgent[0].left);
-  }, [matches, videoMap, sheetLoaded]);
+  }, [matches, videoMap]);
 
   // tick countdown for current person
   useEffect(() => {
