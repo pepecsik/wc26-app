@@ -19,7 +19,7 @@ export default function AlarmModal({ matches, videoMap }) {
   const [remaining, setRemaining] = useState(null);
 
   useEffect(() => {
-    if (matches.length === 0) return;
+    if (matches.length === 0 || Object.keys(videoMap).length === 0) return;
     const now = Date.now();
     const urgent = [];
 
