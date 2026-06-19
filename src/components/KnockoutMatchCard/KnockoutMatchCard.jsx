@@ -56,11 +56,11 @@ export default function KnockoutMatchCard({ match, isFocus, onVideoOpen }) {
   const hCounter = isFinished && hIsLoser ? { uploaded: hUploaded, total: hTotal, drinkTotal: hDrinkTotal } : null;
   const aCounter = isFinished && aIsLoser ? { uploaded: aUploaded, total: aTotal, drinkTotal: aDrinkTotal } : null;
 
-  // Who still needs to upload (for VideoCountdown)
-  const pending = [
+  // Who still needs to upload (only relevant once game is finished)
+  const pending = isFinished ? [
     ...(hIsLoser ? hPlayers.filter(p => !p.videoFilename).map(p => p.name.split(' ')[0]) : []),
     ...(aIsLoser ? aPlayers.filter(p => !p.videoFilename).map(p => p.name.split(' ')[0]) : []),
-  ];
+  ] : [];
   const drinkers = pending.length > 0 ? pending.join(' & ') : null;
 
   const cardCls = [
@@ -84,6 +84,7 @@ export default function KnockoutMatchCard({ match, isFocus, onVideoOpen }) {
 
         <div className={styles.center}>
           <div className={styles.meta}>
+            {kickoff && <span className={styles.kickoffDate}>{formatDate(kickoff)}</span>}
             {isLive && (
               <div className={styles.livePill}>
                 <span className={styles.liveDot} />
@@ -106,10 +107,7 @@ export default function KnockoutMatchCard({ match, isFocus, onVideoOpen }) {
               <span className={aState === 'winning' ? styles.scoreWin : styles.scoreNum}>{aGoals}</span>
             </div>
           ) : kickoff ? (
-            <>
-              <div className={styles.kickoffDate}>{formatDate(kickoff)}</div>
-              <div className={styles.kickoffTime}>{formatKickoff(kickoff)}</div>
-            </>
+            <div className={styles.kickoffTime}>{formatKickoff(kickoff)}</div>
           ) : (
             <div className={styles.kickoffTime}>TBD</div>
           )}
