@@ -2,25 +2,66 @@ import styles from './KnockoutPage.module.css';
 import KnockoutMatchCard from '../KnockoutMatchCard/KnockoutMatchCard';
 import { PARTICIPANTS } from '../../data/participants';
 
-// Temporary demo data — shows how the layout scales with different player counts
-// Replace with real data after the group stage draw
 const p = (name) => PARTICIPANTS.find(x => x.name === name);
 
+const now = new Date();
+const hoursAgo  = (h) => new Date(now - h * 3600000);
+const hoursFrom = (h) => new Date(now.getTime() + h * 3600000);
+
 const R32_SLOTS = [
-  // Show layout with 1 player per side (normal)
-  { id: 1,  label: 'Match 1',  hCode: null, aCode: null, hPlayers: [p('Pepe')],    aPlayers: [p('Tim')] },
-  // Show layout with 2 per side
-  { id: 2,  label: 'Match 2',  hCode: null, aCode: null, hPlayers: [p('Adam'), p('Blake')], aPlayers: [p('Charlie'), p('Emma')] },
-  // Show layout with 3 per side
-  { id: 3,  label: 'Match 3',  hCode: null, aCode: null, hPlayers: [p('Russ'), p('Kimbo'), p('Sabo')], aPlayers: [p('Will Hunt'), p('Sjaak'), p('Rand')] },
-  // Show layout with 4 per side
-  { id: 4,  label: 'Match 4',  hCode: null, aCode: null, hPlayers: [p('Ali'), p('Jimmy'), p('J$'), p('Malou')], aPlayers: [p('Michael'), p('Nathanial'), p('Scotty2Hotty'), p('Rogier')] },
-  // 6 per side (semi-final territory)
-  { id: 5,  label: 'Match 5',  hCode: null, aCode: null,
-    hPlayers: [p('Pepe'), p('Tim'), p('Adam'), p('Blake'), p('Charlie'), p('Emma')],
-    aPlayers: [p('Russ'), p('Kimbo'), p('Sabo'), p('Will Hunt'), p('Sjaak'), p('Rand')] },
-  // Empty slots (TBD)
-  ...Array.from({ length: 11 }, (_, i) => ({ id: i + 6, label: `Match ${i + 6}`, hCode: null, aCode: null, hPlayers: [], aPlayers: [] })),
+  // LIVE — 2 players per side, score showing, 67'
+  {
+    id: 1, label: 'R32 · Match 1',
+    hCode: 'ESP', aCode: 'BRA', hGoals: 1, aGoals: 2,
+    hState: 'losing', aState: 'winning',
+    isLive: true, isFinished: false,
+    kickoff: hoursAgo(1.2), status: '2H', elapsed: 67,
+    hPlayers: [p('Sjaak'), p('Tim')],
+    aPlayers: [p('Rand'), p('Pepe')],
+  },
+
+  // FINISHED — loser side red, 3 vs 3
+  {
+    id: 2, label: 'R32 · Match 2',
+    hCode: 'FRA', aCode: 'ARG', hGoals: 0, aGoals: 1,
+    hState: 'losing', aState: 'winning',
+    isLive: false, isFinished: true,
+    kickoff: hoursAgo(26),
+    hPlayers: [p('Sebastian'), p('Charlie'), p('Blake')],
+    aPlayers: [p('Tobias'), p('Adam'), p('Ali')],
+  },
+
+  // FINISHED — draw, 4 vs 4
+  {
+    id: 3, label: 'R32 · Match 3',
+    hCode: 'NED', aCode: 'GER', hGoals: 2, aGoals: 2,
+    hState: 'draw', aState: 'draw',
+    isLive: false, isFinished: true,
+    kickoff: hoursAgo(30),
+    hPlayers: [p('Purcy'), p('Kimbo'), p('Russ'), p('Jimmy')],
+    aPlayers: [p('Charlie'), p('Emma'), p('Michael'), p('Rogier')],
+  },
+
+  // UPCOMING — 6 per side (semi territory preview)
+  {
+    id: 4, label: 'R32 · Match 4',
+    hCode: 'ENG', aCode: 'POR', hGoals: null, aGoals: null,
+    hState: 'neutral', aState: 'neutral',
+    isLive: false, isFinished: false,
+    kickoff: hoursFrom(3),
+    hPlayers: [p('Emma'), p('Sjaak'), p('Scotty2Hotty'), p('J$'), p('Malou'), p('Nathanial')],
+    aPlayers: [p('Scotty2Hotty'), p('Purcy'), p('Sabo'), p('Will Hunt'), p('Michael'), p('Pepe')],
+  },
+
+  // TBD — no teams, no players yet
+  ...Array.from({ length: 12 }, (_, i) => ({
+    id: i + 5, label: `R32 · Match ${i + 5}`,
+    hCode: null, aCode: null, hGoals: null, aGoals: null,
+    hState: 'neutral', aState: 'neutral',
+    isLive: false, isFinished: false,
+    kickoff: null,
+    hPlayers: [], aPlayers: [],
+  })),
 ];
 
 export default function KnockoutPage() {
