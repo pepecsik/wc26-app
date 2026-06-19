@@ -34,7 +34,7 @@ function useAgo(lastUpdated) {
 
 export default function App() {
   if (IS_ADMIN)    return <AdminPage />;
-  if (IS_KNOCKOUT) return <KnockoutPage />;
+  if (IS_KNOCKOUT) return <div className={styles.app}><KnockoutPage /></div>;
 
   const [activeTab, setActiveTab]         = useState(() => localStorage.getItem('wc26-tab') || 'matches');
   const [standingsOpen, setStandingsOpen] = useState(false);

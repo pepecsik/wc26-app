@@ -9,7 +9,7 @@ function formatDate(date) {
   return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
-export default function KnockoutMatchCard({ match }) {
+export default function KnockoutMatchCard({ match, onVideoOpen }) {
   const {
     hCode, aCode, hGoals, aGoals, hState, aState,
     isLive, isFinished, kickoff, status, elapsed,
@@ -34,7 +34,7 @@ export default function KnockoutMatchCard({ match }) {
       {label && <div className={styles.stageLabel}>{label}</div>}
       <div className={styles.cardRow}>
 
-        <TeamAvatarGroup players={hPlayers} state={hAvatarState} />
+        <TeamAvatarGroup players={hPlayers} state={hAvatarState} onVideoOpen={onVideoOpen} />
 
         <div className={styles.center}>
           <div className={styles.meta}>
@@ -76,7 +76,7 @@ export default function KnockoutMatchCard({ match }) {
           )}
         </div>
 
-        <TeamAvatarGroup players={aPlayers} state={aAvatarState} />
+        <TeamAvatarGroup players={aPlayers} state={aAvatarState} onVideoOpen={onVideoOpen} />
 
       </div>
     </div>
