@@ -20,10 +20,13 @@ export default function VideoCountdown({ kickoff, drinkers, cardStyles }) {
   const s = cardStyles;
 
   if (remaining <= 0) {
+    const names = drinkers.split(' & ');
+    const bitch = names.length === 1 ? 'BITCH' : 'BITCHES';
+    const nameStr = names.length === 1 ? names[0] : names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
     return (
       <div className={`${s.countdown} ${s.countdownOverdue}`}>
-        <span className={s.alarmLabel}>⚠️ OVERDUE</span>
-        <span className={s.alarmName}>{drinkers}</span>
+        <span className={s.alarmLabel}>⏰ TIME IS UP</span>
+        <span className={s.alarmName}>{nameStr} you {bitch} — punishment will be decided in the group.</span>
       </div>
     );
   }

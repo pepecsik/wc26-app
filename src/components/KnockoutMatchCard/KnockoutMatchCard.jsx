@@ -36,14 +36,25 @@ export default function KnockoutMatchCard({ match, isFocus, onVideoOpen }) {
   const aEmojis = aPlayers.filter(p => p.videoFilename && p.drinkEmoji).map(p => p.drinkEmoji).join('');
   const hasEmojis = hEmojis || aEmojis;
 
-  // Video upload counter per side (for loser/draw sides only)
+  // Upload + drink counter per side (loser/draw only)
   const hIsLoser = hAvatarState === 'losing' || hAvatarState === 'draw';
   const aIsLoser = aAvatarState === 'losing' || aAvatarState === 'draw';
-  const hUploaded = hIsLoser ? hPlayers.filter(p => p.videoFilename).length : 0;
-  const hTotal    = hIsLoser ? hPlayers.length : 0;
-  const aUploaded = aIsLoser ? aPlayers.filter(p => p.videoFilename).length : 0;
-  const aTotal    = aIsLoser ? aPlayers.length : 0;
-  const showCounter = (hTotal > 0 || aTotal > 0) && isFinished;
+  const hUploaded = hPlayers.filter(p => p.videoFilename).length;
+  const hTotal    = hPlayers.length;
+  const aUploaded = aPlayers.filter(p => p.videoFilename).length;
+  const aTotal    = aPlayers.length;
+
+  const hDrinkTotal = hIsLoser
+    ? hPlayers.reduce((sum, p) => sum + (p.videoFilename && p.drinks ? p.drinks : 0), 0)
+      + (sideBetDrinks > 0 && hUploaded > 0 ? sideBetDrinks * hUploaded : 0)
+    : 0;
+  const aDrinkTotal = aIsLoser
+    ? aPlayers.reduce((sum, p) => sum + (p.videoFilename && p.drinks ? p.drinks : 0), 0)
+      + (sideBetDrinks > 0 && aUploaded > 0 ? sideBetDrinks * aUploaded : 0)
+    : 0;
+
+  const hCounter = isFinished && hIsLoser ? { uploaded: hUploaded, total: hTotal, drinkTotal: hDrinkTotal } : null;
+  const aCounter = isFinished && aIsLoser ? { uploaded: aUploaded, total: aTotal, drinkTotal: aDrinkTotal } : null;
 
   // Who still needs to upload (for VideoCountdown)
   const pending = [
@@ -67,7 +78,7 @@ export default function KnockoutMatchCard({ match, isFocus, onVideoOpen }) {
 
         <TeamAvatarGroup
           players={hPlayers} state={hAvatarState} isLive={isLive}
-          allMatchVideos={allMatchVideos}
+          allMatchVideos={allMatchVideos} counter={hCounter}
           onVideoOpen={(vids, name, idx) => onVideoOpen?.(vids, `${hTeam?.flag ?? ''} vs ${aTeam?.flag ?? ''}`, idx)}
         />
 
@@ -113,25 +124,18 @@ export default function KnockoutMatchCard({ match, isFocus, onVideoOpen }) {
 
         <TeamAvatarGroup
           players={aPlayers} state={aAvatarState} isLive={isLive}
-          allMatchVideos={allMatchVideos}
+          allMatchVideos={allMatchVideos} counter={aCounter}
           onVideoOpen={(vids, name, idx) => onVideoOpen?.(vids, `${hTeam?.flag ?? ''} vs ${aTeam?.flag ?? ''}`, idx)}
         />
 
       </div>
 
-      {/* Drink emoji + upload counter banner */}
-      {(hasEmojis || showCounter) && (
+      {/* Drink emoji banner */}
+      {hasEmojis && (
         <div className={styles.drinkBanner}>
-          <span className={styles.drinkSide}>{hEmojis || (hIsLoser ? '–' : '')}</span>
-          {showCounter && (
-            <span className={styles.uploadCounter}>
-              {hIsLoser && `${hUploaded}/${hTotal}`}
-              {hIsLoser && aIsLoser && ' · '}
-              {aIsLoser && `${aUploaded}/${aTotal}`}
-              {' '}✓
-            </span>
-          )}
-          <span className={styles.drinkSide}>{aEmojis || (aIsLoser ? '–' : '')}</span>
+          <span className={styles.drinkSide}>{hEmojis || '–'}</span>
+          <span className={styles.drinkDivider}>🍻</span>
+          <span className={styles.drinkSide}>{aEmojis || '–'}</span>
         </div>
       )}
 

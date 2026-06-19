@@ -16,34 +16,48 @@
   min-width: 0;
 }
 
-/* ── All done overlay ── */
+/* ── All done overlay — translucent so avatars show through ── */
 .allDoneOverlay {
   position: absolute;
   inset: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 180, 80, 0.82);
+  background: rgba(0, 160, 70, 0.55);
   border-radius: 10px;
-  gap: 2px;
   pointer-events: none;
 }
 
-.allDoneIcon {
-  font-size: 28px;
+.allDoneCheck {
+  font-size: 52px;
   color: #fff;
   font-weight: 900;
   line-height: 1;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
 }
 
-.allDoneText {
+/* ── Upload + drink counter below avatars ── */
+.counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 3px 4px 1px;
+  flex-shrink: 0;
+}
+
+.counterVideos {
   font-size: 10px;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: 2px;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  font-weight: 800;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.5px;
+}
+
+.counterDrinks {
+  font-size: 10px;
+  font-weight: 800;
+  color: #ffb300;
+  letter-spacing: 0.5px;
 }
 
 .tbd {

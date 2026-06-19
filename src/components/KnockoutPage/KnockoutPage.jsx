@@ -5,7 +5,7 @@ import VideoModal from '../VideoModal/VideoModal';
 import { PARTICIPANTS } from '../../data/participants';
 
 const find = (name) => PARTICIPANTS.find(x => x.name === name);
-const p = (name, videoFilename = null, drinkEmoji = '') => ({ ...find(name), videoFilename, drinkEmoji });
+const p = (name, videoFilename = null, drinkEmoji = '', drinks = 0) => ({ ...find(name), videoFilename, drinkEmoji, drinks });
 
 const now  = new Date();
 const ago  = (h) => new Date(now - h * 3_600_000);
@@ -20,8 +20,8 @@ const R32_SLOTS = [
     isLive: false, isFinished: true, kickoff: ago(48),
     hPlayers: [p('Sabo'), p('Tim')],
     aPlayers: [
-      p('Pepe',  'WC001_260611_A_MEX-SAF_2-0_PEPE',  '🍺🍺'),
-      p('Kimbo', 'WC006_260613_C_BRA-MOR_1-1_RAND',   '🍺'),
+      p('Pepe',  'WC001_260611_A_MEX-SAF_2-0_PEPE',  '🍺🍺', 2),
+      p('Kimbo', 'WC006_260613_C_BRA-MOR_1-1_RAND',   '🍺',   1),
     ],
   },
 
@@ -32,7 +32,7 @@ const R32_SLOTS = [
     hState: 'losing', aState: 'winning',
     isLive: false, isFinished: true, kickoff: ago(30),
     hPlayers: [
-      p('Sebastian', 'WC004_260612_D_USA-PAR_4-1_SEBASTIAN', '🍸🍺'),
+      p('Sebastian', 'WC004_260612_D_USA-PAR_4-1_SEBASTIAN', '🍸🍺', 2),
       p('Charlie'),
       p('Blake'),
     ],
@@ -46,15 +46,15 @@ const R32_SLOTS = [
     hState: 'draw', aState: 'draw',
     isLive: false, isFinished: true, kickoff: ago(32),
     hPlayers: [
-      p('Purcy',  'WC003_260612_B_CAN-BOS_1-1_PURCY', '🍺🍺'),
+      p('Purcy',  'WC003_260612_B_CAN-BOS_1-1_PURCY', '🍺🍺', 2),
       p('Russ'),
-      p('Jimmy',  'WC009_260614_E_GER-CUR_7-1_MALOU',  '🍺🍺🍺'),
+      p('Jimmy',  'WC009_260614_E_GER-CUR_7-1_MALOU',  '🍺🍺🍺', 3),
       p('Malou'),
     ],
     aPlayers: [
-      p('Charlie', 'WC002_260611_A_SKO-CZE_2-1_CHONGA', '🍺'),
+      p('Charlie', 'WC002_260611_A_SKO-CZE_2-1_CHONGA', '🍺',  1),
       p('Emma'),
-      p('Michael', 'WC011_260614_E_CIV-ECU_1-0_MICHAEL', '🍷'),
+      p('Michael', 'WC011_260614_E_CIV-ECU_1-0_MICHAEL', '🍷', 1),
       p('Rogier'),
     ],
   },
@@ -67,9 +67,9 @@ const R32_SLOTS = [
     isLive: false, isFinished: true, kickoff: ago(40),
     sideBetDrinks: 2, sideBetDesc: 'Loser does a spicy shot 🌶️',
     hPlayers: [
-      p('Emma',    'WC011_260614_E_CIV-ECU_1-0_MICHAEL', '🍺🌶️'),
-      p('J$',      'WC008_260613_D_AUS-TUR_2-0_J$',      '🍺🌶️'),
-      p('Malou',   'WC009_260614_E_GER-CUR_7-1_MALOU',   '🍺🌶️'),
+      p('Emma',    'WC011_260614_E_CIV-ECU_1-0_MICHAEL', '🍺🌶️', 1),
+      p('J$',      'WC008_260613_D_AUS-TUR_2-0_J$',      '🍺🌶️', 1),
+      p('Malou',   'WC009_260614_E_GER-CUR_7-1_MALOU',   '🍺🌶️', 1),
     ],
     aPlayers: [p('Scotty2Hotty'), p('Nathanial'), p('Rogier')],
   },
@@ -82,8 +82,8 @@ const R32_SLOTS = [
     isLive: false, isFinished: true, kickoff: ago(23.5),
     hPlayers: [p('Rand'), p('Tobias')],
     aPlayers: [
-      p('Malou', 'WC012_260614_F_SWE-TUN_5-1_RAND', '🍺🍺'),
-      p('Will Hunt'),   // still owes — alarm!
+      p('Malou', 'WC012_260614_F_SWE-TUN_5-1_RAND', '🍺🍺', 2),
+      p('Will Hunt'),
     ],
   },
 

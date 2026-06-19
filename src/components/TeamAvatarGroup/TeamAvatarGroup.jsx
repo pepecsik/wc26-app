@@ -37,27 +37,25 @@ function MiniAvatar({ player, isOriginal, state, size, onVideoClick }) {
   );
 }
 
-export default function TeamAvatarGroup({ players = [], state = 'neutral', isLive = false, onVideoOpen, allMatchVideos = [] }) {
+// counter: { uploaded, total, drinkTotal } — shown below avatars on loser sides
+export default function TeamAvatarGroup({ players = [], state = 'neutral', isLive = false, onVideoOpen, allMatchVideos = [], counter }) {
   const count = players.length;
   const cols = count <= 1 ? 1 : count <= 4 ? 2 : count <= 9 ? 3 : 4;
   const size = count <= 1 ? 'L' : count <= 4 ? 'M' : count <= 9 ? 'S' : 'XS';
-  const isShaking = isLive && (state === 'losing');
-
+  const isShaking = isLive && state === 'losing';
   const isLoserSide = state === 'losing' || state === 'draw';
   const allDone = isLoserSide && count > 0 && players.every(p => !!p.videoFilename);
 
   if (count === 0) {
     return (
-      <div className={styles.group}>
-        <div className={styles.tbd}>TBD</div>
+      <div className={styles.groupWrap}>
+        <div className={styles.group}><div className={styles.tbd}>TBD</div></div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`${styles.groupWrap} ${isShaking ? styles.shake : ''}`}
-    >
+    <div className={`${styles.groupWrap} ${isShaking ? styles.shake : ''}`}>
       <div className={styles.group} style={{ '--cols': cols }}>
         {players.map((p, i) => {
           const startIdx = allMatchVideos.indexOf(p.videoFilename);
@@ -73,10 +71,21 @@ export default function TeamAvatarGroup({ players = [], state = 'neutral', isLiv
           );
         })}
       </div>
+
+      {/* ALL DONE — translucent green overlay with big ✓ */}
       {allDone && (
         <div className={styles.allDoneOverlay}>
-          <span className={styles.allDoneIcon}>✓</span>
-          <span className={styles.allDoneText}>ALL IN</span>
+          <span className={styles.allDoneCheck}>✓</span>
+        </div>
+      )}
+
+      {/* Upload + drink counter below avatars */}
+      {counter && (
+        <div className={styles.counter}>
+          <span className={styles.counterVideos}>{counter.uploaded}/{counter.total} ✓</span>
+          {counter.drinkTotal > 0 && (
+            <span className={styles.counterDrinks}>🍺 {counter.drinkTotal}</span>
+          )}
         </div>
       )}
     </div>
