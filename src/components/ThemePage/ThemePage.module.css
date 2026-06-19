@@ -1,0 +1,358 @@
+/* ── Page shell ── */
+.page {
+  min-height: 100dvh;
+  background: #08080f;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 40px;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 12px;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerEmoji {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.headerMain {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: #fff;
+}
+
+.headerSub {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.3px;
+  margin-top: 1px;
+}
+
+.previewBadge {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #818cf8;
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 20px 16px;
+}
+
+.tab {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.4);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 18px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tabActive {
+  background: rgba(99,102,241,0.15);
+  border-color: rgba(99,102,241,0.4);
+  color: #a5b4fc;
+}
+
+/* ── Feed ── */
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 14px;
+}
+
+/* ── Match card ── */
+.matchCard {
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+  padding: 14px 16px 12px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: border-color 0.2s;
+}
+
+.matchLive {
+  border-color: rgba(99,102,241,0.35);
+  background: rgba(99,102,241,0.05);
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.15), 0 8px 32px rgba(99,102,241,0.08);
+}
+
+/* ── Match meta row ── */
+.matchMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.matchGroup {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+}
+
+.livePill {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #a5b4fc;
+  background: rgba(99,102,241,0.18);
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+.ftPill {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.06);
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+.upcomingPill {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ── Score row ── */
+.scoreRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.side {
+  flex: 1;
+}
+
+.sideRight {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.playerAvatars {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.sideRight .playerAvatars {
+  justify-content: flex-end;
+}
+
+.scoreCenter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.scoreFlag {
+  font-size: 24px;
+  line-height: 1;
+  transition: opacity 0.2s;
+}
+
+.scoreFlagDim {
+  opacity: 0.35;
+}
+
+.scoreBox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 64px;
+  justify-content: center;
+}
+
+.scoreNum {
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  color: rgba(255,255,255,0.5);
+  font-variant-numeric: tabular-nums;
+}
+
+.scoreWin  { color: #fff; }
+.scoreLoss { color: rgba(255,255,255,0.2); }
+
+.scoreSep {
+  font-size: 18px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.2);
+}
+
+.scoreTime {
+  font-size: 22px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: -0.5px;
+}
+
+/* ── Team names ── */
+.teamNames {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.teamNames span {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.3px;
+}
+
+/* ── Leaderboard section ── */
+.section {
+  margin: 22px 14px 0;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.sectionTitle {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.lbHeader {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.lbNameHead {
+  flex: 1;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-left: 6px;
+}
+
+.lbRow {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: background 0.12s;
+  gap: 0;
+}
+
+.lbRow:last-child { border-bottom: none; }
+.lbRow:hover { background: rgba(255,255,255,0.03); }
+.lbRowFirst { background: rgba(99,102,241,0.04); }
+
+.lbRank {
+  width: 22px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.2);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.lbName {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  min-width: 0;
+}
+
+.lbName span:first-child {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lbFlags {
+  font-size: 12px;
+  opacity: 0.7;
+  letter-spacing: 2px;
+  flex-shrink: 0;
+}
+
+.lbStat {
+  width: 28px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 800;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.lbW     { color: #34d399; }
+.lbL     { color: #f87171; }
+.lbD     { color: #fbbf24; }
+.lbDrink { color: #60a5fa; }
+.lbDone  { color: #34d399; }
+
+/* ── Avatars ── */
+.av {
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.avInit {
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.av_sm, .avInit.av_sm { width: 28px; height: 28px; font-size: 11px; }
+.av_md, .avInit.av_md { width: 36px; height: 36px; font-size: 13px; }
