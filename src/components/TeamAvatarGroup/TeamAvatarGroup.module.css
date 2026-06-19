@@ -18,9 +18,9 @@
 
 /* ── All done — green border around the whole group ── */
 .allDone {
-  border: 2px solid rgba(0, 200, 80, 0.7);
+  border: 2px solid rgba(var(--accent-rgb), 0.7);
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 200, 80, 0.25);
+  box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.25);
 }
 
 /* ── Upload + drink counter below avatars ── */

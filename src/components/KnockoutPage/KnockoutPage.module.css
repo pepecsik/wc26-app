@@ -46,9 +46,9 @@
 .tab:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
 
 .tabActive {
-  background: rgba(0,200,68,0.15);
-  border-color: rgba(0,200,68,0.5);
-  color: #00c844;
+  background: rgba(var(--accent-rgb),0.15);
+  border-color: rgba(var(--accent-rgb),0.5);
+  color: var(--accent);
 }
 
 /* ── Coming soon placeholder ── */

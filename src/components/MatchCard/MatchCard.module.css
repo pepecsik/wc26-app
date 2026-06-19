@@ -26,13 +26,13 @@
 
 /* ── Live pulse ── */
 .card.live {
-  border-color: #00c844;
+  border-color: var(--accent);
   animation: pulseLive 2s ease-in-out infinite;
 }
 
 @keyframes pulseLive {
-  0%,100% { box-shadow: 0 0 0 0 rgba(0,200,68,0.5); }
-  50%     { box-shadow: 0 0 0 10px rgba(0,200,68,0); }
+  0%,100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb),0.5); }
+  50%     { box-shadow: 0 0 0 10px rgba(var(--accent-rgb),0); }
 }
 
 .card.finished {
@@ -69,8 +69,8 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  background: rgba(0,200,68,0.15);
-  color: #00c844;
+  background: rgba(var(--accent-rgb),0.15);
+  color: var(--accent);
   font-size: 11px;
   font-weight: 700;
   padding: 3px 9px;
@@ -81,7 +81,7 @@
 .liveDot {
   width: 6px;
   height: 6px;
-  background: #00c844;
+  background: var(--accent);
   border-radius: 50%;
   animation: blink 1s ease-in-out infinite;
 }
@@ -190,7 +190,7 @@
 }
 
 .card.sideBet.live {
-  border-color: #00c844;
+  border-color: var(--accent);
   animation: pulseLive 2s ease-in-out infinite;
 }
 

@@ -5,8 +5,32 @@ html {
   font-size: 16px;
 }
 
+/* ── Theme variables ── */
+:root {
+  --accent:       #00c844;
+  --accent-rgb:   0, 200, 68;
+  --bg-body:      #071a0e;
+  --bg-top:       #070f0a;
+  --bg-mid:       #0b1a0f;
+  --bg-bot:       #060e09;
+  --bg-tint-1:    rgba(12, 80, 35, 0.35);
+  --bg-tint-2:    rgba(6, 40, 18, 0.4);
+}
+
+/* ── Theme A: Modern (indigo) ── */
+[data-theme="a"] {
+  --accent:       #6366f1;
+  --accent-rgb:   99, 102, 241;
+  --bg-body:      #08080f;
+  --bg-top:       #08080f;
+  --bg-mid:       #0d0d18;
+  --bg-bot:       #06060e;
+  --bg-tint-1:    rgba(50, 50, 100, 0.2);
+  --bg-tint-2:    rgba(20, 20, 60, 0.3);
+}
+
 body {
-  background: #071a0e;
+  background: var(--bg-body);
   color: #fff;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;

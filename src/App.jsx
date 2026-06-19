@@ -5,7 +5,6 @@ import StatsPage from './components/StatsPage/StatsPage';
 import StandingsPage from './components/StandingsPage/StandingsPage';
 import AdminPage from './components/AdminPage/AdminPage';
 import KnockoutPage from './components/KnockoutPage/KnockoutPage';
-import ThemePage from './components/ThemePage/ThemePage';
 import DrinksTicker from './components/DrinksTicker/DrinksTicker';
 import AlarmModal from './components/AlarmModal/AlarmModal';
 import ShameBanner from './components/ShameBanner/ShameBanner';
@@ -17,7 +16,10 @@ import styles from './App.module.css';
 
 const IS_ADMIN    = window.location.pathname.startsWith('/admin');
 const IS_KNOCKOUT = new URLSearchParams(window.location.search).has('knockout');
-const IS_THEME    = new URLSearchParams(window.location.search).has('theme');
+const THEME_PARAM = new URLSearchParams(window.location.search).get('theme');
+
+// Apply theme variable set when ?theme=a (or other future themes)
+if (THEME_PARAM) document.documentElement.dataset.theme = THEME_PARAM;
 
 function useAgo(lastUpdated) {
   const [ago, setAgo] = useState('');
@@ -37,7 +39,6 @@ function useAgo(lastUpdated) {
 export default function App() {
   if (IS_ADMIN)    return <AdminPage />;
   if (IS_KNOCKOUT) return <div className={styles.app}><KnockoutPage /></div>;
-  if (IS_THEME)    return <ThemePage />;
 
   const [activeTab, setActiveTab]         = useState(() => localStorage.getItem('wc26-tab') || 'matches');
   const [standingsOpen, setStandingsOpen] = useState(false);

@@ -76,7 +76,7 @@ tbody tr:last-child {
 }
 
 .qualifying {
-  background: rgba(0, 200, 68, 0.05);
+  background: rgba(var(--accent-rgb), 0.05);
 }
 
 .tdTeam {

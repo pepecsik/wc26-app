@@ -135,14 +135,14 @@ thead tr {
   font-variant-numeric: tabular-nums;
 }
 
-.rankUp   { color: #00c844; }
+.rankUp   { color: var(--accent); }
 .rankDown { color: #ff3b3b; }
 
-.win   { color: #00c844; }
+.win   { color: var(--accent); }
 .loss  { color: #ff3b3b; }
 .draw  { color: #ffb300; }
 .drink { color: #60a5fa; }
-.done  { color: #00c844; }
+.done  { color: var(--accent); }
 
 /* ── Fun Stats ── */
 .funStats {

@@ -44,10 +44,10 @@
 }
 
 .gateBtn {
-  background: rgba(0,200,68,0.15);
-  border: 1px solid rgba(0,200,68,0.3);
+  background: rgba(var(--accent-rgb),0.15);
+  border: 1px solid rgba(var(--accent-rgb),0.3);
   border-radius: 10px;
-  color: #00c844;
+  color: var(--accent);
   font-size: 14px;
   font-weight: 700;
   padding: 10px;
@@ -63,7 +63,7 @@
   z-index: 10;
   background: rgba(4,14,7,0.96);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(0,200,68,0.15);
+  border-bottom: 1px solid rgba(var(--accent-rgb),0.15);
   padding: 14px 16px;
   display: flex;
   align-items: center;
@@ -149,7 +149,7 @@
 }
 
 .slotDone {
-  background: rgba(0,200,68,0.05);
+  background: rgba(var(--accent-rgb),0.05);
 }
 
 .slotPlayer {
@@ -203,7 +203,7 @@
 .doneTag {
   font-size: 11px;
   font-weight: 700;
-  color: #00c844;
+  color: var(--accent);
   letter-spacing: 0.3px;
 }
 
@@ -294,10 +294,10 @@
 }
 
 .uploadBtn {
-  background: rgba(0,200,68,0.15);
-  border: 1px solid rgba(0,200,68,0.3);
+  background: rgba(var(--accent-rgb),0.15);
+  border: 1px solid rgba(var(--accent-rgb),0.3);
   border-radius: 8px;
-  color: #00c844;
+  color: var(--accent);
   font-size: 13px;
   font-weight: 700;
   padding: 8px 12px;
@@ -316,16 +316,16 @@
   width: 100%;
   margin-top: 8px;
   padding: 10px;
-  background: rgba(0,200,68,0.08);
-  border: 1px dashed rgba(0,200,68,0.35);
+  background: rgba(var(--accent-rgb),0.08);
+  border: 1px dashed rgba(var(--accent-rgb),0.35);
   border-radius: 10px;
-  color: #00c844;
+  color: var(--accent);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   text-align: center;
 }
-.extraVideoBtn:hover { background: rgba(0,200,68,0.15); }
+.extraVideoBtn:hover { background: rgba(var(--accent-rgb),0.15); }
 
 .slotError {
   font-size: 11px;
@@ -357,13 +357,13 @@
 }
 
 .tabActive {
-  background: rgba(0,200,68,0.1);
-  border-color: rgba(0,200,68,0.3);
-  color: #00c844;
+  background: rgba(var(--accent-rgb),0.1);
+  border-color: rgba(var(--accent-rgb),0.3);
+  color: var(--accent);
 }
 
 .tabBadge {
-  background: #00c844;
+  background: var(--accent);
   color: #000;
   border-radius: 10px;
   font-size: 10px;
