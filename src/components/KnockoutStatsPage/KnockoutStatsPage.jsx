@@ -53,10 +53,16 @@ const DEMO = [
   { name:'Chonga',   history:[{code:'CZE',type:'o',out:'GS',w:0,d:0},{code:'SKO',type:'o',out:'R32',w:0,d:1},{code:'NED',type:'r',out:'QF',w:2,d:1},{code:'BRA',type:'r',out:null,w:0,d:0}] },
 ];
 
-function buildPlayers() {
+// realPlayers: from usePlayerStats hook (real group stage data)
+// If provided and non-empty, group stage drinks/wins/debt are real; knockout part is demo.
+// If empty/undefined (fallback), everything comes from DEMO.
+function buildPlayers(realPlayers = []) {
   return DEMO.map(d => {
     const p = find(d.name);
     const h = d.history;
+
+    // Look up real group stage stats for this player
+    const real = realPlayers.find(r => r.name === d.name);
 
     // Active team: last entry with out:null
     const active = h.findLast(t => t.out === null) ?? h[h.length - 1];
@@ -64,24 +70,30 @@ function buildPlayers() {
 
     // Best round = furthest round reached by any team (active team's status or out-round)
     const bestRound = isAlive
-      ? (active.out ?? 'SF') // alive teams are in SF
+      ? 'SF'
       : h.reduce((best, t) => {
           const r = t.out ?? 'SF';
           return ROUND_RANK[r] > ROUND_RANK[best] ? r : best;
         }, 'GS');
 
-    // Wins = all knockout wins across all teams
-    const totalWins = h.reduce((s, t) => s + (t.w || 0), 0);
+    // Knockout wins (table W column = KO only, cleaner for KO ranking)
+    const koWins = h.reduce((s, t) => s + (t.w || 0), 0);
 
-    // Losses = teams knocked out in knockout rounds (not GS — those don't require drinks)
+    // Knockout losses = how many redraws needed (teams eliminated in KO rounds, not GS)
     const totalLosses = h.filter(t => t.out && t.out !== 'GS').length;
 
-    // Drinks = sum of all team drinks + bonus
-    const totalDrinks = h.reduce((s, t) => s + (t.d || 0), 0) + (d.bonusDrinks || 0);
+    // KO drinks from demo history
+    const koDrinks = h.reduce((s, t) => s + (t.d || 0), 0);
 
-    // Video debt: for demo, assume 1 overdue video for players with drinks>2
-    const videoDebt = totalDrinks > 2 ? 1 : 0;
-    const drinksDone = totalDrinks - videoDebt;
+    // --- Merge real + demo ---
+    // Drinks column: real group stage total + demo KO drinks
+    const gsDrinksTotal = real ? (real.drinksTotal ?? real.drinks) : (d.bonusDrinks || 0);
+    const totalDrinks = gsDrinksTotal + koDrinks;
+
+    // Video debt: use real debt if available, else estimate from demo
+    const videoDebt = real ? (real.videoDebt ?? 0) : (totalDrinks > 2 ? 1 : 0);
+    const gsDrinksDone = real ? (real.drinksDone ?? 0) : (totalDrinks - videoDebt);
+    const drinksDone = gsDrinksDone + koDrinks; // assume all KO demo drinks uploaded
 
     // Win streak: count consecutive wins backwards across all teams (knockout matches only)
     // Build match list chronologically: each team's W/L results in order
@@ -134,7 +146,7 @@ function buildPlayers() {
       activeTeam: active,
       isAlive,
       bestRound: isAlive ? 'SF' : bestRound,
-      wins: totalWins,
+      wins: koWins,
       losses: totalLosses,
       draws: 0,
       drinks: totalDrinks,
@@ -187,14 +199,16 @@ function StatCard({ emoji, label, rows }) {
   if (!rows?.length) return null;
   return (
     <div className={styles.statCard}>
-      <div className={styles.statLabel}>{emoji} {label}</div>
-      {rows.map((r, i) => (
-        <div key={i} className={styles.statRow}>
-          <MiniAvatar p={r} />
-          <span className={styles.statName}>{r.name.split(' ')[0]}</span>
-          <span className={styles.statVal}>{r.val}</span>
-        </div>
-      ))}
+      <div className={styles.statCardLabel}>{emoji} {label}</div>
+      <div className={styles.statCardBody}>
+        {rows.map((r, i) => (
+          <div key={i} className={styles.statRow}>
+            <MiniAvatar p={r} />
+            <span className={styles.statName}>{r.name.split(' ')[0]}</span>
+            <span className={styles.statVal}>{r.val}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -221,9 +235,9 @@ function TeamChain({ history }) {
 
 // ── Main component ───────────────────────────────────────────────────────────
 
-export default function KnockoutStatsPage() {
+export default function KnockoutStatsPage({ realPlayers = [] }) {
   const [selected, setSelected] = useState(null);
-  const players = buildPlayers();
+  const players = buildPlayers(realPlayers);
   const ranked = rankPlayers(players);
 
   // Fun stats
@@ -250,15 +264,26 @@ export default function KnockoutStatsPage() {
   const alive = ranked.filter(p => p.isAlive);
   const eliminated = ranked.filter(p => !p.isAlive);
 
+  const totalDrinks = players.reduce((s, p) => s + p.drinks, 0);
+  const totalDrinksDone = players.reduce((s, p) => s + p.drinksDone, 0);
+
   return (
     <div className={styles.page}>
 
-      {/* Fun stat cards — same 4 as group stage */}
-      <div className={styles.statGrid}>
-        <StatCard emoji="🔥" label="Win Streak"  rows={topStreakers.slice(0, 3)} />
-        <StatCard emoji="🍺" label="Most Drinks" rows={topDrinkers.slice(0, 3)} />
-        <StatCard emoji="😇" label="Still Clean" rows={cleanPlayers.slice(0, 3)} />
-        <StatCard emoji="🎬" label="Video Debt"  rows={debtPlayers.slice(0, 3)} />
+      {/* Fun stat cards — same structure as StatsPage */}
+      <div className={styles.funStats}>
+        <div className={styles.funStatsTitle}>Knockout Stats</div>
+        {totalDrinks > 0 && (
+          <div className={styles.totalDrinks}>
+            🍺 <span>{totalDrinks}</span> drinks owed · <span>{totalDrinksDone}</span> done
+          </div>
+        )}
+        <div className={styles.statGrid}>
+          <StatCard emoji="🔥" label="Win Streak"  rows={topStreakers.slice(0, 3)} />
+          <StatCard emoji="🍺" label="Most Drinks" rows={topDrinkers.slice(0, 3)} />
+          <StatCard emoji="😇" label="Still Clean" rows={cleanPlayers.slice(0, 3)} />
+          <StatCard emoji="🎬" label="Video Debt"  rows={debtPlayers.slice(0, 3)} />
+        </div>
       </div>
 
       {/* Leaderboard table — same structure as group stage */}

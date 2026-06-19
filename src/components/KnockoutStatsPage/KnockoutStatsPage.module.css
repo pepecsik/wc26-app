@@ -5,72 +5,118 @@
 }
 .page::-webkit-scrollbar { display: none; }
 
-/* ── Fun stat cards — 2×2 grid, same as group stage ── */
+/* ── Fun Stats — identical to StatsPage ── */
+.funStats {
+  margin-top: 4px;
+  padding: 0 14px 8px;
+}
+
+.funStatsTitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+
+.totalDrinks {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 12px;
+  padding-left: 2px;
+}
+
+.totalDrinks span {
+  color: #60a5fa;
+  font-size: 16px;
+}
+
 .statGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  padding: 10px 10px 4px;
 }
+
 .statCard {
   background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 8px 10px;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
 }
-.statLabel {
+
+.statCardLabel {
   font-size: 10px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.35);
-  letter-spacing: 1px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  color: rgba(255,255,255,0.3);
 }
+
+.statCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
 .statRow {
   display: flex;
   align-items: center;
   gap: 6px;
 }
+
 .miniAv {
-  width: 20px; height: 20px;
-  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   object-fit: cover;
   flex-shrink: 0;
 }
+
 .miniAvInit {
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 8px; font-weight: 800; color: #fff;
-  flex-shrink: 0;
-}
-.statName {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 11px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.8);
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.statVal {
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.4);
+  font-weight: 800;
+  color: #fff;
   flex-shrink: 0;
 }
 
-/* ── Table — mirrors StatsPage exactly ── */
+.statName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+  min-width: 0;
+}
+
+.statVal {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  white-space: nowrap;
+}
+
+/* ── Table ── */
 .table {
   width: 100%;
   border-collapse: collapse;
 }
+
 thead tr {
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
+
 .thRank {
   width: 32px;
   padding: 8px 4px 8px 8px;
@@ -79,6 +125,7 @@ thead tr {
   color: rgba(255,255,255,0.25);
   text-align: center;
 }
+
 .thPlayer {
   padding: 8px 8px;
   font-size: 10px;
@@ -88,13 +135,16 @@ thead tr {
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
+
 .thStat {
-  width: 34px;
+  width: 40px;
   padding: 8px 4px;
   font-size: 11px;
   font-weight: 800;
   color: rgba(255,255,255,0.3);
   text-align: center;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
 /* ── Section divider row ── */
@@ -121,35 +171,43 @@ thead tr {
 
 .rank {
   padding: 10px 4px 10px 8px;
-  font-size: 18px;
-  text-align: center;
-  vertical-align: middle;
-}
-.rankNum {
   font-size: 11px;
   font-weight: 700;
   color: rgba(255,255,255,0.25);
+  text-align: center;
+  white-space: nowrap;
 }
 
-.playerCol { padding: 6px 4px; }
+.playerCol { padding: 8px 8px; }
+
 .playerInner {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
+
 .avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
   object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.1);
   flex-shrink: 0;
 }
+
 .avatarInit {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 800; color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
   flex-shrink: 0;
 }
+
 .playerBlock {
   flex: 1;
   min-width: 0;
@@ -157,14 +215,19 @@ thead tr {
   flex-direction: column;
   gap: 3px;
 }
+
 .playerName {
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   color: #fff;
   display: flex;
   align-items: center;
   gap: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 .redrawBadge {
   font-size: 9px;
   font-weight: 700;
@@ -174,6 +237,7 @@ thead tr {
   border-radius: 8px;
   padding: 1px 5px;
   letter-spacing: 0.3px;
+  flex-shrink: 0;
 }
 
 /* ── Team chain (journey across redraws) ── */
@@ -183,16 +247,19 @@ thead tr {
   flex-wrap: wrap;
   gap: 3px;
 }
+
 .chainItem {
   display: flex;
   align-items: center;
   gap: 3px;
 }
+
 .redrawArrow {
   font-size: 9px;
   color: rgba(255,160,0,0.7);
   flex-shrink: 0;
 }
+
 .teamPill {
   font-size: 9px;
   font-weight: 700;
@@ -201,32 +268,35 @@ thead tr {
   letter-spacing: 0.2px;
   white-space: nowrap;
 }
+
 .pillAlive {
   background: rgba(0,200,68,0.18);
   color: #00c844;
   border: 1px solid rgba(0,200,68,0.35);
 }
+
 .pillOut {
   background: rgba(255,255,255,0.05);
   color: rgba(255,255,255,0.35);
   border: 1px solid rgba(255,255,255,0.08);
 }
+
 .pillGS {
   background: rgba(255,255,255,0.02);
   color: rgba(255,255,255,0.18);
   border: 1px solid rgba(255,255,255,0.05);
 }
 
-/* ── Stat cells — same colours as group stage ── */
+/* ── Stat cells — same as real StatsPage ── */
 .stat {
-  width: 34px;
   padding: 10px 4px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 800;
   text-align: center;
-  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
 }
+
 .win   { color: #00c844; }
 .loss  { color: #ff3b3b; }
-.drink { color: #ffb300; }
-.done  { color: rgba(255,255,255,0.4); }
+.drink { color: #60a5fa; }
+.done  { color: #00c844; }

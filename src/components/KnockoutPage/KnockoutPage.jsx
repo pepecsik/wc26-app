@@ -4,6 +4,9 @@ import KnockoutMatchCard from '../KnockoutMatchCard/KnockoutMatchCard';
 import VideoModal from '../VideoModal/VideoModal';
 import KnockoutStatsPage from '../KnockoutStatsPage/KnockoutStatsPage';
 import { PARTICIPANTS } from '../../data/participants';
+import { useMatches } from '../../hooks/useMatches';
+import { useSheetData } from '../../hooks/useSheetData';
+import { usePlayerStats } from '../../hooks/usePlayerStats';
 
 const find = (name) => PARTICIPANTS.find(x => x.name === name);
 const p = (name, videoFilename = null, drinkEmoji = '', drinks = 0) => ({ ...find(name), videoFilename, drinkEmoji, drinks });
@@ -177,6 +180,11 @@ export default function KnockoutPage() {
   const [video, setVideo] = useState(null);
   const [tab, setTab] = useState('r32');
 
+  // Real data — same hooks as the main app, read-only, no sheet changes
+  const { matches } = useMatches();
+  const { videoMap } = useSheetData();
+  const realPlayers = usePlayerStats(matches, videoMap);
+
   const liveMatches    = R32_SLOTS.filter(m => m.isLive);
   const recentFinished = R32_SLOTS.filter(m => m.isFinished);
   const focusId = liveMatches[0]?.id
@@ -219,7 +227,7 @@ export default function KnockoutPage() {
     : tab === 'r32'
     ? null
     : tab === 'stats'
-    ? <KnockoutStatsPage />
+    ? <KnockoutStatsPage realPlayers={realPlayers} />
     : <div className={styles.comingSoon}>Coming soon</div>;
 
   return (
