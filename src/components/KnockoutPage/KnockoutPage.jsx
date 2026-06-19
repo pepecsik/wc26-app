@@ -2,6 +2,7 @@ import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import styles from './KnockoutPage.module.css';
 import KnockoutMatchCard from '../KnockoutMatchCard/KnockoutMatchCard';
 import VideoModal from '../VideoModal/VideoModal';
+import KnockoutStatsPage from '../KnockoutStatsPage/KnockoutStatsPage';
 import { PARTICIPANTS } from '../../data/participants';
 
 const find = (name) => PARTICIPANTS.find(x => x.name === name);
@@ -166,6 +167,7 @@ const TABS = [
   { id: 'qf',    label: 'QF' },
   { id: 'sf',    label: 'SF' },
   { id: 'final', label: 'Final' },
+  { id: 'stats', label: '🏆 Stats' },
 ];
 
 export default function KnockoutPage() {
@@ -215,7 +217,9 @@ export default function KnockoutPage() {
   const tabContent = tab === 'gs'
     ? <div className={styles.comingSoon}>← Group Stage</div>
     : tab === 'r32'
-    ? null // rendered below
+    ? null
+    : tab === 'stats'
+    ? <KnockoutStatsPage />
     : <div className={styles.comingSoon}>Coming soon</div>;
 
   return (
