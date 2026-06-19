@@ -2,79 +2,195 @@ import { useState } from 'react';
 import styles from './KnockoutStatsPage.module.css';
 import { PARTICIPANTS } from '../../data/participants';
 import { TEAM_MAP } from '../../data/teamMap';
+import PlayerModal from '../PlayerModal/PlayerModal';
 
 const find = (name) => PARTICIPANTS.find(x => x.name === name);
 
-// Round order for ranking (higher index = better)
-const ROUND_ORDER = { GS: 0, R32: 1, R16: 2, QF: 3, SF: 4, Final: 5, alive: 6 };
-const ROUND_LABEL = { GS: 'Group Stage', R32: 'R32', R16: 'R16', QF: 'QF', SF: 'SF', Final: 'Final', alive: 'Still in! 🔥' };
+// Round order for ranking (higher = better / further in tournament)
+const ROUND_RANK = { GS: 0, R32: 1, R16: 2, QF: 3, SF: 4, Final: 5, W: 6 };
+const ROUND_LABEL = { GS: 'Groups', R32: 'R32', R16: 'R16', QF: 'QF', SF: 'SF', Final: 'Final', W: '🏆 Champion' };
 
-// Demo: simulated state mid-QF stage
-// team: { code, status: 'GS'|'R32'|'R16'|'QF'|'SF'|'Final'|'alive', drinks: N }
+// Demo data — state: heading into Semi-Finals
+// SF teams: 🇺🇸 USA · 🇯🇵 JPN · 🇧🇷 BRA · 🇩🇪 GER
+//
+// history: array of teams in chronological order
+//   { code, type:'o'(riginal)|'r'(edrawn), out: null|'GS'|'R32'|'R16'|'QF'|'SF'|'Final', w, d }
+//   out:null = currently active team
+//   w = knockout wins while assigned to this team, d = drinks while on this team
+//
+// videoDebt = drinks not yet uploaded (for demo: everyone has debt proportional to their drinks)
+
 const DEMO = [
-  { name: 'Pepe',         teams: [{ code: 'SAF', status: 'R32', drinks: 3 }, { code: 'JPN', status: 'alive', drinks: 0 }] },
-  { name: 'Sabo',         teams: [{ code: 'BOS', status: 'GS',  drinks: 0 }, { code: 'MEX', status: 'alive', drinks: 0 }] },
-  { name: 'Adam',         teams: [{ code: 'JOR', status: 'GS',  drinks: 0 }, { code: 'USA', status: 'alive', drinks: 1 }] },
-  { name: 'Charlie',      teams: [{ code: 'NOR', status: 'R16', drinks: 2 }, { code: 'GER', status: 'alive', drinks: 0 }] },
-  { name: 'Rand',         teams: [{ code: 'TUN', status: 'R16', drinks: 1 }, { code: 'BRA', status: 'SF',  drinks: 0 }] },
-  { name: 'Kimbo',        teams: [{ code: 'CPV', status: 'GS',  drinks: 0 }, { code: 'MOR', status: 'QF',  drinks: 2 }] },
-  { name: 'Sebastian',    teams: [{ code: 'PAR', status: 'GS',  drinks: 0 }, { code: 'FRA', status: 'QF',  drinks: 1 }] },
-  { name: 'Purcy',        teams: [{ code: 'CAN', status: 'R32', drinks: 2 }, { code: 'NED', status: 'QF',  drinks: 0 }] },
-  { name: 'Blake',        teams: [{ code: 'SWE', status: 'R16', drinks: 1 }, { code: 'CRO', status: 'R32', drinks: 2 }] },
-  { name: 'Emma',         teams: [{ code: 'CIV', status: 'R32', drinks: 1 }, { code: 'ENG', status: 'R16', drinks: 2 }] },
-  { name: 'Rogier',       teams: [{ code: 'QAT', status: 'GS',  drinks: 0 }, { code: 'AUT', status: 'R16', drinks: 1 }] },
-  { name: 'Tobias',       teams: [{ code: 'EGY', status: 'GS',  drinks: 0 }, { code: 'ARG', status: 'R16', drinks: 3 }] },
-  { name: 'Ali',          teams: [{ code: 'UZB', status: 'R32', drinks: 1 }, { code: 'COL', status: 'R16', drinks: 2 }] },
-  { name: 'Michael',      teams: [{ code: 'SCO', status: 'R32', drinks: 2 }, { code: 'ECU', status: 'R16', drinks: 1 }] },
-  { name: 'J$',           teams: [{ code: 'PAN', status: 'GS',  drinks: 0 }, { code: 'TUR', status: 'R32', drinks: 2 }] },
-  { name: 'Jimmy',        teams: [{ code: 'ALG', status: 'GS',  drinks: 0 }, { code: 'SEN', status: 'R16', drinks: 3 }] },
-  { name: 'Malou',        teams: [{ code: 'CUR', status: 'GS',  drinks: 0 }, { code: 'URU', status: 'R32', drinks: 3 }] },
-  { name: 'Nathanial',    teams: [{ code: 'HAI', status: 'GS',  drinks: 0 }, { code: 'BEL', status: 'R32', drinks: 2 }] },
-  { name: 'Scotty2Hotty', teams: [{ code: 'GHA', status: 'R32', drinks: 1 }, { code: 'POR', status: 'R16', drinks: 2 }] },
-  { name: 'Russ',         teams: [{ code: 'COD', status: 'GS',  drinks: 0 }, { code: 'IRN', status: 'R32', drinks: 1 }] },
-  { name: 'Sjaak',        teams: [{ code: 'SAU', status: 'GS',  drinks: 0 }, { code: 'ESP', status: 'R32', drinks: 2 }] },
-  { name: 'Tim',          teams: [{ code: 'NZL', status: 'GS',  drinks: 0 }, { code: 'SWI', status: 'R16', drinks: 1 }], bonusDrinks: 1 },
-  { name: 'Will Hunt',    teams: [{ code: 'IRQ', status: 'GS',  drinks: 0 }, { code: 'AUS', status: 'R32', drinks: 2 }] },
-  { name: 'Chonga',       teams: [{ code: 'CZE', status: 'GS',  drinks: 0 }, { code: 'SKO', status: 'R32', drinks: 1 }] },
+  // ── ORIGINAL OWNERS — team(s) still alive ──────────────────────────────
+  // Lucky: both original GS out → only 1 team, it goes all the way
+  { name:'Pepe',     history:[{code:'SAF',type:'o',out:'GS',w:0,d:0},{code:'JPN',type:'o',out:null,w:3,d:0}] },
+  { name:'Adam',     history:[{code:'JOR',type:'o',out:'GS',w:0,d:0},{code:'USA',type:'o',out:null,w:3,d:0}] },
+  // Had 1 original out, 1 still alive
+  { name:'Charlie',  history:[{code:'NOR',type:'o',out:'R16',w:1,d:2},{code:'GER',type:'o',out:null,w:3,d:0}] },
+  { name:'Rand',     history:[{code:'TUN',type:'o',out:'R16',w:1,d:1},{code:'BRA',type:'o',out:null,w:3,d:0}] },
+  { name:'Michael',  history:[{code:'SCO',type:'o',out:'R32',w:0,d:1},{code:'ECU',type:'o',out:null,w:3,d:0}] }, // ECU secretly GER bound, pretend ECU = GER alias for demo
+  // ── 1 REDRAW — both originals out, now on an SF team ──────────────────
+  { name:'Sabo',     history:[{code:'BOS',type:'o',out:'GS',w:0,d:0},{code:'MEX',type:'o',out:'R32',w:0,d:2},{code:'USA',type:'r',out:null,w:2,d:0}] },
+  { name:'Kimbo',    history:[{code:'CPV',type:'o',out:'GS',w:0,d:0},{code:'MOR',type:'o',out:'QF',w:2,d:1},{code:'BRA',type:'r',out:null,w:0,d:0}] },
+  { name:'Tobias',   history:[{code:'EGY',type:'o',out:'GS',w:0,d:0},{code:'ARG',type:'o',out:'QF',w:2,d:1},{code:'BRA',type:'r',out:null,w:0,d:0}] },
+  { name:'Sebastian',history:[{code:'PAR',type:'o',out:'GS',w:0,d:0},{code:'FRA',type:'o',out:'QF',w:2,d:1},{code:'GER',type:'r',out:null,w:0,d:0}] },
+  { name:'Purcy',    history:[{code:'CAN',type:'o',out:'R32',w:0,d:2},{code:'NED',type:'o',out:'QF',w:2,d:0},{code:'JPN',type:'r',out:null,w:0,d:0}] },
+  { name:'Malou',    history:[{code:'CUR',type:'o',out:'GS',w:0,d:0},{code:'URU',type:'o',out:'R32',w:0,d:3},{code:'BRA',type:'r',out:null,w:2,d:0}] },
+  { name:'Emma',     history:[{code:'CIV',type:'o',out:'R32',w:0,d:1},{code:'ENG',type:'o',out:'R16',w:1,d:2},{code:'GER',type:'r',out:null,w:1,d:0}] },
+  // ── 2 REDRAWS — both originals out + first redrawn team also out ───────
+  { name:'J$',       history:[{code:'PAN',type:'o',out:'GS',w:0,d:0},{code:'TUR',type:'o',out:'R32',w:0,d:2},{code:'ARG',type:'r',out:'QF',w:2,d:1},{code:'USA',type:'r',out:null,w:0,d:0}] },
+  { name:'Rogier',   history:[{code:'QAT',type:'o',out:'GS',w:0,d:0},{code:'AUT',type:'o',out:'R16',w:1,d:1},{code:'FRA',type:'r',out:'QF',w:2,d:1},{code:'GER',type:'r',out:null,w:0,d:0}] },
+  { name:'Blake',    history:[{code:'SWE',type:'o',out:'R32',w:0,d:2},{code:'CRO',type:'o',out:'QF',w:2,d:1},{code:'JPN',type:'r',out:null,w:0,d:0}] },
+  { name:'Jimmy',    history:[{code:'ALG',type:'o',out:'GS',w:0,d:0},{code:'SEN',type:'o',out:'R16',w:1,d:3},{code:'ARG',type:'r',out:'QF',w:2,d:1},{code:'GER',type:'r',out:null,w:0,d:0}] },
+  { name:'Nathanial',history:[{code:'HAI',type:'o',out:'GS',w:0,d:0},{code:'BEL',type:'o',out:'R32',w:0,d:2},{code:'FRA',type:'r',out:'QF',w:2,d:1},{code:'BRA',type:'r',out:null,w:0,d:0}] },
+  { name:'Scotty2Hotty',history:[{code:'GHA',type:'o',out:'R32',w:0,d:1},{code:'POR',type:'o',out:'R16',w:1,d:2},{code:'MOR',type:'r',out:'QF',w:2,d:1},{code:'USA',type:'r',out:null,w:0,d:0}] },
+  { name:'Tim',      history:[{code:'NZL',type:'o',out:'GS',w:0,d:0},{code:'SWI',type:'o',out:'R16',w:1,d:1},{code:'NED',type:'r',out:'QF',w:2,d:0},{code:'JPN',type:'r',out:null,w:0,d:0}], bonusDrinks:1 },
+  // ── 3 REDRAWS — kept losing ────────────────────────────────────────────
+  { name:'Ali',      history:[{code:'UZB',type:'o',out:'R32',w:0,d:1},{code:'COL',type:'o',out:'R16',w:1,d:2},{code:'NED',type:'r',out:'QF',w:2,d:1},{code:'USA',type:'r',out:null,w:0,d:0}] },
+  { name:'Russ',     history:[{code:'COD',type:'o',out:'GS',w:0,d:0},{code:'IRN',type:'o',out:'R32',w:0,d:1},{code:'MOR',type:'r',out:'QF',w:2,d:1},{code:'BRA',type:'r',out:null,w:0,d:0}] },
+  { name:'Sjaak',    history:[{code:'SAU',type:'o',out:'GS',w:0,d:0},{code:'ESP',type:'o',out:'R32',w:0,d:2},{code:'ARG',type:'r',out:'QF',w:2,d:1},{code:'USA',type:'r',out:null,w:0,d:0}] },
+  { name:'Will Hunt',history:[{code:'IRQ',type:'o',out:'GS',w:0,d:0},{code:'AUS',type:'o',out:'R32',w:0,d:2},{code:'ARG',type:'r',out:'QF',w:2,d:1},{code:'GER',type:'r',out:null,w:0,d:0}] },
+  { name:'Chonga',   history:[{code:'CZE',type:'o',out:'GS',w:0,d:0},{code:'SKO',type:'o',out:'R32',w:0,d:1},{code:'NED',type:'r',out:'QF',w:2,d:1},{code:'BRA',type:'r',out:null,w:0,d:0}] },
 ];
 
 function buildPlayers() {
   return DEMO.map(d => {
     const p = find(d.name);
-    const bestRound = d.teams.reduce((best, t) =>
-      ROUND_ORDER[t.status] > ROUND_ORDER[best] ? t.status : best, 'GS');
-    const totalDrinks = d.teams.reduce((s, t) => s + (t.drinks || 0), 0) + (d.bonusDrinks || 0);
-    return { ...p, ...d, bestRound, totalDrinks };
-  }).sort((a, b) => {
-    const rDiff = ROUND_ORDER[b.bestRound] - ROUND_ORDER[a.bestRound];
-    if (rDiff !== 0) return rDiff;
-    return a.totalDrinks - b.totalDrinks; // fewer drinks = better rank
+    const h = d.history;
+
+    // Active team: last entry with out:null
+    const active = h.findLast(t => t.out === null) ?? h[h.length - 1];
+    const isAlive = active.out === null;
+
+    // Best round = furthest round reached by any team (active team's status or out-round)
+    const bestRound = isAlive
+      ? (active.out ?? 'SF') // alive teams are in SF
+      : h.reduce((best, t) => {
+          const r = t.out ?? 'SF';
+          return ROUND_RANK[r] > ROUND_RANK[best] ? r : best;
+        }, 'GS');
+
+    // Wins = all knockout wins across all teams
+    const totalWins = h.reduce((s, t) => s + (t.w || 0), 0);
+
+    // Losses = teams knocked out in knockout rounds (not GS — those don't require drinks)
+    const totalLosses = h.filter(t => t.out && t.out !== 'GS').length;
+
+    // Drinks = sum of all team drinks + bonus
+    const totalDrinks = h.reduce((s, t) => s + (t.d || 0), 0) + (d.bonusDrinks || 0);
+
+    // Video debt: for demo, assume 1 overdue video for players with drinks>2
+    const videoDebt = totalDrinks > 2 ? 1 : 0;
+    const drinksDone = totalDrinks - videoDebt;
+
+    // Win streak: count consecutive wins backwards across all teams (knockout matches only)
+    // Build match list chronologically: each team's W/L results in order
+    const matchList = [];
+    h.forEach(t => {
+      if (t.out && t.out !== 'GS') {
+        // knocked out in knockout: add W results, then 1 L
+        for (let i = 0; i < (t.w || 0); i++) matchList.push('W');
+        matchList.push('L');
+      } else if (t.out === null) {
+        // alive: just W results (SF not played yet)
+        for (let i = 0; i < (t.w || 0); i++) matchList.push('W');
+      }
+      // GS: no knockout matches
+    });
+    let streak = 0;
+    for (let i = matchList.length - 1; i >= 0; i--) {
+      if (matchList[i] === 'W') streak++;
+      else break;
+    }
+
+    // Redraws count
+    const redraws = h.filter(t => t.type === 'r').length;
+
+    // Build a compatible `matches` array for PlayerModal
+    const matches = h.flatMap(t => {
+      if (t.out === 'GS' || !TEAM_MAP[t.code]) return [];
+      const team = TEAM_MAP[t.code];
+      const results = [];
+      for (let i = 0; i < (t.w || 0); i++) {
+        results.push({
+          id: `${t.code}-W${i}`, kickoff: new Date(), teamCode: t.code, oppCode: '???',
+          myGoals: 1, oppGoals: 0, myState: 'winning', isFinished: true, isLive: false,
+          myVideo: null, myDrinkCount: 0, myEmoji: '',
+        });
+      }
+      if (t.out && t.out !== 'GS') {
+        results.push({
+          id: `${t.code}-L`, kickoff: new Date(), teamCode: t.code, oppCode: '???',
+          myGoals: 0, oppGoals: 1, myState: 'losing', isFinished: true, isLive: false,
+          myVideo: null, myDrinkCount: t.d || 0, myEmoji: '🍺',
+        });
+      }
+      return results;
+    });
+
+    return {
+      ...p,
+      history: h,
+      activeTeam: active,
+      isAlive,
+      bestRound: isAlive ? 'SF' : bestRound,
+      wins: totalWins,
+      losses: totalLosses,
+      draws: 0,
+      drinks: totalDrinks,
+      drinksDone,
+      videoDebt,
+      streak,
+      redraws,
+      bonusDrinks: d.bonusDrinks || 0,
+      matches,
+    };
   });
 }
 
-const MEDAL = ['🥇', '🥈', '🥉'];
+function rankPlayers(players) {
+  const sorted = [...players].sort((a, b) => {
+    // 1. Furthest round (alive SF first)
+    const rDiff = ROUND_RANK[b.bestRound] - ROUND_RANK[a.bestRound];
+    if (rDiff !== 0) return rDiff;
+    // 2. Fewest losses (fewer redraws = more loyal to teams = better)
+    if (a.losses !== b.losses) return a.losses - b.losses;
+    // 3. Most wins
+    if (b.wins !== a.wins) return b.wins - a.wins;
+    // 4. Fewest drinks
+    return a.drinks - b.drinks;
+  });
 
-function TeamPill({ team }) {
-  const flag = TEAM_MAP[team.code]?.flag ?? '🏳️';
-  const isAlive = team.status === 'alive';
-  const isGS = team.status === 'GS';
-  return (
-    <span className={`${styles.pill} ${isAlive ? styles.pillAlive : isGS ? styles.pillGS : styles.pillOut}`}>
-      {flag} {isAlive ? '🔥' : ROUND_LABEL[team.status]}
-    </span>
-  );
+  let rank = 1;
+  return sorted.map((p, i) => {
+    if (i > 0) {
+      const prev = sorted[i - 1];
+      if (p.bestRound !== prev.bestRound || p.losses !== prev.losses || p.wins !== prev.wins) {
+        rank = i + 1;
+      }
+    }
+    return { ...p, rank };
+  });
 }
 
-function StatMini({ emoji, label, rows }) {
+const MEDAL = { 1: '🥇', 2: '🥈', 3: '🥉' };
+
+// ── Sub-components ───────────────────────────────────────────────────────────
+
+function MiniAvatar({ p }) {
+  return p.photo
+    ? <img src={p.photo} alt={p.name} className={styles.miniAv} />
+    : <div className={styles.miniAvInit} style={{ background: p.color }}>{p.initials}</div>;
+}
+
+function StatCard({ emoji, label, rows }) {
+  if (!rows?.length) return null;
   return (
     <div className={styles.statCard}>
       <div className={styles.statLabel}>{emoji} {label}</div>
       {rows.map((r, i) => (
         <div key={i} className={styles.statRow}>
-          {r.photo
-            ? <img src={r.photo} alt={r.name} className={styles.statAvatar} />
-            : <div className={styles.statAvatarInit} style={{ background: r.color }}>{r.initials}</div>
-          }
+          <MiniAvatar p={r} />
           <span className={styles.statName}>{r.name.split(' ')[0]}</span>
           <span className={styles.statVal}>{r.val}</span>
         </div>
@@ -83,139 +199,127 @@ function StatMini({ emoji, label, rows }) {
   );
 }
 
+function TeamChain({ history }) {
+  return (
+    <div className={styles.chain}>
+      {history.map((t, i) => {
+        const isAlive = t.out === null;
+        const isGS = t.out === 'GS';
+        const flag = TEAM_MAP[t.code]?.flag ?? '🏳️';
+        return (
+          <span key={t.code} className={styles.chainItem}>
+            {i > 0 && t.type === 'r' && <span className={styles.redrawArrow}>↩</span>}
+            <span className={`${styles.teamPill} ${isAlive ? styles.pillAlive : isGS ? styles.pillGS : styles.pillOut}`}>
+              {flag} {isAlive ? '🔥' : isGS ? 'GS' : ROUND_LABEL[t.out]}
+            </span>
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Main component ───────────────────────────────────────────────────────────
+
 export default function KnockoutStatsPage() {
-  const [view, setView] = useState('leaderboard'); // 'leaderboard' | 'shame'
+  const [selected, setSelected] = useState(null);
   const players = buildPlayers();
+  const ranked = rankPlayers(players);
 
-  const alive = players.filter(p => p.bestRound === 'alive');
-  const eliminated = players.filter(p => p.bestRound !== 'alive');
+  // Fun stats
+  const hasFinished = true;
+  const maxStreak = Math.max(...players.map(p => p.streak));
+  const topStreakers = maxStreak > 0
+    ? players.filter(p => p.streak === maxStreak).map(p => ({ ...p, val: `${p.streak} in a row` }))
+    : [];
 
-  // Fun stat: most drinks
-  const topDrinkers = [...players].sort((a, b) => b.totalDrinks - a.totalDrinks).slice(0, 3)
-    .filter(p => p.totalDrinks > 0)
-    .map(p => ({ ...p, val: `🍺 ${p.totalDrinks}` }));
+  const maxDrinks = Math.max(...players.map(p => p.drinks));
+  const topDrinkers = maxDrinks > 0
+    ? players.filter(p => p.drinks === maxDrinks).map(p => ({ ...p, val: `🍺 ${p.drinks}` }))
+    : [];
 
-  // Fun stat: still alive
-  const survivors = alive.map(p => ({
-    ...p,
-    val: p.teams.filter(t => t.status === 'alive').map(t => TEAM_MAP[t.code]?.flag ?? '').join(' '),
-  }));
-
-  // Fun stat: pain index (most drinks among eliminated)
-  const mostPain = [...eliminated].sort((a, b) => b.totalDrinks - a.totalDrinks).slice(0, 3)
-    .filter(p => p.totalDrinks > 0)
-    .map(p => ({ ...p, val: `😵 ${p.totalDrinks} drinks` }));
-
-  // Fun stat: clean (no drinks yet)
-  const cleanPlayers = players.filter(p => p.totalDrinks === 0)
+  const cleanPlayers = players
+    .filter(p => p.drinks === 0 && p.losses > 0)
     .map(p => ({ ...p, val: '😇 0 drinks' }));
 
-  const shameList = [...players].sort((a, b) => b.totalDrinks - a.totalDrinks);
+  const debtPlayers = players
+    .filter(p => p.videoDebt > 0)
+    .sort((a, b) => b.videoDebt - a.videoDebt)
+    .map(p => ({ ...p, val: `owes ${p.videoDebt}` }));
 
-  let rank = 0;
-  let lastBest = null, lastDrinks = null;
-  const ranked = players.map((p, i) => {
-    if (p.bestRound !== lastBest || p.totalDrinks !== lastDrinks) {
-      rank = i + 1;
-      lastBest = p.bestRound;
-      lastDrinks = p.totalDrinks;
-    }
-    return { ...p, rank };
-  });
+  const alive = ranked.filter(p => p.isAlive);
+  const eliminated = ranked.filter(p => !p.isAlive);
 
   return (
     <div className={styles.page}>
-      {/* Sub-view toggle */}
-      <div className={styles.toggle}>
-        <button className={`${styles.toggleBtn} ${view === 'leaderboard' ? styles.toggleActive : ''}`}
-          onClick={() => setView('leaderboard')}>🏆 Leaderboard</button>
-        <button className={`${styles.toggleBtn} ${view === 'shame' ? styles.toggleActive : ''}`}
-          onClick={() => setView('shame')}>🍺 Drinks</button>
-      </div>
 
-      {/* Fun stat cards */}
+      {/* Fun stat cards — same 4 as group stage */}
       <div className={styles.statGrid}>
-        {survivors.length > 0 && <StatMini emoji="🔥" label="Still alive" rows={survivors.slice(0, 3)} />}
-        {topDrinkers.length > 0 && <StatMini emoji="🍺" label="Most drunk" rows={topDrinkers} />}
-        {mostPain.length > 0    && <StatMini emoji="😵" label="Most pain" rows={mostPain} />}
-        {cleanPlayers.length > 0 && <StatMini emoji="😇" label="Still clean" rows={cleanPlayers.slice(0, 3)} />}
+        <StatCard emoji="🔥" label="Win Streak"  rows={topStreakers.slice(0, 3)} />
+        <StatCard emoji="🍺" label="Most Drinks" rows={topDrinkers.slice(0, 3)} />
+        <StatCard emoji="😇" label="Still Clean" rows={cleanPlayers.slice(0, 3)} />
+        <StatCard emoji="🎬" label="Video Debt"  rows={debtPlayers.slice(0, 3)} />
       </div>
 
-      {/* LEADERBOARD view */}
-      {view === 'leaderboard' && (
-        <div className={styles.list}>
-          {alive.length > 0 && <div className={styles.sectionHeader}>🔥 Still in the tournament</div>}
-          {ranked.filter(p => p.bestRound === 'alive').map((p, i) => (
-            <PlayerRow key={p.name} p={p} rank={p.rank} medal={MEDAL[i]} />
+      {/* Leaderboard table — same structure as group stage */}
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th className={styles.thRank}>#</th>
+            <th className={styles.thPlayer}>Player · Team History</th>
+            <th className={styles.thStat}>W</th>
+            <th className={styles.thStat}>L</th>
+            <th className={styles.thStat}>🍺</th>
+            <th className={styles.thStat}>✓</th>
+          </tr>
+        </thead>
+        <tbody>
+          {alive.length > 0 && (
+            <tr><td colSpan={6} className={styles.sectionRow}>🔥 Semi-Finals · {alive.length} players</td></tr>
+          )}
+          {alive.map(p => (
+            <PlayerRow key={p.name} p={p} medal={MEDAL[p.rank]} onClick={() => setSelected(p)} />
           ))}
-          {eliminated.length > 0 && <div className={styles.sectionHeader}>💀 Eliminated</div>}
-          {ranked.filter(p => p.bestRound !== 'alive').map(p => (
-            <PlayerRow key={p.name} p={p} rank={p.rank} />
+          {eliminated.length > 0 && (
+            <tr><td colSpan={6} className={styles.sectionRow}>💀 Eliminated · {eliminated.length} players</td></tr>
+          )}
+          {eliminated.map(p => (
+            <PlayerRow key={p.name} p={p} onClick={() => setSelected(p)} />
           ))}
-        </div>
-      )}
+        </tbody>
+      </table>
 
-      {/* DRINKS view */}
-      {view === 'shame' && (
-        <div className={styles.list}>
-          <div className={styles.sectionHeader}>🍺 Hall of Shame</div>
-          {shameList.map((p, i) => (
-            <ShameRow key={p.name} p={p} rank={i + 1} />
-          ))}
-        </div>
-      )}
+      {selected && <PlayerModal player={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }
 
-function PlayerRow({ p, rank, medal }) {
-  const isAlive = p.bestRound === 'alive';
+function PlayerRow({ p, medal, onClick }) {
+  const isAlive = p.isAlive;
   return (
-    <div className={`${styles.row} ${isAlive ? styles.rowAlive : styles.rowOut}`}>
-      <div className={styles.rankCell}>
-        {medal ?? <span className={styles.rankNum}>{rank}</span>}
-      </div>
-      <div className={styles.avatarCell}>
-        {p.photo
-          ? <img src={p.photo} alt={p.name} className={styles.avatar} />
-          : <div className={styles.avatarInit} style={{ background: p.color }}>{p.initials}</div>
-        }
-      </div>
-      <div className={styles.infoCell}>
-        <span className={styles.playerName}>{p.name}</span>
-        <div className={styles.pills}>
-          {p.teams.map(t => <TeamPill key={t.code} team={t} />)}
+    <tr className={`${styles.row} ${isAlive ? styles.rowAlive : styles.rowOut}`} onClick={onClick}>
+      <td className={styles.rank}>
+        {medal ?? <span className={styles.rankNum}>{p.rank}</span>}
+      </td>
+      <td className={styles.playerCol}>
+        <div className={styles.playerInner}>
+          {p.photo
+            ? <img src={p.photo} alt={p.name} className={styles.avatar} />
+            : <div className={styles.avatarInit} style={{ background: p.color }}>{p.initials}</div>
+          }
+          <div className={styles.playerBlock}>
+            <div className={styles.playerName}>
+              {p.name}
+              {p.redraws > 0 && <span className={styles.redrawBadge}>↩×{p.redraws}</span>}
+            </div>
+            <TeamChain history={p.history} />
+          </div>
         </div>
-      </div>
-      <div className={styles.drinkCell}>
-        {p.totalDrinks > 0 && <><span className={styles.drinkEmoji}>🍺</span><span className={styles.drinkNum}>{p.totalDrinks}</span></>}
-        {p.bonusDrinks ? <span className={styles.bonusNote}>+{p.bonusDrinks} bonus</span> : null}
-      </div>
-    </div>
-  );
-}
-
-function ShameRow({ p, rank }) {
-  const barMax = 8;
-  const width = Math.min(100, (p.totalDrinks / barMax) * 100);
-  return (
-    <div className={styles.shameRow}>
-      <span className={styles.shameRank}>{rank}</span>
-      <div className={styles.avatarCell}>
-        {p.photo
-          ? <img src={p.photo} alt={p.name} className={styles.avatar} />
-          : <div className={styles.avatarInit} style={{ background: p.color }}>{p.initials}</div>
-        }
-      </div>
-      <div className={styles.shameInfo}>
-        <div className={styles.shameTop}>
-          <span className={styles.playerName}>{p.name}</span>
-          <span className={styles.shameCount}>{p.totalDrinks > 0 ? `${p.totalDrinks} 🍺` : '0'}</span>
-        </div>
-        <div className={styles.barTrack}>
-          <div className={styles.barFill} style={{ width: `${width}%`, background: p.totalDrinks >= 5 ? '#ff3b3b' : p.totalDrinks >= 3 ? '#ff9500' : '#00c844' }} />
-        </div>
-      </div>
-    </div>
+      </td>
+      <td className={`${styles.stat} ${styles.win}`}>{p.wins}</td>
+      <td className={`${styles.stat} ${styles.loss}`}>{p.losses || ''}</td>
+      <td className={`${styles.stat} ${styles.drink}`}>{p.drinks || ''}</td>
+      <td className={`${styles.stat} ${styles.done}`}>{p.drinksDone || ''}</td>
+    </tr>
   );
 }
