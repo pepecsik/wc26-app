@@ -9,32 +9,40 @@ function formatDate(date) {
   return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
-export default function KnockoutMatchCard({ match, onVideoOpen }) {
+export default function KnockoutMatchCard({ match, isFocus, onVideoOpen }) {
   const {
     hCode, aCode, hGoals, aGoals, hState, aState,
     isLive, isFinished, kickoff, status, elapsed,
-    hPlayers = [], aPlayers = [],
-    label,
+    hPlayers = [], aPlayers = [], label,
   } = match;
 
   const hTeam = hCode ? (TEAM_MAP[hCode] ?? { full: hCode, flag: '🏳️' }) : null;
   const aTeam = aCode ? (TEAM_MAP[aCode] ?? { full: aCode, flag: '🏳️' }) : null;
 
+  const hAvatarState = isFinished ? hState : 'neutral';
+  const aAvatarState = isFinished ? aState : 'neutral';
+
+  // Collect all drink emojis from uploaded players on each side
+  const hEmojis = hPlayers.filter(p => p.videoFilename && p.drinkEmoji).map(p => p.drinkEmoji).join('');
+  const aEmojis = aPlayers.filter(p => p.videoFilename && p.drinkEmoji).map(p => p.drinkEmoji).join('');
+  const hasEmojis = hEmojis || aEmojis;
+
   const cardCls = [
     styles.card,
     isLive     ? styles.live     : '',
     isFinished ? styles.finished : '',
+    isFocus    ? styles.focus    : '',
   ].filter(Boolean).join(' ');
-
-  const hAvatarState = isFinished ? hState : 'neutral';
-  const aAvatarState = isFinished ? aState : 'neutral';
 
   return (
     <div className={cardCls}>
       {label && <div className={styles.stageLabel}>{label}</div>}
       <div className={styles.cardRow}>
 
-        <TeamAvatarGroup players={hPlayers} state={hAvatarState} onVideoOpen={onVideoOpen} />
+        <TeamAvatarGroup
+          players={hPlayers} state={hAvatarState}
+          isLive={isLive} onVideoOpen={onVideoOpen}
+        />
 
         <div className={styles.center}>
           <div className={styles.meta}>
@@ -49,7 +57,7 @@ export default function KnockoutMatchCard({ match, onVideoOpen }) {
 
           <div className={styles.vsRow}>
             <span className={styles.vsFlag}>{hTeam?.flag ?? '🏳️'}</span>
-            <span className={styles.vs}>{hTeam && aTeam ? '' : 'VS'}</span>
+            {!isLive && !isFinished && <span className={styles.vs}>VS</span>}
             <span className={styles.vsFlag}>{aTeam?.flag ?? '🏳️'}</span>
           </div>
 
@@ -76,9 +84,20 @@ export default function KnockoutMatchCard({ match, onVideoOpen }) {
           )}
         </div>
 
-        <TeamAvatarGroup players={aPlayers} state={aAvatarState} onVideoOpen={onVideoOpen} />
+        <TeamAvatarGroup
+          players={aPlayers} state={aAvatarState}
+          isLive={isLive} onVideoOpen={onVideoOpen}
+        />
 
       </div>
+
+      {hasEmojis && (
+        <div className={styles.drinkBanner}>
+          <span className={styles.drinkSide}>{hEmojis || '–'}</span>
+          <span className={styles.drinkDivider}>🍻</span>
+          <span className={styles.drinkSide}>{aEmojis || '–'}</span>
+        </div>
+      )}
     </div>
   );
 }

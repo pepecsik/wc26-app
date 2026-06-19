@@ -10,7 +10,7 @@ function MiniAvatar({ player, isOriginal, state, size, onVideoClick }) {
     styles[`sz${size}`],
     isLoser  ? styles.loser  : '',
     isWinner ? styles.winner : '',
-    isOriginal && !isLoser && !isWinner ? styles.original : '',
+    isOriginal ? styles.original : '',
     isLoser && hasVideo ? styles.clickable : '',
   ].filter(Boolean).join(' ');
 
@@ -19,7 +19,7 @@ function MiniAvatar({ player, isOriginal, state, size, onVideoClick }) {
       <div className={styles.photo}>
         {player.photo
           ? <img src={player.photo} alt={player.name} />
-          : <span style={{ color: player.color }}>{player.initials}</span>
+          : <span className={styles.initials} style={{ color: player.color }}>{player.initials}</span>
         }
         {isLoser && hasVideo && (
           <div className={styles.playOverlay}>
@@ -29,7 +29,6 @@ function MiniAvatar({ player, isOriginal, state, size, onVideoClick }) {
         {isLoser && !hasVideo && (
           <span className={styles.beer}>🍺</span>
         )}
-        {isOriginal && <span className={styles.originalDot} title="Original owner" />}
       </div>
       <div className={styles.name} style={{ background: player.color }}>
         {player.name.split(' ')[0]}
@@ -38,10 +37,11 @@ function MiniAvatar({ player, isOriginal, state, size, onVideoClick }) {
   );
 }
 
-export default function TeamAvatarGroup({ players = [], state = 'neutral', onVideoOpen }) {
+export default function TeamAvatarGroup({ players = [], state = 'neutral', isLive = false, onVideoOpen }) {
   const count = players.length;
   const cols = count <= 1 ? 1 : count <= 4 ? 2 : count <= 9 ? 3 : 4;
   const size = count <= 1 ? 'L' : count <= 4 ? 'M' : count <= 9 ? 'S' : 'XS';
+  const isShaking = isLive && state === 'losing';
 
   if (count === 0) {
     return (
@@ -52,7 +52,10 @@ export default function TeamAvatarGroup({ players = [], state = 'neutral', onVid
   }
 
   return (
-    <div className={styles.group} style={{ '--cols': cols }}>
+    <div
+      className={`${styles.group} ${isShaking ? styles.shake : ''}`}
+      style={{ '--cols': cols }}
+    >
       {players.map((p, i) => (
         <MiniAvatar
           key={p.name}

@@ -17,10 +17,19 @@
   color: rgba(255,255,255,0.2);
   letter-spacing: 2px;
   height: 80px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ── Single avatar cell ── */
+.shake { animation: shake 0.5s ease-in-out infinite; }
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-4px); }
+  40%      { transform: translateX(4px); }
+  60%      { transform: translateX(-3px); }
+  80%      { transform: translateX(3px); }
+}
+
+/* ── Avatar cell ── */
 .avatar {
   display: flex;
   flex-direction: column;
@@ -31,12 +40,14 @@
   min-width: 0;
 }
 
-.avatar.loser  { border-color: #ff3b3b; box-shadow: 0 0 6px rgba(255,59,59,0.35); }
-.avatar.winner { border-color: rgba(255,215,0,0.5); box-shadow: 0 0 6px rgba(255,215,0,0.25); }
-.avatar.original { border-color: rgba(255,215,0,0.35); }
+/* Original owner: gold border */
+.avatar.original { border-color: rgba(255,215,0,0.55); border-width: 2px; }
+
+.avatar.loser  { border-color: #ff3b3b !important; box-shadow: 0 0 6px rgba(255,59,59,0.35); }
+.avatar.winner { border-color: rgba(255,215,0,0.55); box-shadow: 0 0 6px rgba(255,215,0,0.25); }
 .avatar.clickable { cursor: pointer; }
 
-/* ── Photo area ── */
+/* ── Photo ── */
 .photo {
   position: relative;
   flex: 1;
@@ -49,106 +60,70 @@
 }
 
 .photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
 }
 
-.photo > span:not(.originalDot):not(.beer) {
-  font-weight: 800;
-  user-select: none;
-}
+.initials { font-weight: 800; user-select: none; }
 
 /* ── Play overlay ── */
 .playOverlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.4);
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.38);
 }
 
 .playBtn {
-  width: 22px;
-  height: 22px;
   background: rgba(255,255,255,0.9);
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  color: #000;
-  padding-left: 2px;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #000; padding-left: 2px; flex-shrink: 0;
 }
 
-/* ── Beer emoji for losers without video ── */
+/* ── Beer emoji ── */
 .beer {
   position: absolute;
-  bottom: 1px;
-  right: 1px;
-  font-size: 14px;
+  bottom: 2px; right: 2px;
   animation: beerWobble 0.9s ease-in-out infinite;
   line-height: 1;
 }
 
 @keyframes beerWobble {
   0%,100% { transform: rotate(0deg); }
-  25%     { transform: rotate(-18deg); }
-  75%     { transform: rotate(18deg); }
-}
-
-/* ── Original owner gold dot ── */
-.originalDot {
-  position: absolute;
-  top: 3px;
-  right: 3px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: gold;
-  box-shadow: 0 0 4px rgba(255,215,0,0.8);
-  z-index: 2;
+  25%      { transform: rotate(-20deg); }
+  75%      { transform: rotate(20deg); }
 }
 
 /* ── Name chip ── */
 .name {
-  font-size: 9px;
-  font-weight: 800;
-  color: #fff;
+  font-weight: 800; color: #fff;
   text-align: center;
-  padding: 2px 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
   flex-shrink: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* ── Size tiers ── */
-.szL  .photo { height: 72px; }
-.szL  .photo > span:not(.originalDot):not(.beer) { font-size: 28px; }
-.szL  .name  { font-size: 11px; padding: 4px 3px; }
-.szL  .beer  { font-size: 18px; }
-.szL  .playBtn { width: 28px; height: 28px; font-size: 11px; }
+.szL .photo  { height: 72px; }
+.szL .initials { font-size: 28px; }
+.szL .name   { font-size: 11px; padding: 4px 3px; }
+.szL .beer   { font-size: 28px; bottom: 22px; right: -2px; }
+.szL .playBtn { width: 28px; height: 28px; font-size: 11px; }
 
-.szM  .photo { height: 54px; }
-.szM  .photo > span:not(.originalDot):not(.beer) { font-size: 20px; }
-.szM  .name  { font-size: 9px; }
-.szM  .beer  { font-size: 14px; }
-.szM  .playBtn { width: 22px; height: 22px; font-size: 9px; }
+.szM .photo  { height: 54px; }
+.szM .initials { font-size: 20px; }
+.szM .name   { font-size: 9px; padding: 2px; }
+.szM .beer   { font-size: 22px; bottom: 18px; right: -2px; }
+.szM .playBtn { width: 22px; height: 22px; font-size: 9px; }
 
-.szS  .photo { height: 40px; }
-.szS  .photo > span:not(.originalDot):not(.beer) { font-size: 15px; }
-.szS  .name  { font-size: 8px; }
-.szS  .beer  { font-size: 11px; }
-.szS  .playBtn { width: 16px; height: 16px; font-size: 7px; }
+.szS .photo  { height: 40px; }
+.szS .initials { font-size: 15px; }
+.szS .name   { font-size: 8px; padding: 2px; }
+.szS .beer   { font-size: 18px; bottom: 16px; right: -2px; }
+.szS .playBtn { width: 16px; height: 16px; font-size: 7px; }
 
 .szXS .photo { height: 32px; }
-.szXS .photo > span:not(.originalDot):not(.beer) { font-size: 12px; }
+.szXS .initials { font-size: 12px; }
 .szXS .name  { font-size: 7px; padding: 1px 2px; }
-.szXS .beer  { font-size: 9px; }
+.szXS .beer  { font-size: 14px; bottom: 14px; right: -2px; }
 .szXS .playBtn { width: 14px; height: 14px; font-size: 6px; }

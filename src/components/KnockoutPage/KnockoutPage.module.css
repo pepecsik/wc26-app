@@ -1,35 +1,55 @@
-.page {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow-y: auto;
-  padding-bottom: 24px;
-}
-
 .header {
-  padding: 16px 16px 8px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px 4px;
+  flex-shrink: 0;
 }
 
 .title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 900;
   color: #fff;
   letter-spacing: 1px;
 }
 
-.subtitle {
-  font-size: 10px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.3);
-  letter-spacing: 1.5px;
+.badge {
+  font-size: 9px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 2px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 2px 7px;
   text-transform: uppercase;
-  margin-top: 2px;
 }
 
-.grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 8px 12px;
+/* ── Same scroll mechanism as Feed ── */
+.slotContainer {
+  flex: 1;
+  min-height: 0;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  padding: 30vh 14px;
+}
+.slotContainer::-webkit-scrollbar { display: none; }
+
+.slotItem {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform-origin: center;
+  margin: 8px 0;
+}
+
+.slotFocus {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.slotSmall {
+  transform: scale(0.82);
+  opacity: 0.4;
 }
