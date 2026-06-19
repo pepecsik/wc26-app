@@ -3,9 +3,9 @@ import styles from './VideoModal.module.css';
 
 const B2_BASE = 'https://f005.backblazeb2.com/file/wc26-videos/01_GROUP_STAGE';
 
-export default function VideoModal({ filenames, title, onClose }) {
+export default function VideoModal({ filenames, title, onClose, startIdx = 0 }) {
   const list = Array.isArray(filenames) ? filenames : [filenames];
-  const [idx, setIdx] = useState(0);
+  const [idx, setIdx] = useState(startIdx);
 
   useEffect(() => {
     const onKey = (e) => {

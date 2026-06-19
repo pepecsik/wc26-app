@@ -1,3 +1,11 @@
+.groupWrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .group {
   flex: 1;
   display: grid;
@@ -6,6 +14,36 @@
   align-content: center;
   padding: 4px;
   min-width: 0;
+}
+
+/* ── All done overlay ── */
+.allDoneOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 180, 80, 0.82);
+  border-radius: 10px;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.allDoneIcon {
+  font-size: 28px;
+  color: #fff;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.allDoneText {
+  font-size: 10px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 2px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
 }
 
 .tbd {

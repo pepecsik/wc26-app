@@ -5,85 +5,135 @@ import VideoModal from '../VideoModal/VideoModal';
 import { PARTICIPANTS } from '../../data/participants';
 
 const find = (name) => PARTICIPANTS.find(x => x.name === name);
-const with_ = (name, videoFilename = null, drinkEmoji = '') => ({ ...find(name), videoFilename, drinkEmoji });
+const p = (name, videoFilename = null, drinkEmoji = '') => ({ ...find(name), videoFilename, drinkEmoji });
 
-const now   = new Date();
-const ago   = (h) => new Date(now - h * 3_600_000);
-const from  = (h) => new Date(now.getTime() + h * 3_600_000);
+const now  = new Date();
+const ago  = (h) => new Date(now - h * 3_600_000);
+const from = (h) => new Date(now.getTime() + h * 3_600_000);
 
 const R32_SLOTS = [
-  // Past — FT — loser all uploaded
+  // ── PAST: all losers uploaded → green ALL IN overlay ──
   {
     id: 1, label: 'R32 · Match 1',
     hCode: 'MEX', aCode: 'SAF', hGoals: 2, aGoals: 0,
     hState: 'winning', aState: 'losing',
-    isLive: false, isFinished: true, kickoff: ago(30),
-    hPlayers: [with_('Sabo'), with_('Tim')],
+    isLive: false, isFinished: true, kickoff: ago(48),
+    hPlayers: [p('Sabo'), p('Tim')],
     aPlayers: [
-      with_('Pepe',  'WC001_260611_A_MEX-SAF_2-0_PEPE',  '🍺🍺'),
-      with_('Kimbo', 'WC006_260613_C_BRA-MOR_1-1_RAND',   '🍺'),
+      p('Pepe',  'WC001_260611_A_MEX-SAF_2-0_PEPE',  '🍺🍺'),
+      p('Kimbo', 'WC006_260613_C_BRA-MOR_1-1_RAND',   '🍺'),
     ],
   },
-  // Past — FT — loser partial upload
+
+  // ── PAST: partial upload — some beer emoji, some play button ──
   {
     id: 2, label: 'R32 · Match 2',
     hCode: 'FRA', aCode: 'ARG', hGoals: 0, aGoals: 1,
     hState: 'losing', aState: 'winning',
-    isLive: false, isFinished: true, kickoff: ago(28),
+    isLive: false, isFinished: true, kickoff: ago(30),
     hPlayers: [
-      with_('Sebastian', 'WC004_260612_D_USA-PAR_4-1_SEBASTIAN', '🍸🍺'),
-      with_('Charlie'),   // still owes
-      with_('Blake'),     // still owes
+      p('Sebastian', 'WC004_260612_D_USA-PAR_4-1_SEBASTIAN', '🍸🍺'),
+      p('Charlie'),
+      p('Blake'),
     ],
-    aPlayers: [with_('Tobias'), with_('Adam'), with_('Ali')],
+    aPlayers: [p('Tobias'), p('Adam'), p('Ali')],
   },
-  // Past — FT draw — mixed both sides
+
+  // ── PAST: draw — both sides partial, 4v4 ──
   {
     id: 3, label: 'R32 · Match 3',
     hCode: 'NED', aCode: 'GER', hGoals: 1, aGoals: 1,
     hState: 'draw', aState: 'draw',
     isLive: false, isFinished: true, kickoff: ago(32),
     hPlayers: [
-      with_('Purcy',  'WC003_260612_B_CAN-BOS_1-1_PURCY', '🍺🍺'),
-      with_('Russ'),
-      with_('Jimmy',  'WC009_260614_E_GER-CUR_7-1_MALOU',  '🍺🍺🍺'),
+      p('Purcy',  'WC003_260612_B_CAN-BOS_1-1_PURCY', '🍺🍺'),
+      p('Russ'),
+      p('Jimmy',  'WC009_260614_E_GER-CUR_7-1_MALOU',  '🍺🍺🍺'),
+      p('Malou'),
     ],
     aPlayers: [
-      with_('Charlie', 'WC002_260611_A_SKO-CZE_2-1_CHONGA', '🍺'),
-      with_('Emma'),
-      with_('Michael', 'WC011_260614_E_CIV-ECU_1-0_MICHAEL', '🍷'),
+      p('Charlie', 'WC002_260611_A_SKO-CZE_2-1_CHONGA', '🍺'),
+      p('Emma'),
+      p('Michael', 'WC011_260614_E_CIV-ECU_1-0_MICHAEL', '🍷'),
+      p('Rogier'),
     ],
   },
-  // LIVE — 2v2 losing side shivering, no videos yet
+
+  // ── PAST: side bet + everyone uploaded ──
   {
     id: 4, label: 'R32 · Match 4',
-    hCode: 'ESP', aCode: 'BRA', hGoals: 1, aGoals: 2,
+    hCode: 'ENG', aCode: 'POR', hGoals: 1, aGoals: 2,
     hState: 'losing', aState: 'winning',
-    isLive: true, isFinished: false, kickoff: ago(1.2), status: '2H', elapsed: 67,
-    hPlayers: [with_('Sjaak'), with_('Nathanial')],
-    aPlayers: [with_('Rand'), with_('Tobias')],
+    isLive: false, isFinished: true, kickoff: ago(40),
+    sideBetDrinks: 2, sideBetDesc: 'Loser does a spicy shot 🌶️',
+    hPlayers: [
+      p('Emma',    'WC011_260614_E_CIV-ECU_1-0_MICHAEL', '🍺🌶️'),
+      p('J$',      'WC008_260613_D_AUS-TUR_2-0_J$',      '🍺🌶️'),
+      p('Malou',   'WC009_260614_E_GER-CUR_7-1_MALOU',   '🍺🌶️'),
+    ],
+    aPlayers: [p('Scotty2Hotty'), p('Nathanial'), p('Rogier')],
   },
-  // Upcoming soon — 4v4
+
+  // ── ALARM ZONE: kickoff 23.5h ago — less than 3h left on deadline ──
   {
     id: 5, label: 'R32 · Match 5',
-    hCode: 'ENG', aCode: 'POR', hGoals: null, aGoals: null,
-    hState: 'neutral', aState: 'neutral',
-    isLive: false, isFinished: false, kickoff: from(2.5),
-    hPlayers: [with_('Emma'), with_('J$'), with_('Malou'), with_('Scotty2Hotty')],
-    aPlayers: [with_('Scotty2Hotty'), with_('Rogier'), with_('Michael'), with_('Pepe')],
+    hCode: 'BRA', aCode: 'URU', hGoals: 3, aGoals: 1,
+    hState: 'winning', aState: 'losing',
+    isLive: false, isFinished: true, kickoff: ago(23.5),
+    hPlayers: [p('Rand'), p('Tobias')],
+    aPlayers: [
+      p('Malou', 'WC012_260614_F_SWE-TUN_5-1_RAND', '🍺🍺'),
+      p('Will Hunt'),   // still owes — alarm!
+    ],
   },
-  // Upcoming — 6v6 (semi-final territory preview)
+
+  // ── OVERDUE: kickoff 28h ago — deadline passed ──
   {
     id: 6, label: 'R32 · Match 6',
-    hCode: 'ARG', aCode: 'USA', hGoals: null, aGoals: null,
+    hCode: 'ESP', aCode: 'COL', hGoals: 0, aGoals: 1,
+    hState: 'losing', aState: 'winning',
+    isLive: false, isFinished: true, kickoff: ago(28),
+    hPlayers: [
+      p('Sjaak'),       // overdue — no video
+      p('Nathanial'),   // overdue — no video
+    ],
+    aPlayers: [p('Ali'), p('Jimmy')],
+  },
+
+  // ── LIVE: 2v2 — losing side shaking, no videos ──
+  {
+    id: 7, label: 'R32 · Match 7',
+    hCode: 'ARG', aCode: 'USA', hGoals: 1, aGoals: 2,
+    hState: 'losing', aState: 'winning',
+    isLive: true, isFinished: false, kickoff: ago(1.2), status: '2H', elapsed: 67,
+    hPlayers: [p('Tobias'), p('Adam')],
+    aPlayers: [p('Blake'), p('Charlie')],
+  },
+
+  // ── UPCOMING soon — 4v4 with side bet ──
+  {
+    id: 8, label: 'R32 · Match 8',
+    hCode: 'JPN', aCode: 'MOR', hGoals: null, aGoals: null,
+    hState: 'neutral', aState: 'neutral',
+    isLive: false, isFinished: false, kickoff: from(2),
+    sideBetDrinks: 3, sideBetDesc: 'Loser chugs a full pint 🍺',
+    hPlayers: [p('Pepe'), p('Tim'), p('Rand'), p('Sabo')].map(q => ({ ...q })),
+    aPlayers: [p('Kimbo'), p('Rogier'), p('Michael'), p('Purcy')].map(q => ({ ...q })),
+  },
+
+  // ── UPCOMING — 6v6 preview ──
+  {
+    id: 9, label: 'R32 · Match 9',
+    hCode: 'GER', aCode: 'BEL', hGoals: null, aGoals: null,
     hState: 'neutral', aState: 'neutral',
     isLive: false, isFinished: false, kickoff: from(5),
-    hPlayers: ['Tobias','Ali','Sabo','Will Hunt','Chonga','Malou'].map(n => with_(n)),
-    aPlayers: ['Adam','Blake','Jimmy','Rand','Rogier','Sebastian'].map(n => with_(n)),
+    hPlayers: ['Charlie','Emma','Sebastian','J$','Malou','Will Hunt'].map(n => p(n)),
+    aPlayers: ['Russ','Kimbo','Sabo','Chonga','Sjaak','Rand'].map(n => p(n)),
   },
-  // TBD
-  ...Array.from({ length: 10 }, (_, i) => ({
-    id: i + 7, label: `R32 · Match ${i + 7}`,
+
+  // ── TBD slots ──
+  ...Array.from({ length: 7 }, (_, i) => ({
+    id: i + 10, label: `R32 · Match ${i + 10}`,
     hCode: null, aCode: null, hGoals: null, aGoals: null,
     hState: 'neutral', aState: 'neutral',
     isLive: false, isFinished: false, kickoff: null,
@@ -153,14 +203,21 @@ export default function KnockoutPage() {
               <KnockoutMatchCard
                 match={m}
                 isFocus={isActive}
-                onVideoOpen={(filenames, title) => setVideo({ filenames, title })}
+                onVideoOpen={(filenames, title, startIdx) => setVideo({ filenames, title, startIdx })}
               />
             </div>
           );
         })}
       </div>
 
-      {video && <VideoModal {...video} onClose={() => setVideo(null)} />}
+      {video && (
+        <VideoModal
+          filenames={video.filenames}
+          title={video.title}
+          startIdx={video.startIdx ?? 0}
+          onClose={() => setVideo(null)}
+        />
+      )}
     </>
   );
 }

@@ -37,11 +37,14 @@ function MiniAvatar({ player, isOriginal, state, size, onVideoClick }) {
   );
 }
 
-export default function TeamAvatarGroup({ players = [], state = 'neutral', isLive = false, onVideoOpen }) {
+export default function TeamAvatarGroup({ players = [], state = 'neutral', isLive = false, onVideoOpen, allMatchVideos = [] }) {
   const count = players.length;
   const cols = count <= 1 ? 1 : count <= 4 ? 2 : count <= 9 ? 3 : 4;
   const size = count <= 1 ? 'L' : count <= 4 ? 'M' : count <= 9 ? 'S' : 'XS';
-  const isShaking = isLive && state === 'losing';
+  const isShaking = isLive && (state === 'losing');
+
+  const isLoserSide = state === 'losing' || state === 'draw';
+  const allDone = isLoserSide && count > 0 && players.every(p => !!p.videoFilename);
 
   if (count === 0) {
     return (
@@ -53,19 +56,29 @@ export default function TeamAvatarGroup({ players = [], state = 'neutral', isLiv
 
   return (
     <div
-      className={`${styles.group} ${isShaking ? styles.shake : ''}`}
-      style={{ '--cols': cols }}
+      className={`${styles.groupWrap} ${isShaking ? styles.shake : ''}`}
     >
-      {players.map((p, i) => (
-        <MiniAvatar
-          key={p.name}
-          player={p}
-          isOriginal={i === 0}
-          state={state}
-          size={size}
-          onVideoClick={() => onVideoOpen?.([p.videoFilename], p.name)}
-        />
-      ))}
+      <div className={styles.group} style={{ '--cols': cols }}>
+        {players.map((p, i) => {
+          const startIdx = allMatchVideos.indexOf(p.videoFilename);
+          return (
+            <MiniAvatar
+              key={p.name}
+              player={p}
+              isOriginal={i === 0}
+              state={state}
+              size={size}
+              onVideoClick={() => onVideoOpen?.(allMatchVideos, p.name, startIdx >= 0 ? startIdx : 0)}
+            />
+          );
+        })}
+      </div>
+      {allDone && (
+        <div className={styles.allDoneOverlay}>
+          <span className={styles.allDoneIcon}>✓</span>
+          <span className={styles.allDoneText}>ALL IN</span>
+        </div>
+      )}
     </div>
   );
 }
