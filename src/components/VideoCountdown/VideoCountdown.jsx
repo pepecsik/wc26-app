@@ -26,7 +26,8 @@ export default function VideoCountdown({ kickoff, drinkers, cardStyles }) {
     return (
       <div className={`${s.countdown} ${s.countdownOverdue}`}>
         <span className={s.alarmLabel}>⏰ TIME IS UP</span>
-        <span className={s.alarmName}>{nameStr} you {bitch} — punishment will be decided in the group.</span>
+        <span className={s.alarmName}>{nameStr} you {bitch}</span>
+        <span className={s.alarmSub}>punishment will be decided in the group.</span>
       </div>
     );
   }

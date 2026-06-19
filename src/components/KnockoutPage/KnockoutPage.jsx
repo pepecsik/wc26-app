@@ -121,19 +121,37 @@ const R32_SLOTS = [
     aPlayers: [p('Kimbo'), p('Rogier'), p('Michael'), p('Purcy')].map(q => ({ ...q })),
   },
 
-  // ── UPCOMING — 6v6 preview ──
+  // ── PAST: 6v6 — losing side partial uploads, side bet ──
   {
     id: 9, label: 'R32 · Match 9',
-    hCode: 'GER', aCode: 'BEL', hGoals: null, aGoals: null,
+    hCode: 'GER', aCode: 'BEL', hGoals: 3, aGoals: 1,
+    hState: 'winning', aState: 'losing',
+    isLive: false, isFinished: true, kickoff: ago(36),
+    sideBetDrinks: 1, sideBetDesc: 'Loser sings a song in public 🎤',
+    hPlayers: ['Charlie','Emma','Sebastian','J$','Malou','Will Hunt'].map(n => p(n)),
+    aPlayers: [
+      p('Russ',    'WC001_260611_A_MEX-SAF_2-0_PEPE',  '🍺',   1),
+      p('Kimbo',   'WC006_260613_C_BRA-MOR_1-1_RAND',  '🍺🎤', 1),
+      p('Sabo'),
+      p('Chonga',  'WC003_260612_B_CAN-BOS_1-1_PURCY', '🍺🎤', 1),
+      p('Sjaak'),
+      p('Rand',    'WC004_260612_D_USA-PAR_4-1_SEBASTIAN','🍺🎤',1),
+    ],
+  },
+
+  // ── UPCOMING — 6v6 preview ──
+  {
+    id: 10, label: 'R32 · Match 10',
+    hCode: 'ITA', aCode: 'CHI', hGoals: null, aGoals: null,
     hState: 'neutral', aState: 'neutral',
     isLive: false, isFinished: false, kickoff: from(5),
-    hPlayers: ['Charlie','Emma','Sebastian','J$','Malou','Will Hunt'].map(n => p(n)),
-    aPlayers: ['Russ','Kimbo','Sabo','Chonga','Sjaak','Rand'].map(n => p(n)),
+    hPlayers: ['Pepe','Tim','Adam','Blake','Tobias','Sebastian'].map(n => p(n)),
+    aPlayers: ['Nathanial','Scotty2Hotty','Michael','Emma','J$','Purcy'].map(n => p(n)),
   },
 
   // ── TBD slots ──
-  ...Array.from({ length: 7 }, (_, i) => ({
-    id: i + 10, label: `R32 · Match ${i + 10}`,
+  ...Array.from({ length: 6 }, (_, i) => ({
+    id: i + 11, label: `R32 · Match ${i + 11}`,
     hCode: null, aCode: null, hGoals: null, aGoals: null,
     hState: 'neutral', aState: 'neutral',
     isLive: false, isFinished: false, kickoff: null,
@@ -160,7 +178,7 @@ export default function KnockoutPage() {
       const el = itemRefs.current[focusId];
       if (!el || !scrollRef.current) return;
       const container = scrollRef.current;
-      const offset = el.offsetTop + el.clientHeight - container.clientHeight * 0.53;
+      const offset = el.offsetTop - container.clientHeight * 0.35;
       container.scrollTop = offset;
       setActiveId(focusId);
     });
@@ -171,11 +189,11 @@ export default function KnockoutPage() {
     const container = scrollRef.current;
     if (!container) return;
     const onScroll = () => {
-      const center = container.scrollTop + container.clientHeight * 0.36;
+      const snapLine = container.scrollTop + container.clientHeight * 0.35;
       let closestId = null, closestDist = Infinity;
       Object.entries(itemRefs.current).forEach(([id, el]) => {
         if (!el) return;
-        const dist = Math.abs((el.offsetTop + el.clientHeight / 2) - center);
+        const dist = Math.abs(el.offsetTop - snapLine);
         if (dist < closestDist) { closestDist = dist; closestId = Number(id); }
       });
       if (closestId !== null) setActiveId(closestId);

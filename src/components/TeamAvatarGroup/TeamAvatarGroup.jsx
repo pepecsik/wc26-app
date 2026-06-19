@@ -55,7 +55,7 @@ export default function TeamAvatarGroup({ players = [], state = 'neutral', isLiv
   }
 
   return (
-    <div className={`${styles.groupWrap} ${isShaking ? styles.shake : ''}`}>
+    <div className={`${styles.groupWrap} ${isShaking ? styles.shake : ''} ${allDone ? styles.allDone : ''}`}>
       <div className={styles.group} style={{ '--cols': cols }}>
         {players.map((p, i) => {
           const startIdx = allMatchVideos.indexOf(p.videoFilename);
@@ -72,12 +72,6 @@ export default function TeamAvatarGroup({ players = [], state = 'neutral', isLiv
         })}
       </div>
 
-      {/* ALL DONE — translucent green overlay with big ✓ */}
-      {allDone && (
-        <div className={styles.allDoneOverlay}>
-          <span className={styles.allDoneCheck}>✓</span>
-        </div>
-      )}
 
       {/* Upload + drink counter below avatars */}
       {counter && (

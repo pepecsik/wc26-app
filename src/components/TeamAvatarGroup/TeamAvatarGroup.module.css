@@ -16,24 +16,11 @@
   min-width: 0;
 }
 
-/* ── All done overlay — translucent so avatars show through ── */
-.allDoneOverlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 160, 70, 0.55);
+/* ── All done — green border around the whole group ── */
+.allDone {
+  border: 2px solid rgba(0, 200, 80, 0.7);
   border-radius: 10px;
-  pointer-events: none;
-}
-
-.allDoneCheck {
-  font-size: 52px;
-  color: #fff;
-  font-weight: 900;
-  line-height: 1;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  box-shadow: 0 0 10px rgba(0, 200, 80, 0.25);
 }
 
 /* ── Upload + drink counter below avatars ── */
