@@ -3,6 +3,7 @@
   border-radius: var(--radius-card);
   padding: 0;
   border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow, none);
   transition: box-shadow 0.2s;
   position: relative;
   display: flex;
