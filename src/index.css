@@ -55,10 +55,12 @@ html {
   --header-border:     rgba(255,255,255,0.05);
   --tab-active-bg:     #2a2a28;
   --tab-active-border: rgba(255,255,255,0.12);
-  --title-gradient:    linear-gradient(90deg, #ffffff 0%, #d8d8d2 100%);
-  --avatar-border:     rgba(255,255,255,0.05);
-  --ticker-bg:         #111110;
-  --ticker-border:     rgba(255,255,255,0.06);
+  --title-gradient:       linear-gradient(90deg, #ffffff 0%, #d8d8d2 100%);
+  --avatar-border:        rgba(255,255,255,0.05);
+  --ticker-bg:            #111110;
+  --ticker-border:        rgba(255,255,255,0.06);
+  --live-border:          rgba(80,250,123,0.4);
+  --live-glow-opacity:    0.2;
 }
 
 body {

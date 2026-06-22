@@ -1,5 +1,7 @@
 import styles from './TeamAvatarGroup.module.css';
 
+const isThemedApp = () => !!document.documentElement.dataset.theme;
+
 function MiniAvatar({ player, isOriginal, state, size, onVideoClick }) {
   const isLoser  = state === 'losing' || state === 'draw';
   const isWinner = state === 'winning';
@@ -30,7 +32,7 @@ function MiniAvatar({ player, isOriginal, state, size, onVideoClick }) {
           <span className={styles.beer}>🍺</span>
         )}
       </div>
-      <div className={styles.name} style={{ background: player.color }}>
+      <div className={styles.name} style={{ background: isThemedApp() ? 'rgba(0,0,0,0.55)' : player.color }}>
         {player.name.split(' ')[0]}
       </div>
     </div>

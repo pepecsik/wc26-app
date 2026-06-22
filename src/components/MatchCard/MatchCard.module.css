@@ -27,12 +27,12 @@
 
 /* ── Live pulse ── */
 .card.live {
-  border-color: var(--accent);
+  border-color: var(--live-border, var(--accent));
   animation: pulseLive 2s ease-in-out infinite;
 }
 
 @keyframes pulseLive {
-  0%,100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb),0.5); }
+  0%,100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), var(--live-glow-opacity, 0.5)); }
   50%     { box-shadow: 0 0 0 10px rgba(var(--accent-rgb),0); }
 }
 
