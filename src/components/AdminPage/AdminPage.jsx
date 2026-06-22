@@ -433,7 +433,14 @@ export default function AdminPage() {
 
       {tab === 'reupload' && (() => {
         const done = matches
-          .filter(m => m.isFinished && videoMap[`${m.hCode}-${m.aCode}`]?.filename)
+          .filter(m => {
+            if (!m.isFinished) return false;
+            const vi = videoMap[`${m.hCode}-${m.aCode}`];
+            if (!vi?.filename) return false;
+            // Draw: only show in reupload once BOTH videos are uploaded
+            if (m.hState === 'draw') return !!vi?.filename2;
+            return true;
+          })
           .sort((a, b) => b.kickoff - a.kickoff);
         if (done.length === 0) return <div className={styles.empty}>No uploaded videos yet</div>;
         return done.map(m => <ReuploadCard key={m.id} match={m} vi={videoMap[`${m.hCode}-${m.aCode}`]} />);
