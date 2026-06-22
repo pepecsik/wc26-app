@@ -81,7 +81,7 @@ export default function AvatarBadge({
             </div>
           )}
         </div>
-        <div className={styles.chin} style={{ background: document.documentElement.dataset.theme ? 'rgba(0,0,0,0.6)' : color }}>
+        <div className={styles.chin} style={{ background: document.documentElement.dataset.theme ? (document.documentElement.dataset.mode === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.6)') : color }}>
           <span className={styles.chinName}>{name}</span>
         </div>
       </div>

@@ -95,10 +95,25 @@ export default function App() {
 
   const isShame = activeTab === 'shame';
 
+  const [lightMode, setLightMode] = useState(false);
+  function toggleMode() {
+    setLightMode(m => {
+      const next = !m;
+      if (next) document.documentElement.dataset.mode = 'light';
+      else delete document.documentElement.dataset.mode;
+      return next;
+    });
+  }
+
   return (
     <div className={styles.app}>
       <ShameBanner overdueQueue={overdueQueue} />
       <AlarmModal queue={alarmQueue} />
+      {THEME_PARAM && (
+        <button className={styles.modeToggle} onClick={toggleMode} title="Toggle light/dark">
+          {lightMode ? '🌙' : '☀️'}
+        </button>
+      )}
       {!isShame && <DrinksTicker players={players} />}
       {!isShame && <Header liveCount={liveCount} activeTab={activeTab} onTabChange={handleTabChange} />}
       {isShame && (

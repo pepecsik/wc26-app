@@ -33,41 +33,86 @@ html {
   --ticker-border:     rgba(255,59,59,0.25);
 }
 
-/* ── Theme A: Warm modern (from card design) ── */
+/* ── Theme A dark: Soft Pop (shadcn) ── */
 [data-theme="a"] {
-  --accent:            #50fa7b;
-  --accent-rgb:        80, 250, 123;
-  --bg-body:           #0d0d0c;
-  --bg-top:            #0d0d0c;
-  --bg-mid:            #0d0d0c;
-  --bg-bot:            #0d0d0c;
+  --accent:            #7c6ee0;
+  --accent-rgb:        124, 110, 224;
+  --bg-body:           #000000;
+  --bg-top:            #000000;
+  --bg-mid:            #000000;
+  --bg-bot:            #000000;
   --bg-tint-1:         rgba(0, 0, 0, 0);
   --bg-tint-2:         rgba(0, 0, 0, 0);
-  --radius-card:       28px;
+  --radius-card:       16px;
   --radius-inner:      999px;
-  --radius-avatar:     10px;
-  --radius-stat:       28px;
+  --radius-avatar:     12px;
+  --radius-stat:       16px;
   --radius-tab:        999px;
-  --card-bg:           #1e1e1c;
-  --card-border:       rgba(255,255,255,0.05);
-  --card-shadow:       0 4px 24px rgba(0,0,0,0.6);
-  --header-bg:         #0d0d0c;
-  --header-border:     rgba(255,255,255,0.05);
-  --tab-active-bg:     #2a2a28;
-  --tab-active-border: rgba(255,255,255,0.12);
-  --title-gradient:       linear-gradient(90deg, #ffffff 0%, #d8d8d2 100%);
-  --avatar-border:        rgba(255,255,255,0.05);
-  --ticker-bg:            #111110;
-  --ticker-border:        rgba(255,255,255,0.06);
-  --live-border:          rgba(80,250,123,0.4);
-  --live-glow-opacity:    0.2;
+  --card-bg:           #2a2d3e;
+  --card-border:       #6e6e6e;
+  --card-shadow:       0 4px 8px rgba(0,0,0,0.25);
+  --header-bg:         #000000;
+  --header-border:     #6e6e6e;
+  --tab-active-bg:     #3a3d52;
+  --tab-active-border: #7c6ee0;
+  --title-gradient:    linear-gradient(90deg, #7c6ee0 0%, #5ecfca 50%, #e8d166 100%);
+  --avatar-border:     #6e6e6e;
+  --ticker-bg:         #111111;
+  --ticker-border:     #6e6e6e;
+  --live-border:       #7c6ee0;
+  --live-glow-opacity: 0.35;
+  color-scheme: dark;
+}
+
+/* ── Theme A light: Soft Pop (shadcn) ── */
+[data-theme="a"][data-mode="light"] {
+  --bg-body:           #f3f7ef;
+  --bg-top:            #f3f7ef;
+  --bg-mid:            #f3f7ef;
+  --bg-bot:            #f3f7ef;
+  --bg-tint-1:         rgba(0, 0, 0, 0);
+  --bg-tint-2:         rgba(0, 0, 0, 0);
+  --card-bg:           #ffffff;
+  --card-border:       #000000;
+  --card-shadow:       0 4px 8px rgba(0,0,0,0.08);
+  --header-bg:         #f3f7ef;
+  --header-border:     #000000;
+  --tab-active-bg:     #7c6ee0;
+  --tab-active-border: #000000;
+  --ticker-bg:         #e8ece4;
+  --ticker-border:     #000000;
+  color-scheme: light;
 }
 
 body {
   background: var(--bg-body);
-  color: #fff;
+  color: var(--text-body, #fff);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
+}
+
+[data-theme="a"][data-mode="light"] {
+  --text-body:        #000000;
+  --chin-text:        #000000;
+  --card-text:        rgba(0,0,0,0.85);
+  --card-text-muted:  rgba(0,0,0,0.45);
+}
+
+/* Force readable text inside cards in light mode */
+[data-theme="a"][data-mode="light"] * {
+  color: inherit;
+}
+[data-theme="a"][data-mode="light"] [class*="scoreNum"],
+[data-theme="a"][data-mode="light"] [class*="scoreWin"],
+[data-theme="a"][data-mode="light"] [class*="kickoffTime"],
+[data-theme="a"][data-mode="light"] [class*="vs"],
+[data-theme="a"][data-mode="light"] [class*="groupLabel"],
+[data-theme="a"][data-mode="light"] [class*="teamName"],
+[data-theme="a"][data-mode="light"] [class*="kickoffLabel"] {
+  color: rgba(0,0,0,0.7) !important;
+}
+[data-theme="a"][data-mode="light"] [class*="scoreWin"] {
+  color: #5b21b6 !important;
 }
 
 button { font-family: inherit; }
