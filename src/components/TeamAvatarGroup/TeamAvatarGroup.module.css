@@ -72,8 +72,8 @@
 .avatar {
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
-  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-avatar, 10px);
+  border: 2px solid var(--avatar-border, rgba(255,255,255,0.1));
   overflow: hidden;
   transition: border-color 0.3s;
   min-width: 0;

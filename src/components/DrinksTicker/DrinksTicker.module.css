@@ -1,7 +1,7 @@
 .ticker {
   width: 100%;
-  background: #070f0a;
-  border-bottom: 1px solid rgba(255, 59, 59, 0.25);
+  background: var(--ticker-bg, #070f0a);
+  border-bottom: 1px solid var(--ticker-border, rgba(255, 59, 59, 0.25));
   display: flex;
   align-items: stretch;
   height: 30px;
