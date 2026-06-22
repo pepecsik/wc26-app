@@ -83,7 +83,7 @@ thead tr {
 .avatar {
   width: 36px;
   height: 36px;
-  border-radius: 9px;
+  border-radius: var(--radius-avatar);
   object-fit: cover;
   border: 2px solid rgba(255,255,255,0.1);
   flex-shrink: 0;
@@ -92,7 +92,7 @@ thead tr {
 .avatarInitials {
   width: 36px;
   height: 36px;
-  border-radius: 9px;
+  border-radius: var(--radius-avatar);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -180,9 +180,9 @@ thead tr {
 }
 
 .statCard {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-stat);
   padding: 12px;
   display: flex;
   flex-direction: column;

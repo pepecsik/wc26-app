@@ -7,26 +7,38 @@ html {
 
 /* ── Theme variables ── */
 :root {
-  --accent:       #00c844;
-  --accent-rgb:   0, 200, 68;
-  --bg-body:      #071a0e;
-  --bg-top:       #070f0a;
-  --bg-mid:       #0b1a0f;
-  --bg-bot:       #060e09;
-  --bg-tint-1:    rgba(12, 80, 35, 0.35);
-  --bg-tint-2:    rgba(6, 40, 18, 0.4);
+  --accent:         #00c844;
+  --accent-rgb:     0, 200, 68;
+  --bg-body:        #071a0e;
+  --bg-top:         #070f0a;
+  --bg-mid:         #0b1a0f;
+  --bg-bot:         #060e09;
+  --bg-tint-1:      rgba(12, 80, 35, 0.35);
+  --bg-tint-2:      rgba(6, 40, 18, 0.4);
+  --radius-card:    16px;
+  --radius-inner:   20px;
+  --radius-avatar:  9px;
+  --radius-stat:    14px;
+  --card-bg:        rgba(255,255,255,0.04);
+  --card-border:    rgba(255,255,255,0.07);
 }
 
-/* ── Theme A: Gold ── */
+/* ── Theme A: Electric / sharp ── */
 [data-theme="a"] {
-  --accent:       #e2b714;
-  --accent-rgb:   226, 183, 20;
-  --bg-body:      #090909;
-  --bg-top:       #090909;
-  --bg-mid:       #0e0e0e;
-  --bg-bot:       #060606;
-  --bg-tint-1:    rgba(180, 130, 10, 0.07);
-  --bg-tint-2:    rgba(0, 0, 0, 0.0);
+  --accent:         #00d4ff;
+  --accent-rgb:     0, 212, 255;
+  --bg-body:        #0a0a0a;
+  --bg-top:         #0a0a0a;
+  --bg-mid:         #111111;
+  --bg-bot:         #080808;
+  --bg-tint-1:      rgba(0, 212, 255, 0.04);
+  --bg-tint-2:      rgba(0, 0, 0, 0.0);
+  --radius-card:    4px;
+  --radius-inner:   4px;
+  --radius-avatar:  4px;
+  --radius-stat:    4px;
+  --card-bg:        rgba(255,255,255,0.0);
+  --card-border:    rgba(0, 212, 255, 0.2);
 }
 
 body {
