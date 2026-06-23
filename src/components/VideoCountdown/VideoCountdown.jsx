@@ -24,7 +24,7 @@ export default function VideoCountdown({ kickoff, drinkers, cardStyles, hospital
       return (
         <div className={`${s.countdown} ${s.countdownOverdue}`}>
           <span className={s.alarmLabel}>🏥 OVERDUE — HOSPITAL EXTENSION</span>
-          <span className={s.alarmName}>Timbo checked himself into hospital.</span>
+          <span className={s.alarmName}>Timbo checked himself into the hospital.</span>
           <span className={s.alarmSub}>We granted him extra time. We're still waiting though.</span>
         </div>
       );
@@ -51,7 +51,7 @@ export default function VideoCountdown({ kickoff, drinkers, cardStyles, hospital
       return (
         <div className={`${s.countdown} ${s.countdownAlarm}`}>
           <span className={s.alarmLabel}>🏥 {timeStr}</span>
-          <span className={s.alarmName}>Timbo checked himself into hospital.</span>
+          <span className={s.alarmName}>Timbo checked himself into the hospital.</span>
           <span className={s.alarmSub}>We're still waiting though...</span>
         </div>
       );
