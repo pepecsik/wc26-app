@@ -143,7 +143,14 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
           💰 SIDE BET · {sideBetDesc || `+${sideBetDrinks} extra drink${sideBetDrinks > 1 ? 's' : ''}`}
         </div>
       )}
-      {drinkers && <VideoCountdown kickoff={kickoff} drinkers={drinkers} cardStyles={styles} />}
+      {drinkers && (
+        <VideoCountdown
+          kickoff={kickoff}
+          drinkers={drinkers}
+          cardStyles={styles}
+          hospitalPass={[hOwner, aOwner].some(o => o?.name === 'Tim')}
+        />
+      )}
     </div>
   );
 }

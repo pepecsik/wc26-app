@@ -80,6 +80,7 @@ export default function App() {
                       : m.aState === 'draw'   ? (vi?.drinks2 != null)
                       : false;
       const push = (player) => {
+        if (player?.name === 'Tim') return; // hospital extension — no banner/alarm for Tim
         const entry = { player, left: TEST_MODE ? ALARM_MS : left, deadline };
         (left <= 0 ? overdue : urgent).push(entry);
       };
