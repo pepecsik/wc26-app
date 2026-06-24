@@ -120,12 +120,13 @@ export default function App() {
       {isShame && (
         <button className={styles.shameBack} onClick={() => handleTabChange('matches')}>✕</button>
       )}
-      <main className={isShame ? styles.mainShame : activeTab === 'matches' ? styles.main : styles.mainPadded}>
+      <main className={isShame ? styles.mainShame : (activeTab === 'matches' || activeTab === 'knockout') ? styles.main : styles.mainPadded}>
         {loading && <div className={styles.status}>Loading matches…</div>}
         {error   && <div className={styles.error}>⚠️ {error}</div>}
-        {!loading && activeTab === 'matches' && <Feed matches={matches} videoMap={videoMap} />}
-        {!loading && activeTab === 'stats'   && <StatsPage players={players} />}
-        {!loading && activeTab === 'shame'   && <WallOfShame matches={matches} videoMap={videoMap} />}
+        {!loading && activeTab === 'matches'  && <Feed matches={matches} videoMap={videoMap} />}
+        {!loading && activeTab === 'stats'    && <StatsPage players={players} />}
+        {!loading && activeTab === 'shame'    && <WallOfShame matches={matches} videoMap={videoMap} />}
+        {activeTab === 'knockout'             && <KnockoutPage />}
         {activeTab === 'matches' && ago && (
           <div className={styles.updatedPill}>{ago}</div>
         )}

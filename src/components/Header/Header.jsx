@@ -23,6 +23,12 @@ export default function Header({ liveCount, activeTab, onTabChange }) {
           Table / Stats
         </button>
         <button
+          className={`${styles.tab} ${activeTab === 'knockout' ? styles.active : ''}`}
+          onClick={() => onTabChange('knockout')}
+        >
+          Knockout
+        </button>
+        <button
           className={styles.shameTab}
           onClick={() => onTabChange('shame')}
         >
