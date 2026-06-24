@@ -13,7 +13,7 @@ export default function Header({ liveCount, activeTab, onTabChange }) {
           className={`${styles.tab} ${activeTab === 'matches' ? styles.active : ''}`}
           onClick={() => onTabChange('matches')}
         >
-          Group Stage
+          Matches
           {liveCount > 0 && <span className={styles.liveBadge}>{liveCount} LIVE</span>}
         </button>
         <button
@@ -21,12 +21,6 @@ export default function Header({ liveCount, activeTab, onTabChange }) {
           onClick={() => onTabChange('stats')}
         >
           Table / Stats
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'knockout' ? styles.active : ''}`}
-          onClick={() => onTabChange('knockout')}
-        >
-          Knockout
         </button>
         <button
           className={styles.shameTab}

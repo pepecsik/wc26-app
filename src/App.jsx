@@ -18,6 +18,15 @@ const IS_ADMIN    = window.location.pathname.startsWith('/admin');
 const IS_KNOCKOUT = new URLSearchParams(window.location.search).has('knockout');
 const THEME_PARAM = new URLSearchParams(window.location.search).get('theme');
 
+const STAGES = [
+  { id: 'groups', label: 'Groups' },
+  { id: 'r32',    label: 'R32' },
+  { id: 'r16',    label: 'R16' },
+  { id: 'qf',     label: 'QF' },
+  { id: 'sf',     label: 'SF' },
+  { id: 'final',  label: 'Final' },
+];
+
 // Apply theme variable set when ?theme=a (or other future themes)
 if (THEME_PARAM) document.documentElement.dataset.theme = THEME_PARAM;
 
@@ -40,8 +49,14 @@ export default function App() {
   if (IS_ADMIN)    return <AdminPage />;
   if (IS_KNOCKOUT) return <div className={styles.app}><KnockoutPage /></div>;
 
-  const [activeTab, setActiveTab]         = useState(() => localStorage.getItem('wc26-tab') || 'matches');
+  const VALID_TABS = ['matches', 'stats', 'shame'];
+  const [activeTab, setActiveTab] = useState(() => {
+    const stored = localStorage.getItem('wc26-tab');
+    return VALID_TABS.includes(stored) ? stored : 'matches';
+  });
   const [standingsOpen, setStandingsOpen] = useState(false);
+  const [matchStage, setMatchStage]       = useState('groups');
+  const stageDetected = useRef(false);
 
   function handleTabChange(tab) {
     setActiveTab(tab);
@@ -52,6 +67,14 @@ export default function App() {
   const players  = usePlayerStats(matches, videoMap);
   const liveCount = matches.filter(m => m.isLive).length;
   const ago = useAgo(lastUpdated);
+
+  // Auto-detect current stage once matches load: if all group games done → R32
+  useEffect(() => {
+    if (loading || matches.length === 0 || stageDetected.current) return;
+    stageDetected.current = true;
+    const allDone = matches.every(m => m.isFinished);
+    setMatchStage(allDone ? 'r32' : 'groups');
+  }, [loading, matches.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Compute alarm + overdue queues once — same video-detection logic as MatchCard
   const [alarmQueue, setAlarmQueue]   = useState(null);
@@ -120,13 +143,28 @@ export default function App() {
       {isShame && (
         <button className={styles.shameBack} onClick={() => handleTabChange('matches')}>✕</button>
       )}
-      <main className={isShame ? styles.mainShame : (activeTab === 'matches' || activeTab === 'knockout') ? styles.main : styles.mainPadded}>
+      <main className={isShame ? styles.mainShame : activeTab === 'matches' ? styles.main : styles.mainPadded}>
         {loading && <div className={styles.status}>Loading matches…</div>}
         {error   && <div className={styles.error}>⚠️ {error}</div>}
-        {!loading && activeTab === 'matches'  && <Feed matches={matches} videoMap={videoMap} />}
-        {!loading && activeTab === 'stats'    && <StatsPage players={players} />}
-        {!loading && activeTab === 'shame'    && <WallOfShame matches={matches} videoMap={videoMap} />}
-        {activeTab === 'knockout'             && <KnockoutPage />}
+        {!loading && activeTab === 'matches' && (
+          <>
+            <div className={styles.stageTabs}>
+              {STAGES.map(s => (
+                <button
+                  key={s.id}
+                  className={`${styles.stageTab} ${matchStage === s.id ? styles.stageTabActive : ''}`}
+                  onClick={() => setMatchStage(s.id)}
+                >{s.label}</button>
+              ))}
+            </div>
+            {matchStage === 'groups'
+              ? <Feed matches={matches} videoMap={videoMap} />
+              : <KnockoutPage stage={matchStage} />
+            }
+          </>
+        )}
+        {!loading && activeTab === 'stats' && <StatsPage players={players} />}
+        {!loading && activeTab === 'shame' && <WallOfShame matches={matches} videoMap={videoMap} />}
         {activeTab === 'matches' && ago && (
           <div className={styles.updatedPill}>{ago}</div>
         )}
