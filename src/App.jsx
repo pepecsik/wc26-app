@@ -92,6 +92,17 @@ export default function App() {
 
   const groupMatches = matches.filter(m => !KO_ROUNDS.has(m.round));
   const koTabsPresent = new Set(matches.map(m => TAB_FOR_ROUND[m.round]).filter(Boolean));
+
+  // Teams that appear in any KO match but haven't lost one yet → green flag border in leaderboard
+  const eliminatedCodes = new Set();
+  matches.filter(m => KO_ROUNDS.has(m.round) && m.isFinished).forEach(m => {
+    if (m.hState === 'losing') eliminatedCodes.add(m.hCode);
+    if (m.aState === 'losing') eliminatedCodes.add(m.aCode);
+  });
+  const koTeamCodes = new Set(
+    matches.filter(m => KO_ROUNDS.has(m.round)).flatMap(m => [m.hCode, m.aCode]).filter(Boolean)
+  );
+  const aliveCodes = new Set([...koTeamCodes].filter(c => !eliminatedCodes.has(c)));
   const stages = ALL_STAGES.filter(s => s.id === 'groups' || koTabsPresent.has(s.id));
 
   // Auto-detect current stage: if all GROUP games done → R32
@@ -204,7 +215,7 @@ export default function App() {
               >Draw Board</button>
             </div>
             {statsView === 'leaderboard'
-              ? <StatsPage players={players} />
+              ? <StatsPage players={players} aliveCodes={aliveCodes} />
               : <KnockoutStatsPage matches={matches} koVideos={koVideos} ownerMap={ownerMap} />
             }
           </>

@@ -128,7 +128,7 @@ function rankPlayers(players) {
   });
 }
 
-export default function StatsPage({ players }) {
+export default function StatsPage({ players, aliveCodes = new Set() }) {
   const [selected, setSelected] = useState(null);
   const ranked = rankPlayers(players);
 
@@ -205,7 +205,11 @@ export default function StatsPage({ players }) {
                   <div className={styles.playerNameBlock}>
                     <span className={styles.playerName}>{p.name}</span>
                     <span className={styles.teamFlags}>
-                      {p.teams.map(code => (TEAM_MAP[code]?.flag ?? '')).join('  ')}
+                      {p.teams.map(code => (
+                        <span key={code} className={aliveCodes.has(code) ? styles.flagAlive : ''}>
+                          {TEAM_MAP[code]?.flag ?? ''}
+                        </span>
+                      ))}
                     </span>
                   </div>
                 </div>
