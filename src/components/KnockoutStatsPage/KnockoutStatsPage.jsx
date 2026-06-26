@@ -4,134 +4,146 @@ import PlayerModal from '../PlayerModal/PlayerModal';
 import { PARTICIPANTS } from '../../data/participants';
 import { TEAM_MAP } from '../../data/teamMap';
 
-const find = (name) => PARTICIPANTS.find(x => x.name === name);
+const KO_SET    = new Set(['R32', 'R16', 'QF', 'SF', '3P', 'FIN']);
+const ROUND_RANK = { GS: 0, R32: 1, R16: 2, QF: 3, SF: 4, '3P': 4, FIN: 5 };
+const ROUND_LABEL = { GS: 'GS', R32: 'R32', R16: 'R16', QF: 'QF', SF: 'SF', '3P': '3P', FIN: 'Final' };
 
-const ROUND_RANK  = { GS: 0, R32: 1, R16: 2, QF: 3, SF: 4, Final: 5, W: 6 };
-const ROUND_LABEL = { R32: 'R32', R16: 'R16', QF: 'QF', SF: 'SF', Final: 'Final', W: '🏆' };
+function buildPlayers(matches, koVideos, ownerMap, realPlayers) {
+  const koMatches  = matches.filter(m => KO_SET.has(m.round));
+  const koFinished = koMatches.filter(m => m.isFinished);
 
-// Demo data — heading into Semi-Finals
-// SF teams alive: 🇺🇸 USA · 🇯🇵 JPN · 🇧🇷 BRA · 🇩🇪 GER
-//
-// history entry: { code, type:'o'|'r', out:null|'GS'|'R32'|'R16'|'QF'|'SF', w, d }
-// out:null = currently active team alive in the tournament
-const DEMO = [
-  { name:'Pepe',        history:[{code:'SAF',type:'o',out:'GS',w:0,d:0},{code:'JPN',type:'o',out:null,w:3,d:0}] },
-  { name:'Adam',        history:[{code:'JOR',type:'o',out:'GS',w:0,d:0},{code:'USA',type:'o',out:null,w:3,d:0}] },
-  { name:'Charlie',     history:[{code:'NOR',type:'o',out:'R16',w:1,d:2},{code:'GER',type:'o',out:null,w:3,d:0}] },
-  { name:'Rand',        history:[{code:'TUN',type:'o',out:'R16',w:1,d:1},{code:'BRA',type:'o',out:null,w:3,d:0}] },
-  { name:'Michael',     history:[{code:'SCO',type:'o',out:'R32',w:0,d:1},{code:'ECU',type:'o',out:null,w:3,d:0}] },
-  { name:'Sabo',        history:[{code:'BOS',type:'o',out:'GS',w:0,d:0},{code:'MEX',type:'o',out:'R32',w:0,d:2},{code:'USA',type:'r',out:null,w:2,d:0}] },
-  { name:'Kimbo',       history:[{code:'CPV',type:'o',out:'GS',w:0,d:0},{code:'MOR',type:'o',out:'QF',w:2,d:1},{code:'BRA',type:'r',out:null,w:0,d:0}] },
-  { name:'Tobias',      history:[{code:'EGY',type:'o',out:'GS',w:0,d:0},{code:'ARG',type:'o',out:'QF',w:2,d:1},{code:'BRA',type:'r',out:null,w:0,d:0}] },
-  { name:'Sebastian',   history:[{code:'PAR',type:'o',out:'GS',w:0,d:0},{code:'FRA',type:'o',out:'QF',w:2,d:1},{code:'GER',type:'r',out:null,w:0,d:0}] },
-  { name:'Purcy',       history:[{code:'CAN',type:'o',out:'R32',w:0,d:2},{code:'NED',type:'o',out:'QF',w:2,d:0},{code:'JPN',type:'r',out:null,w:0,d:0}] },
-  { name:'Malou',       history:[{code:'CUR',type:'o',out:'GS',w:0,d:0},{code:'URU',type:'o',out:'R32',w:0,d:3},{code:'BRA',type:'r',out:null,w:2,d:0}] },
-  { name:'Emma',        history:[{code:'CIV',type:'o',out:'R32',w:0,d:1},{code:'ENG',type:'o',out:'R16',w:1,d:2},{code:'GER',type:'r',out:null,w:1,d:0}] },
-  { name:'J$',          history:[{code:'PAN',type:'o',out:'GS',w:0,d:0},{code:'TUR',type:'o',out:'R32',w:0,d:2},{code:'ARG',type:'r',out:'QF',w:2,d:1},{code:'USA',type:'r',out:null,w:0,d:0}] },
-  { name:'Rogier',      history:[{code:'QAT',type:'o',out:'GS',w:0,d:0},{code:'AUT',type:'o',out:'R16',w:1,d:1},{code:'FRA',type:'r',out:'QF',w:2,d:1},{code:'GER',type:'r',out:null,w:0,d:0}] },
-  { name:'Blake',       history:[{code:'SWE',type:'o',out:'R32',w:0,d:2},{code:'CRO',type:'o',out:'QF',w:2,d:1},{code:'JPN',type:'r',out:null,w:0,d:0}] },
-  { name:'Jimmy',       history:[{code:'ALG',type:'o',out:'GS',w:0,d:0},{code:'SEN',type:'o',out:'R16',w:1,d:3},{code:'ARG',type:'r',out:'QF',w:2,d:1},{code:'GER',type:'r',out:null,w:0,d:0}] },
-  { name:'Nathanial',   history:[{code:'HAI',type:'o',out:'GS',w:0,d:0},{code:'BEL',type:'o',out:'R32',w:0,d:2},{code:'FRA',type:'r',out:'QF',w:2,d:1},{code:'BRA',type:'r',out:null,w:0,d:0}] },
-  { name:'Scotty2Hotty',history:[{code:'GHA',type:'o',out:'R32',w:0,d:1},{code:'POR',type:'o',out:'R16',w:1,d:2},{code:'MOR',type:'r',out:'QF',w:2,d:1},{code:'USA',type:'r',out:null,w:0,d:0}] },
-  { name:'Tim',         history:[{code:'NZL',type:'o',out:'GS',w:0,d:0},{code:'SWI',type:'o',out:'R16',w:1,d:1},{code:'NED',type:'r',out:'QF',w:2,d:0},{code:'JPN',type:'r',out:null,w:0,d:0}], bonusDrinks:1 },
-  { name:'Ali',         history:[{code:'UZB',type:'o',out:'R32',w:0,d:1},{code:'COL',type:'o',out:'R16',w:1,d:2},{code:'NED',type:'r',out:'QF',w:2,d:1},{code:'USA',type:'r',out:null,w:0,d:0}] },
-  { name:'Russ',        history:[{code:'COD',type:'o',out:'GS',w:0,d:0},{code:'IRN',type:'o',out:'R32',w:0,d:1},{code:'MOR',type:'r',out:'QF',w:2,d:1},{code:'BRA',type:'r',out:null,w:0,d:0}] },
-  { name:'Sjaak',       history:[{code:'SAU',type:'o',out:'GS',w:0,d:0},{code:'ESP',type:'o',out:'R32',w:0,d:2},{code:'ARG',type:'r',out:'QF',w:2,d:1},{code:'USA',type:'r',out:null,w:0,d:0}] },
-  { name:'Will Hunt',   history:[{code:'IRQ',type:'o',out:'GS',w:0,d:0},{code:'AUS',type:'o',out:'R32',w:0,d:2},{code:'ARG',type:'r',out:'QF',w:2,d:1},{code:'GER',type:'r',out:null,w:0,d:0}] },
-  { name:'Chonga',      history:[{code:'CZE',type:'o',out:'GS',w:0,d:0},{code:'SKO',type:'o',out:'R32',w:0,d:1},{code:'NED',type:'r',out:'QF',w:2,d:1},{code:'BRA',type:'r',out:null,w:0,d:0}] },
-];
-
-function buildPlayers(realPlayers = []) {
-  return DEMO.map(d => {
-    const p = find(d.name);
-    const h = d.history;
-    const real = realPlayers.find(r => r.name === d.name);
-
-    const active = h.findLast(t => t.out === null) ?? h[h.length - 1];
-    const isAlive = active.out === null;
-
-    const bestRound = isAlive ? 'SF'
-      : h.reduce((best, t) => {
-          const r = t.out ?? 'SF';
-          return ROUND_RANK[r] > ROUND_RANK[best] ? r : best;
-        }, 'GS');
-
-    const koWins   = h.reduce((s, t) => s + (t.w || 0), 0);
-    const koLosses = h.filter(t => t.out && t.out !== 'GS').length;
-    const koDrinks = h.reduce((s, t) => s + (t.d || 0), 0);
-    const redraws  = h.filter(t => t.type === 'r').length;
-
-    const gsDrinksTotal = real ? (real.drinksTotal ?? real.drinks) : (d.bonusDrinks || 0);
-    const totalDrinks   = gsDrinksTotal + koDrinks;
-
-    const videoDebt   = real ? (real.videoDebt ?? 0) : (totalDrinks > 2 ? 1 : 0);
-    const gsDrinksDone = real ? (real.drinksDone ?? 0) : (totalDrinks - videoDebt);
-    const drinksDone  = gsDrinksDone + koDrinks;
-
-    // Win streak — knockout matches only
-    const matchList = [];
-    h.forEach(t => {
-      if (t.out === 'GS') return;
-      for (let i = 0; i < (t.w || 0); i++) matchList.push('W');
-      if (t.out && t.out !== 'GS') matchList.push('L');
+  // Which round each team was eliminated in, and which rounds they appeared in
+  const eliminated   = {};
+  const roundPlayed  = {};
+  koMatches.forEach(m => {
+    [m.hCode, m.aCode].forEach(code => {
+      if (!code) return;
+      if (!roundPlayed[code] || ROUND_RANK[m.round] > ROUND_RANK[roundPlayed[code]]) {
+        roundPlayed[code] = m.round;
+      }
     });
+    if (!m.isFinished) return;
+    if (m.hState === 'losing') eliminated[m.hCode] = m.round;
+    if (m.aState === 'losing') eliminated[m.aCode] = m.round;
+  });
+
+  return PARTICIPANTS.map(p => {
+    const realP = realPlayers.find(r => r.name === p.name) || {};
+
+    // Original draw teams (Teams 1-2 from participants.js)
+    const origCodes    = p.teams || [];
+    // Redraw teams (Teams 3-8 from Teams tab via ownerMap)
+    const redrawnCodes = Object.entries(ownerMap)
+      .filter(([, owners]) => owners.some(o => o.name === p.name))
+      .map(([code]) => code);
+
+    const allTeams = [
+      ...origCodes.map(c => ({ code: c, type: 'o' })),
+      ...redrawnCodes.map(c => ({ code: c, type: 'r' })),
+    ];
+
+    const aliveTeams     = allTeams.filter(t => !eliminated[t.code]);
+    const isAlive        = aliveTeams.length > 0;
+    const aliveOriginals = allTeams.filter(t => t.type === 'o' && !eliminated[t.code]);
+    const activeTeam     = aliveTeams[0] || allTeams[allTeams.length - 1] || { code: null, type: 'o' };
+
+    // Best round: highest round any of this player's teams appeared in
+    let bestRound = 'GS';
+    allTeams.forEach(t => {
+      const r = roundPlayed[t.code];
+      if (r && (ROUND_RANK[r] || 0) > (ROUND_RANK[bestRound] || 0)) bestRound = r;
+    });
+
+    // KO match stats
+    let koWins = 0, koLosses = 0, koDrinks = 0, koVideoDebt = 0;
+
+    const playerKOMatches = koFinished
+      .filter(m => {
+        const all = [m.hOwner, ...(m.hCoOwners || []), m.aOwner, ...(m.aCoOwners || [])].filter(Boolean);
+        return all.some(o => o.name === p.name);
+      })
+      .sort((a, b) => a.kickoff - b.kickoff);
+
+    playerKOMatches.forEach(m => {
+      const matchKey = `${m.hCode}-${m.aCode}`;
+      const hOwners  = [m.hOwner, ...(m.hCoOwners || [])].filter(Boolean);
+      const aOwners  = [m.aOwner, ...(m.aCoOwners || [])].filter(Boolean);
+      const ownsH    = hOwners.some(o => o.name === p.name);
+      const ownsA    = aOwners.some(o => o.name === p.name);
+
+      if (m.hState === 'winning' && ownsH) koWins++;
+      if (m.aState === 'winning' && ownsA) koWins++;
+      if (m.hState === 'losing'  && ownsH) koLosses++;
+      if (m.aState === 'losing'  && ownsA) koLosses++;
+
+      const kv = (koVideos[matchKey] || {})[p.name];
+      if (kv?.drinks) koDrinks += kv.drinks;
+
+      const isLoser = (m.hState === 'losing' && ownsH) || (m.aState === 'losing' && ownsA);
+      if (isLoser && !kv?.filename) koVideoDebt++;
+    });
+
+    // Win streak (consecutive wins from end of match list)
     let streak = 0;
-    for (let i = matchList.length - 1; i >= 0; i--) {
-      if (matchList[i] === 'W') streak++;
+    for (let i = playerKOMatches.length - 1; i >= 0; i--) {
+      const m       = playerKOMatches[i];
+      const hOwners = [m.hOwner, ...(m.hCoOwners || [])].filter(Boolean);
+      const aOwners = [m.aOwner, ...(m.aCoOwners || [])].filter(Boolean);
+      const won = (m.hState === 'winning' && hOwners.some(o => o.name === p.name))
+               || (m.aState === 'winning' && aOwners.some(o => o.name === p.name));
+      if (won) streak++;
       else break;
     }
 
-    // Which original team flags to show (alive originals, or current redrawn)
-    const aliveOriginals = h.filter(t => t.type === 'o' && t.out === null);
-    const isRedrawn = redraws > 0;
+    const gsDrinks    = realP.drinksTotal ?? realP.drinks ?? 0;
+    const gsDrinksDone = realP.drinksDone ?? 0;
+    const gsVideoDebt = realP.videoDebt   ?? 0;
+    const totalDrinks  = gsDrinks + koDrinks;
+    const drinksDone   = gsDrinksDone + koDrinks;
+    const videoDebt    = gsVideoDebt + koVideoDebt;
 
     return {
       ...p,
-      history: h,
-      activeTeam: active,
+      history: allTeams.map(t => ({ ...t, out: eliminated[t.code] || null })),
+      activeTeam,
+      activeTeamCode: activeTeam.code,
       isAlive,
       bestRound,
-      wins: koWins,
-      losses: koLosses,
-      draws: 0,
-      drinks: totalDrinks,
+      wins:         koWins,
+      losses:       koLosses,
+      drinks:       totalDrinks,
       drinksDone,
-      drinksTotal: totalDrinks,
+      drinksTotal:  totalDrinks,
       videoDebt,
       streak,
-      redraws,
-      isRedrawn,
+      redraws:      redrawnCodes.length,
+      isRedrawn:    redrawnCodes.length > 0,
       aliveOriginals,
-      bonusDrinks: d.bonusDrinks || 0,
-      matches: real?.matches ?? [],
-      teams: h.map(t => t.code),
-      activeTeamCode: active.code,
+      matches:      realP.matches || [],
+      teams:        allTeams.map(t => t.code),
     };
   });
 }
 
 function rankPlayers(players) {
   const sorted = [...players].sort((a, b) => {
-    const rDiff = ROUND_RANK[b.bestRound] - ROUND_RANK[a.bestRound];
+    const rDiff = (ROUND_RANK[b.bestRound] || 0) - (ROUND_RANK[a.bestRound] || 0);
     if (rDiff !== 0) return rDiff;
     if (a.losses !== b.losses) return a.losses - b.losses;
-    if (b.wins !== a.wins) return b.wins - a.wins;
+    if (b.wins   !== a.wins)   return b.wins   - a.wins;
     return a.drinks - b.drinks;
   });
-
   let rank = 1;
   return sorted.map((p, i) => {
     if (i > 0) {
       const prev = sorted[i - 1];
-      if (p.bestRound !== prev.bestRound || p.losses !== prev.losses || p.wins !== prev.wins) {
-        rank = i + 1;
-      }
+      if (p.bestRound !== prev.bestRound || p.losses !== prev.losses || p.wins !== prev.wins) rank = i + 1;
     }
     return { ...p, rank };
   });
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
+// ── Sub-components ─────────────────────────────────────────────────────────────
 
 function MiniAvatar({ p }) {
   return p.photo
@@ -149,7 +161,6 @@ function StatCard({ emoji, label, children }) {
   );
 }
 
-// OG holders: flag gets a subtle green border. Redrawn: plain flag.
 function TeamFlags({ p }) {
   if (!p.isRedrawn && p.aliveOriginals.length > 0) {
     return (
@@ -160,31 +171,29 @@ function TeamFlags({ p }) {
       </>
     );
   }
-  const flag = TEAM_MAP[p.activeTeam.code]?.flag ?? '';
+  const flag = p.activeTeam?.code ? (TEAM_MAP[p.activeTeam.code]?.flag ?? '') : '';
   return <span className={styles.teamFlags}>{flag}</span>;
 }
 
 function DrawBoard({ players }) {
-  const alive = players.filter(p => p.isAlive);
-  const teamCodes = [...new Set(alive.map(p => p.activeTeam.code))];
-
-  const byTeam = {};
+  const alive      = players.filter(p => p.isAlive);
+  const teamCodes  = [...new Set(alive.map(p => p.activeTeam?.code).filter(Boolean))];
+  const byTeam     = {};
   teamCodes.forEach(code => {
     byTeam[code] = alive
-      .filter(p => p.activeTeam.code === code)
-      .sort((a, b) => {
-        const aOG = a.activeTeam.type === 'o';
-        const bOG = b.activeTeam.type === 'o';
-        return aOG === bOG ? 0 : aOG ? -1 : 1;
-      });
+      .filter(p => p.activeTeam?.code === code)
+      .sort((a, b) => (a.activeTeam.type === 'o') === (b.activeTeam.type === 'o') ? 0 : a.activeTeam.type === 'o' ? -1 : 1);
   });
-
   const sortedCodes = [...teamCodes].sort((a, b) => byTeam[b].length - byTeam[a].length);
+
+  if (sortedCodes.length === 0) {
+    return <div className={styles.comingSoon}>Redraws not yet finalised</div>;
+  }
 
   return (
     <div className={styles.drawBoard}>
       {sortedCodes.map(code => {
-        const team = TEAM_MAP[code];
+        const team        = TEAM_MAP[code];
         const teamPlayers = byTeam[code];
         return (
           <div key={code} className={styles.drawTeamCard}>
@@ -195,9 +204,9 @@ function DrawBoard({ players }) {
             </div>
             <div className={styles.drawPlayers}>
               {teamPlayers.map(p => {
-                const isOG = p.activeTeam.type === 'o';
-                const entryIdx = p.history.indexOf(p.activeTeam);
-                const drawnFrom = !isOG && entryIdx > 0 ? p.history[entryIdx - 1]?.out : null;
+                const isOG      = p.activeTeam.type === 'o';
+                const teamIdx   = p.history.findIndex(t => t.code === p.activeTeam.code);
+                const drawnFrom = !isOG && teamIdx > 0 ? p.history[teamIdx - 1]?.out : null;
                 return (
                   <div key={p.name} className={`${styles.drawPlayer} ${isOG ? styles.drawPlayerOG : ''}`}>
                     {p.photo
@@ -223,11 +232,12 @@ function DrawBoard({ players }) {
 const LS_KEY = 'wc26-ko-ranks';
 const TTL_MS = 24 * 60 * 60 * 1000;
 
-export default function KnockoutStatsPage({ realPlayers = [], view = 'leaderboard' }) {
+export default function KnockoutStatsPage({ realPlayers = [], view = 'leaderboard', matches = [], koVideos = {}, ownerMap = {} }) {
   const [selected, setSelected] = useState(null);
   const [arrows,   setArrows]   = useState({});
-  const players  = buildPlayers(realPlayers);
-  const ranked   = rankPlayers(players);
+
+  const players = buildPlayers(matches, koVideos, ownerMap, realPlayers);
+  const ranked  = rankPlayers(players);
 
   useEffect(() => {
     if (ranked.length === 0) return;
@@ -248,22 +258,15 @@ export default function KnockoutStatsPage({ realPlayers = [], view = 'leaderboar
     setArrows(newArrows);
   }, [ranked.length]);
 
-  const hasFinished = true;
+  const hasKOData      = players.some(p => p.wins > 0 || p.losses > 0);
   const totalDrinks     = players.reduce((s, p) => s + p.drinks, 0);
   const totalDrinksDone = players.reduce((s, p) => s + p.drinksDone, 0);
-
-  const maxDrinks   = Math.max(...players.map(p => p.drinksDone));
-  const topDrinkers = maxDrinks > 0 ? players.filter(p => p.drinksDone === maxDrinks) : [];
-
-  const cleanPlayers = players.filter(p => p.drinks === 0 && p.losses > 0);
-
-  const maxStreak   = Math.max(...players.map(p => p.streak));
-  const topStreakers = maxStreak > 0 ? players.filter(p => p.streak === maxStreak) : [];
-
-  const debtPlayers = players.filter(p => p.videoDebt > 0).sort((a, b) => b.videoDebt - a.videoDebt);
-
-  const alive      = ranked.filter(p => p.isAlive);
-  const eliminated = ranked.filter(p => !p.isAlive);
+  const maxDrinks       = Math.max(0, ...players.map(p => p.drinksDone));
+  const topDrinkers     = maxDrinks > 0 ? players.filter(p => p.drinksDone === maxDrinks) : [];
+  const cleanPlayers    = players.filter(p => p.drinks === 0 && p.losses > 0);
+  const maxStreak       = Math.max(0, ...players.map(p => p.streak));
+  const topStreakers    = maxStreak > 0 ? players.filter(p => p.streak === maxStreak) : [];
+  const debtPlayers     = players.filter(p => p.videoDebt > 0).sort((a, b) => b.videoDebt - a.videoDebt);
 
   if (view === 'draw') {
     return (
@@ -275,8 +278,7 @@ export default function KnockoutStatsPage({ realPlayers = [], view = 'leaderboar
 
   return (
     <div className={styles.page}>
-
-      {hasFinished && (
+      {hasKOData && (
         <div className={styles.funStats}>
           <div className={styles.funStatsTitle}>Knockout Stats</div>
           {totalDrinks > 0 && (
@@ -302,9 +304,7 @@ export default function KnockoutStatsPage({ realPlayers = [], view = 'leaderboar
                   <div key={p.name} className={styles.debtRow}>
                     <MiniAvatar p={p} />
                     <span className={styles.statCardName}>{p.name}</span>
-                    <span className={styles.statCardVal}>
-                      <TeamFlags p={p} />
-                    </span>
+                    <span className={styles.statCardVal}><TeamFlags p={p} /></span>
                   </div>
                 ))}
               </StatCard>
@@ -379,7 +379,7 @@ function PlayerRow({ p, onClick, arrow }) {
           </div>
         </div>
       </td>
-      <td className={`${styles.stat} ${styles.win}`}>{p.wins}</td>
+      <td className={`${styles.stat} ${styles.win}`}>{p.wins  || ''}</td>
       <td className={`${styles.stat} ${styles.loss}`}>{p.losses || ''}</td>
       <td className={`${styles.stat} ${styles.drink}`}>{p.drinks || ''}</td>
       <td className={`${styles.stat} ${styles.done}`}>{p.drinksDone || ''}</td>

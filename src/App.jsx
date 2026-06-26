@@ -73,10 +73,10 @@ export default function App() {
   const { koVideos } = useKOVideos();
 
   // Apply dynamic KO owner overrides from the Teams tab (falls back to static participants.js)
-  // ownerMap values are arrays (multiple players can be redrawn into same team)
+  // ownerMap (redrawn teams) only applies to KO matches — never bleed into group stage cards
   const matches = rawMatches.map(m => {
-    const hExtra = ownerMap[m.hCode] || [];
-    const aExtra = ownerMap[m.aCode] || [];
+    const hExtra = KO_ROUNDS.has(m.round) ? (ownerMap[m.hCode] || []) : [];
+    const aExtra = KO_ROUNDS.has(m.round) ? (ownerMap[m.aCode] || []) : [];
     return {
       ...m,
       hOwner: m.hOwner ?? hExtra[0] ?? null,
@@ -203,7 +203,7 @@ export default function App() {
                 onClick={() => setStatsView('draw')}
               >Draw Board</button>
             </div>
-            <KnockoutStatsPage realPlayers={players} view={statsView} />
+            <KnockoutStatsPage realPlayers={players} view={statsView} matches={matches} koVideos={koVideos} ownerMap={ownerMap} />
           </>
         )}
         {!loading && activeTab === 'shame' && <WallOfShame matches={matches} videoMap={videoMap} />}
