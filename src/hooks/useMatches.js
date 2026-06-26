@@ -108,6 +108,7 @@ function rowToMatch(row, index) {
     hGoals: scoreHome,
     aGoals: scoreAway,
     hState, aState,
+    round: row['Round'] || '',
     hOwner: TEAM_OWNER[hCode] ?? null,
     aOwner: TEAM_OWNER[aCode] ?? null,
     sideBetDrinks: isNaN(sideBetDrinks) ? 0 : sideBetDrinks,
@@ -128,9 +129,11 @@ export function useMatches() {
       const res  = await fetch(`${SHEET_CSV_URL}&_=${Date.now()}`, { cache: 'no-store' });
       const text = await res.text();
       const rows = parseCSV(text);
+      const KO = new Set(['R32', 'R16', 'QF', 'SF', '3P', 'F']);
       const normalized = rows
         .map((row, i) => rowToMatch(row, i))
         .filter(Boolean)
+        .filter(m => !KO.has(m.round))
         .sort((a, b) => a.kickoff - b.kickoff);
       setMatches(normalized);
       setLastUpdated(Date.now());
