@@ -129,7 +129,7 @@ export function useMatches() {
       const res  = await fetch(`${SHEET_CSV_URL}&_=${Date.now()}`, { cache: 'no-store' });
       const text = await res.text();
       const rows = parseCSV(text);
-      const KO = new Set(['R32', 'R16', 'QF', 'SF', '3P', 'F']);
+      const KO = new Set(['R32', 'R16', 'QF', 'SF', '3P', 'FIN']);
       const normalized = rows
         .map((row, i) => rowToMatch(row, i))
         .filter(Boolean)
