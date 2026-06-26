@@ -17,7 +17,7 @@ exports.handler = async () => {
         bucketId: auth.allowed?.bucketId,
         corsRules: [{
           corsRuleName: 'allowUploadFromApp',
-          allowedOrigins: ['https://timbo-wc-2026.netlify.app', 'http://localhost:5173'],
+          allowedOrigins: ['https://timbo-wc-2026.netlify.app', 'https://ks-preview--timbo-wc-2026.netlify.app', 'http://localhost:5173'],
           allowedOperations: ['b2_upload_file'],
           allowedHeaders: ['*'],
           maxAgeSeconds: 3600,

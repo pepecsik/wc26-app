@@ -47,10 +47,13 @@ export default function PlayerModal({ player, onClose }) {
         <div className={styles.teams}>
           {player.teams.map(code => {
             const t = TEAM_MAP[code] ?? { flag: '🏳️', full: code };
+            const isPast    = player.activeTeamCode && code !== player.activeTeamCode;
+            const isCurrent = player.activeTeamCode && code === player.activeTeamCode;
             return (
-              <div key={code} className={styles.teamChip}>
+              <div key={code} className={`${styles.teamChip} ${isPast ? styles.teamChipPast : ''}`}>
                 <span className={styles.teamFlag}>{t.flag}</span>
                 <span className={styles.teamName}>{t.full}</span>
+                {isCurrent && <span className={styles.teamChipDot} />}
               </div>
             );
           })}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './KnockoutStatsPage.module.css';
 import PlayerModal from '../PlayerModal/PlayerModal';
 import { PARTICIPANTS } from '../../data/participants';
@@ -103,11 +103,9 @@ function buildPlayers(realPlayers = []) {
       isRedrawn,
       aliveOriginals,
       bonusDrinks: d.bonusDrinks || 0,
-      // For PlayerModal compatibility
-      matches: [],
-      teams: aliveOriginals.length > 0
-        ? aliveOriginals.map(t => t.code)
-        : [active.code],
+      matches: real?.matches ?? [],
+      teams: h.map(t => t.code),
+      activeTeamCode: active.code,
     };
   });
 }
@@ -151,24 +149,104 @@ function StatCard({ emoji, label, children }) {
   );
 }
 
-// Shows the team flag(s) for a player row — clean emoji, no pills
-// Original team(s) alive: normal flag emoji (same as real app)
-// Redrawn team: flag with subtle orange tint via CSS class
+// OG holders: flag gets a subtle green border. Redrawn: plain flag.
 function TeamFlags({ p }) {
-  if (!p.isRedrawn) {
-    // Not redrawn — show alive original teams just like real app
-    const flags = p.teams.map(code => TEAM_MAP[code]?.flag ?? '').join('  ');
-    return <span className={styles.teamFlags}>{flags}</span>;
+  if (!p.isRedrawn && p.aliveOriginals.length > 0) {
+    return (
+      <>
+        {p.aliveOriginals.map(t => (
+          <span key={t.code} className={styles.ogFlag}>{TEAM_MAP[t.code]?.flag ?? ''}</span>
+        ))}
+      </>
+    );
   }
-  // Redrawn — show current team flag with a subtle "redrawn" style
   const flag = TEAM_MAP[p.activeTeam.code]?.flag ?? '';
-  return <span className={`${styles.teamFlags} ${styles.teamFlagsRedrawn}`}>{flag}</span>;
+  return <span className={styles.teamFlags}>{flag}</span>;
 }
 
-export default function KnockoutStatsPage({ realPlayers = [] }) {
+function DrawBoard({ players }) {
+  const alive = players.filter(p => p.isAlive);
+  const teamCodes = [...new Set(alive.map(p => p.activeTeam.code))];
+
+  const byTeam = {};
+  teamCodes.forEach(code => {
+    byTeam[code] = alive
+      .filter(p => p.activeTeam.code === code)
+      .sort((a, b) => {
+        const aOG = a.activeTeam.type === 'o';
+        const bOG = b.activeTeam.type === 'o';
+        return aOG === bOG ? 0 : aOG ? -1 : 1;
+      });
+  });
+
+  const sortedCodes = [...teamCodes].sort((a, b) => byTeam[b].length - byTeam[a].length);
+
+  return (
+    <div className={styles.drawBoard}>
+      {sortedCodes.map(code => {
+        const team = TEAM_MAP[code];
+        const teamPlayers = byTeam[code];
+        return (
+          <div key={code} className={styles.drawTeamCard}>
+            <div className={styles.drawHeader}>
+              <span className={styles.drawFlag}>{team?.flag}</span>
+              <span className={styles.drawTeamName}>{team?.full ?? code}</span>
+              <span className={styles.drawCount}>{teamPlayers.length} {teamPlayers.length === 1 ? 'player' : 'players'}</span>
+            </div>
+            <div className={styles.drawPlayers}>
+              {teamPlayers.map(p => {
+                const isOG = p.activeTeam.type === 'o';
+                const entryIdx = p.history.indexOf(p.activeTeam);
+                const drawnFrom = !isOG && entryIdx > 0 ? p.history[entryIdx - 1]?.out : null;
+                return (
+                  <div key={p.name} className={`${styles.drawPlayer} ${isOG ? styles.drawPlayerOG : ''}`}>
+                    {p.photo
+                      ? <img src={p.photo} alt={p.name} className={styles.drawAvatar} />
+                      : <div className={styles.drawAvatarInit} style={{ background: p.color }}>{p.initials}</div>
+                    }
+                    <span className={styles.drawName}>{p.name}</span>
+                    {isOG
+                      ? <span className={styles.drawOGBadge}>OG</span>
+                      : drawnFrom && <span className={styles.drawSince}>since {drawnFrom}</span>
+                    }
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+const LS_KEY = 'wc26-ko-ranks';
+const TTL_MS = 24 * 60 * 60 * 1000;
+
+export default function KnockoutStatsPage({ realPlayers = [], view = 'leaderboard' }) {
   const [selected, setSelected] = useState(null);
+  const [arrows,   setArrows]   = useState({});
   const players  = buildPlayers(realPlayers);
   const ranked   = rankPlayers(players);
+
+  useEffect(() => {
+    if (ranked.length === 0) return;
+    const now = Date.now();
+    let stored = {};
+    try { stored = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch {}
+    const newStored = {};
+    const newArrows = {};
+    ranked.forEach(({ name, rank }) => {
+      let { baseRank = rank, lastKnownRank = rank, lastMovedAt = null } = stored[name] ?? {};
+      if (rank !== lastKnownRank) { lastMovedAt = now; lastKnownRank = rank; }
+      const withinWindow = lastMovedAt !== null && (now - lastMovedAt) < TTL_MS;
+      if (!withinWindow) { baseRank = rank; lastMovedAt = null; }
+      newStored[name] = { baseRank, lastKnownRank, lastMovedAt };
+      newArrows[name] = withinWindow && rank !== baseRank ? (rank < baseRank ? '↑' : '↓') : null;
+    });
+    localStorage.setItem(LS_KEY, JSON.stringify(newStored));
+    setArrows(newArrows);
+  }, [ranked.length]);
 
   const hasFinished = true;
   const totalDrinks     = players.reduce((s, p) => s + p.drinks, 0);
@@ -186,6 +264,14 @@ export default function KnockoutStatsPage({ realPlayers = [] }) {
 
   const alive      = ranked.filter(p => p.isAlive);
   const eliminated = ranked.filter(p => !p.isAlive);
+
+  if (view === 'draw') {
+    return (
+      <div className={styles.page}>
+        <DrawBoard players={players} />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
@@ -261,14 +347,7 @@ export default function KnockoutStatsPage({ realPlayers = [] }) {
           </tr>
         </thead>
         <tbody>
-          {alive.length > 0 && (
-            <tr><td colSpan={6} className={styles.sectionRow}>🔥 Semi-Finals · {alive.length} players alive</td></tr>
-          )}
-          {alive.map(p => <PlayerRow key={p.name} p={p} onClick={() => setSelected(p)} />)}
-          {eliminated.length > 0 && (
-            <tr><td colSpan={6} className={styles.sectionRow}>💀 Eliminated · {eliminated.length} players</td></tr>
-          )}
-          {eliminated.map(p => <PlayerRow key={p.name} p={p} onClick={() => setSelected(p)} />)}
+          {ranked.map(p => <PlayerRow key={p.name} p={p} onClick={() => setSelected(p)} arrow={arrows[p.name]} />)}
         </tbody>
       </table>
 
@@ -277,10 +356,17 @@ export default function KnockoutStatsPage({ realPlayers = [] }) {
   );
 }
 
-function PlayerRow({ p, onClick }) {
+function PlayerRow({ p, onClick, arrow }) {
   return (
     <tr className={`${styles.row} ${p.isAlive ? styles.rowAlive : styles.rowEliminated}`} onClick={onClick}>
-      <td className={styles.rank}>{p.rank}</td>
+      <td className={styles.rank}>
+        {p.rank}
+        {arrow && (
+          <span className={`${styles.rankArrow} ${arrow === '↑' ? styles.rankUp : styles.rankDown}`}>
+            {arrow === '↑' ? '▲' : '▼'}
+          </span>
+        )}
+      </td>
       <td className={styles.player}>
         <div className={styles.playerInner}>
           {p.photo

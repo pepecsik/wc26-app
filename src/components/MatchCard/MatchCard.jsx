@@ -2,6 +2,9 @@ import styles from './MatchCard.module.css';
 import AvatarBadge from '../AvatarBadge/AvatarBadge';
 import VideoCountdown from '../VideoCountdown/VideoCountdown';
 import { TEAM_MAP } from '../../data/teamMap';
+import { ROUND_FOLDER } from '../../hooks/useKOVideos';
+
+const KO_ROUNDS = new Set(['R32', 'R16', 'QF', 'SF', '3P', 'FIN']);
 
 function formatKickoff(date) {
   return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
@@ -10,8 +13,10 @@ function formatDate(date) {
   return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
-export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
+export default function MatchCard({ match, videoInfo, koVideos = {}, isFocus, onVideoOpen }) {
   const { hCode, aCode, hGoals, aGoals, hState, aState, hOwner, aOwner,
+          hCoOwners = [], aCoOwners = [],
+          round = '',
           isLive, isFinished, kickoff, elapsed, sideBetDrinks, sideBetDesc, sideBetEmoji } = match;
 
   const hTeam = TEAM_MAP[hCode] ?? { full: hCode, flag: '🏳️', group: '?' };
@@ -20,49 +25,87 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
   const matchState = isLive ? 'live' : isFinished ? 'finished' : 'upcoming';
   const videoTitle  = `${hTeam.flag} ${hCode} vs ${aCode} ${aTeam.flag}`;
 
-  // For draws, use drinks (written only on actual upload) not filename (formula auto-populates both)
-  const hHasVideo = hState === 'losing' ? !!(videoInfo?.filename)
-                  : hState === 'draw'   ? (videoInfo?.drinks1 != null)
-                  : false;
-  const aHasVideo = aState === 'losing' ? !!(videoInfo?.filename)
-                  : aState === 'draw'   ? (videoInfo?.drinks2 != null)
-                  : false;
-  const aFilename = videoInfo?.filename2 || videoInfo?.filename;
+  const isKO = KO_ROUNDS.has(round);
+  const matchKey = `${hCode}-${aCode}`;
+  const kvMap = koVideos[matchKey] || {};
 
-  // Extra videos — col X (filename3) for home/loser, col Y (filename4) for away in draws
-  const hHasVideo2 = hState === 'losing' ? !!(videoInfo?.filename3)
-                   : hState === 'draw'   ? !!(videoInfo?.filename3)
-                   : false;
-  const aHasVideo2 = aState === 'losing' ? !!(videoInfo?.filename3)
-                   : aState === 'draw'   ? !!(videoInfo?.filename4)
-                   : false;
+  // ── KO video tracking ──
+  const hLoserOwners = isKO && hState === 'losing' ? [hOwner, ...hCoOwners].filter(Boolean) : [];
+  const aLoserOwners = isKO && aState === 'losing' ? [aOwner, ...aCoOwners].filter(Boolean) : [];
 
-  const hFilenames = [
+  const hKOFilenames = hLoserOwners
+    .filter(o => kvMap[o.name]?.filename)
+    .map(o => `${kvMap[o.name].folder}/${kvMap[o.name].filename}`);
+  const aKOFilenames = aLoserOwners
+    .filter(o => kvMap[o.name]?.filename)
+    .map(o => `${kvMap[o.name].folder}/${kvMap[o.name].filename}`);
+
+  // ── Group stage video data (existing logic) ──
+  const hHasVideoGS = hState === 'losing' ? !!(videoInfo?.filename)
+                    : hState === 'draw'   ? (videoInfo?.drinks1 != null)
+                    : false;
+  const aHasVideoGS = aState === 'losing' ? !!(videoInfo?.filename)
+                    : aState === 'draw'   ? (videoInfo?.drinks2 != null)
+                    : false;
+  const aFilenameGS = videoInfo?.filename2 || videoInfo?.filename;
+
+  const hHasVideo2GS = hState === 'losing' ? !!(videoInfo?.filename3)
+                     : hState === 'draw'   ? !!(videoInfo?.filename3)
+                     : false;
+  const aHasVideo2GS = aState === 'losing' ? !!(videoInfo?.filename3)
+                     : aState === 'draw'   ? !!(videoInfo?.filename4)
+                     : false;
+
+  const hFilenamesGS = [
     ...(videoInfo?.filename ? [videoInfo.filename] : []),
     ...(hState === 'draw' && videoInfo?.filename3 ? [videoInfo.filename3] : []),
     ...(hState === 'losing' && videoInfo?.filename3 ? [videoInfo.filename3] : []),
   ];
-  const aFilenames = aState === 'draw'
+  const aFilenamesGS = aState === 'draw'
     ? [
-        ...(aFilename ? [aFilename] : []),
+        ...(aFilenameGS ? [aFilenameGS] : []),
         ...(videoInfo?.filename4 ? [videoInfo.filename4] : []),
       ]
     : [
-        ...(aFilename ? [aFilename] : []),
+        ...(aFilenameGS ? [aFilenameGS] : []),
         ...(aState === 'losing' && videoInfo?.filename3 ? [videoInfo.filename3] : []),
       ];
 
-  // Who still needs to send a punishment video
+  // ── Unified values (KO vs group stage) ──
+  const hHasVideo  = isKO ? hKOFilenames.length > 0 : hHasVideoGS;
+  const aHasVideo  = isKO ? aKOFilenames.length > 0 : aHasVideoGS;
+  const hHasVideo2 = isKO ? false : hHasVideo2GS;
+  const aHasVideo2 = isKO ? false : aHasVideo2GS;
+  const hFilenames = isKO ? hKOFilenames : hFilenamesGS;
+  const aFilenames = isKO ? aKOFilenames : aFilenamesGS;
+
+  const hNames = [hOwner, ...hCoOwners].filter(Boolean).map(p => p.name);
+  const aNames = [aOwner, ...aCoOwners].filter(Boolean).map(p => p.name);
+  const hLabel = hNames.join(' & ') || hCode;
+  const aLabel = aNames.join(' & ') || aCode;
+
+  // ── Who still needs to upload ──
   const drinkers = (() => {
     if (!isFinished) return null;
+
+    if (isKO) {
+      const allLoserOwners = hState === 'losing' ? hLoserOwners
+                           : aState === 'losing' ? aLoserOwners
+                           : [];
+      if (allLoserOwners.length === 0) return null;
+      const missing = allLoserOwners.filter(o => !kvMap[o.name]);
+      if (missing.length === 0) return null;
+      return missing.map(o => o.name).join(' & ');
+    }
+
     if (hState === 'draw') {
       if (hHasVideo && aHasVideo) return null;
-      if (hHasVideo) return aOwner?.name ?? aCode;
-      if (aHasVideo) return hOwner?.name ?? hCode;
-      return `${hOwner?.name ?? hCode} & ${aOwner?.name ?? aCode}`;
+      if (hHasVideo) return aLabel;
+      if (aHasVideo) return hLabel;
+      return `${hLabel} & ${aLabel}`;
     }
-    if (hState === 'losing' && !hHasVideo) return hOwner?.name ?? hCode;
-    if (aState === 'losing' && !aHasVideo) return aOwner?.name ?? aCode;
+    if (hState === 'losing' && !hHasVideo) return hLabel;
+    if (aState === 'losing' && !aHasVideo) return aLabel;
     return null;
   })();
 
@@ -74,22 +117,29 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
     sideBetDrinks > 0 ? styles.sideBet : '',
   ].filter(Boolean).join(' ');
 
+  const metaLabel = isKO ? round : `Group ${hTeam.group}`;
+
   return (
     <div className={cardClass}>
       <div className={styles.cardRow}>
-      <AvatarBadge
-        participant={hOwner} teamCode={hCode} teamFlag={hTeam.flag}
-        state={hState} matchState={matchState} isFocus={isFocus}
-        hasVideo={hHasVideo} hasVideo2={hHasVideo2}
-        onVideoClick={() => onVideoOpen(hFilenames, videoTitle)}
-        drinkEmoji={videoInfo?.emoji1 || ''}
-        sideBetDrinks={sideBetDrinks}
-        sideBetEmoji={sideBetEmoji}
-      />
+      <div className={styles.ownerStack}>
+        <AvatarBadge
+          participant={hOwner} teamCode={hCode} teamFlag={hTeam.flag}
+          state={hState} matchState={matchState} isFocus={isFocus}
+          hasVideo={hHasVideo} hasVideo2={hHasVideo2}
+          onVideoClick={() => onVideoOpen(hFilenames, videoTitle)}
+          drinkEmoji={videoInfo?.emoji1 || ''}
+          sideBetDrinks={sideBetDrinks}
+          sideBetEmoji={sideBetEmoji}
+        />
+        {hCoOwners.map(p => (
+          <span key={p.name} className={styles.coOwnerChip}>{p.flag} {p.name}</span>
+        ))}
+      </div>
 
       <div className={styles.center}>
         <div className={styles.meta}>
-          <span className={styles.groupLabel}>Group {hTeam.group}</span>
+          <span className={styles.groupLabel}>{metaLabel}</span>
           {isLive && (
             <span className={styles.livePill}>
               <span className={styles.liveDot} />
@@ -127,15 +177,20 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
 
       </div>
 
-      <AvatarBadge
-        participant={aOwner} teamCode={aCode} teamFlag={aTeam.flag}
-        state={aState} matchState={matchState} isFocus={isFocus}
-        hasVideo={aHasVideo} hasVideo2={aHasVideo2}
-        onVideoClick={() => onVideoOpen(aFilenames, videoTitle)}
-        drinkEmoji={aState === 'draw' ? (videoInfo?.emoji2 || '') : (videoInfo?.emoji1 || '')}
-        sideBetDrinks={sideBetDrinks}
-        sideBetEmoji={sideBetEmoji}
-      />
+      <div className={styles.ownerStack}>
+        <AvatarBadge
+          participant={aOwner} teamCode={aCode} teamFlag={aTeam.flag}
+          state={aState} matchState={matchState} isFocus={isFocus}
+          hasVideo={aHasVideo} hasVideo2={aHasVideo2}
+          onVideoClick={() => onVideoOpen(aFilenames, videoTitle)}
+          drinkEmoji={aState === 'draw' ? (videoInfo?.emoji2 || '') : (videoInfo?.emoji1 || '')}
+          sideBetDrinks={sideBetDrinks}
+          sideBetEmoji={sideBetEmoji}
+        />
+        {aCoOwners.map(p => (
+          <span key={p.name} className={styles.coOwnerChip}>{p.flag} {p.name}</span>
+        ))}
+      </div>
       </div>
 
       {sideBetDrinks > 0 && (
@@ -148,7 +203,7 @@ export default function MatchCard({ match, videoInfo, isFocus, onVideoOpen }) {
           kickoff={kickoff}
           drinkers={drinkers}
           cardStyles={styles}
-          hospitalPass={[hOwner, aOwner].some(o => o?.name === 'Tim')}
+          hospitalPass={[hOwner, aOwner, ...hCoOwners, ...aCoOwners].some(o => o?.name === 'Tim')}
         />
       )}
     </div>

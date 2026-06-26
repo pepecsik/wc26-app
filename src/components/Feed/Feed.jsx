@@ -3,7 +3,7 @@ import styles from './Feed.module.css';
 import MatchCard from '../MatchCard/MatchCard';
 import VideoModal from '../VideoModal/VideoModal';
 
-export default function Feed({ matches, videoMap }) {
+export default function Feed({ matches, videoMap, koVideos = {} }) {
   const scrollRef = useRef(null);
   const itemRefs  = useRef({});
   const [activeId, setActiveId] = useState(null);
@@ -69,6 +69,7 @@ export default function Feed({ matches, videoMap }) {
                   <MatchCard
                     match={m}
                     videoInfo={videoMap[`${m.hCode}-${m.aCode}`]}
+                    koVideos={koVideos}
                     isFocus={isActive}
                     onVideoOpen={(filenames, title) => setVideo({ filenames, title })}
                   />

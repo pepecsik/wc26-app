@@ -4,7 +4,8 @@ import Feed from './components/Feed/Feed';
 import StatsPage from './components/StatsPage/StatsPage';
 import StandingsPage from './components/StandingsPage/StandingsPage';
 import AdminPage from './components/AdminPage/AdminPage';
-import KnockoutPage from './components/KnockoutPage/KnockoutPage';
+import KnockoutPage, { STAGES_WITH_DATA } from './components/KnockoutPage/KnockoutPage';
+import KnockoutStatsPage from './components/KnockoutStatsPage/KnockoutStatsPage';
 import DrinksTicker from './components/DrinksTicker/DrinksTicker';
 import AlarmModal from './components/AlarmModal/AlarmModal';
 import ShameBanner from './components/ShameBanner/ShameBanner';
@@ -12,11 +13,23 @@ import WallOfShame from './components/WallOfShame/WallOfShame';
 import { useMatches } from './hooks/useMatches';
 import { useSheetData } from './hooks/useSheetData';
 import { usePlayerStats } from './hooks/usePlayerStats';
+import { useTeamOwners } from './hooks/useTeamOwners';
+import { useKOVideos } from './hooks/useKOVideos';
 import styles from './App.module.css';
 
 const IS_ADMIN    = window.location.pathname.startsWith('/admin');
 const IS_KNOCKOUT = new URLSearchParams(window.location.search).has('knockout');
 const THEME_PARAM = new URLSearchParams(window.location.search).get('theme');
+
+const ALL_STAGES = [
+  { id: 'groups', label: 'Groups' },
+  { id: 'r32',    label: 'R32' },
+  { id: 'r16',    label: 'R16' },
+  { id: 'qf',     label: 'QF' },
+  { id: 'sf',     label: 'SF · Final' },
+];
+const STAGES = ALL_STAGES.filter(s => s.id === 'groups' || STAGES_WITH_DATA.includes(s.id));
+const KO_ROUNDS = new Set(['R32', 'R16', 'QF', 'SF', '3P', 'FIN']);
 
 // Apply theme variable set when ?theme=a (or other future themes)
 if (THEME_PARAM) document.documentElement.dataset.theme = THEME_PARAM;
@@ -40,18 +53,52 @@ export default function App() {
   if (IS_ADMIN)    return <AdminPage />;
   if (IS_KNOCKOUT) return <div className={styles.app}><KnockoutPage /></div>;
 
-  const [activeTab, setActiveTab]         = useState(() => localStorage.getItem('wc26-tab') || 'matches');
+  const VALID_TABS = ['matches', 'stats', 'shame'];
+  const [activeTab, setActiveTab] = useState(() => {
+    const stored = localStorage.getItem('wc26-tab');
+    return VALID_TABS.includes(stored) ? stored : 'matches';
+  });
   const [standingsOpen, setStandingsOpen] = useState(false);
+  const [matchStage, setMatchStage]       = useState('groups');
+  const [statsView,  setStatsView]        = useState('leaderboard');
+  const stageDetected = useRef(false);
 
   function handleTabChange(tab) {
     setActiveTab(tab);
     localStorage.setItem('wc26-tab', tab);
   }
-  const { matches, loading, error, lastUpdated } = useMatches();
+  const { matches: rawMatches, loading, error, lastUpdated } = useMatches();
   const { videoMap, sheetLoaded } = useSheetData();
+  const { ownerMap } = useTeamOwners();
+  const { koVideos } = useKOVideos();
+
+  // Apply dynamic KO owner overrides from the Teams tab (falls back to static participants.js)
+  // ownerMap values are arrays (multiple players can be redrawn into same team)
+  const matches = rawMatches.map(m => {
+    const hExtra = ownerMap[m.hCode] || [];
+    const aExtra = ownerMap[m.aCode] || [];
+    return {
+      ...m,
+      hOwner: m.hOwner ?? hExtra[0] ?? null,
+      aOwner: m.aOwner ?? aExtra[0] ?? null,
+      hCoOwners: hExtra.filter(p => p.name !== m.hOwner?.name),
+      aCoOwners: aExtra.filter(p => p.name !== m.aOwner?.name),
+    };
+  });
+
   const players  = usePlayerStats(matches, videoMap);
   const liveCount = matches.filter(m => m.isLive).length;
   const ago = useAgo(lastUpdated);
+
+  const groupMatches = matches.filter(m => !KO_ROUNDS.has(m.round));
+
+  // Auto-detect current stage: if all GROUP games done → R32
+  useEffect(() => {
+    if (loading || matches.length === 0 || stageDetected.current) return;
+    stageDetected.current = true;
+    const allGroupsDone = groupMatches.length > 0 && groupMatches.every(m => m.isFinished);
+    setMatchStage(allGroupsDone ? 'r32' : 'groups');
+  }, [loading, matches.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Compute alarm + overdue queues once — same video-detection logic as MatchCard
   const [alarmQueue, setAlarmQueue]   = useState(null);
@@ -84,9 +131,11 @@ export default function App() {
         const entry = { player, left: TEST_MODE ? ALARM_MS : left, deadline };
         (left <= 0 ? overdue : urgent).push(entry);
       };
-      if ((m.hState === 'losing' || m.hState === 'draw') && !hHasVideo && m.hOwner) push(m.hOwner);
-      if (m.hState === 'draw' && !aHasVideo && m.aOwner) push(m.aOwner);
-      if (m.aState === 'losing' && !aHasVideo && m.aOwner) push(m.aOwner);
+      const hAllOwners = [m.hOwner, ...(m.hCoOwners || [])].filter(Boolean);
+      const aAllOwners = [m.aOwner, ...(m.aCoOwners || [])].filter(Boolean);
+      if ((m.hState === 'losing' || m.hState === 'draw') && !hHasVideo) hAllOwners.forEach(push);
+      if (m.hState === 'draw' && !aHasVideo) aAllOwners.forEach(push);
+      if (m.aState === 'losing' && !aHasVideo) aAllOwners.forEach(push);
     });
     urgent.sort((a, b) => a.left - b.left);
     overdue.sort((a, b) => a.left - b.left);
@@ -120,12 +169,42 @@ export default function App() {
       {isShame && (
         <button className={styles.shameBack} onClick={() => handleTabChange('matches')}>✕</button>
       )}
-      <main className={isShame ? styles.mainShame : activeTab === 'matches' ? styles.main : styles.mainPadded}>
+      <main className={isShame ? styles.mainShame : (activeTab === 'matches' || activeTab === 'stats') ? styles.main : styles.mainPadded}>
         {loading && <div className={styles.status}>Loading matches…</div>}
         {error   && <div className={styles.error}>⚠️ {error}</div>}
-        {!loading && activeTab === 'matches' && <Feed matches={matches} videoMap={videoMap} />}
-        {!loading && activeTab === 'stats'   && <StatsPage players={players} />}
-        {!loading && activeTab === 'shame'   && <WallOfShame matches={matches} videoMap={videoMap} />}
+        {!loading && activeTab === 'matches' && (
+          <>
+            <div className={styles.stageTabs}>
+              {STAGES.map(s => (
+                <button
+                  key={s.id}
+                  className={`${styles.stageTab} ${matchStage === s.id ? styles.stageTabActive : ''}`}
+                  onClick={() => setMatchStage(s.id)}
+                >{s.label}</button>
+              ))}
+            </div>
+            {matchStage === 'groups'
+              ? <Feed matches={groupMatches} videoMap={videoMap} koVideos={koVideos} />
+              : <KnockoutPage stage={matchStage} />
+            }
+          </>
+        )}
+        {!loading && activeTab === 'stats' && (
+          <>
+            <div className={styles.stageTabs}>
+              <button
+                className={`${styles.stageTab} ${statsView === 'leaderboard' ? styles.stageTabActive : ''}`}
+                onClick={() => setStatsView('leaderboard')}
+              >Leaderboard</button>
+              <button
+                className={`${styles.stageTab} ${statsView === 'draw' ? styles.stageTabActive : ''}`}
+                onClick={() => setStatsView('draw')}
+              >Draw Board</button>
+            </div>
+            <KnockoutStatsPage realPlayers={players} view={statsView} />
+          </>
+        )}
+        {!loading && activeTab === 'shame' && <WallOfShame matches={matches} videoMap={videoMap} />}
         {activeTab === 'matches' && ago && (
           <div className={styles.updatedPill}>{ago}</div>
         )}

@@ -462,3 +462,152 @@
 .sideBetInput::placeholder {
   color: rgba(255,255,255,0.25);
 }
+
+/* ── Round selector ── */
+.roundSelector {
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.roundSelector::-webkit-scrollbar { display: none; }
+
+.roundPill {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.35);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 12px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: all 0.15s;
+}
+
+.roundPillActive {
+  background: rgba(var(--accent-rgb),0.15);
+  border-color: rgba(var(--accent-rgb),0.4);
+  color: var(--accent);
+}
+
+/* ── Redraw panel ── */
+.reDrawList {
+  padding: 8px 14px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reDrawHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 4px;
+}
+
+.reDrawCol { flex: 1; }
+.reDrawColRight { text-align: right; }
+
+.reDrawRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.reDrawPlayer {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reDrawName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reDrawOG {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  white-space: nowrap;
+}
+
+.reDrawSlots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.teamInput {
+  width: 42px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 7px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 6px 4px;
+  outline: none;
+  letter-spacing: 0.5px;
+}
+
+.teamInput::placeholder { color: rgba(255,255,255,0.2); }
+.teamInput:focus { border-color: rgba(var(--accent-rgb),0.5); }
+
+.saveRowBtn {
+  background: rgba(var(--accent-rgb),0.12);
+  border: 1px solid rgba(var(--accent-rgb),0.3);
+  border-radius: 7px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.saveRowBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.saveRowDone {
+  background: rgba(var(--accent-rgb),0.2);
+  color: var(--accent);
+}
+
+.notPublished {
+  margin: 24px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 20px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notPublished strong {
+  color: rgba(255,255,255,0.75);
+}

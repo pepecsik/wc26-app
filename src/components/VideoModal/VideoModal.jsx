@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styles from './VideoModal.module.css';
 
-const B2_BASE = 'https://f005.backblazeb2.com/file/wc26-videos/01_GROUP_STAGE';
+const B2_BASE = 'https://f005.backblazeb2.com/file/wc26-videos';
 
 export default function VideoModal({ filenames, title, onClose, startIdx = 0 }) {
   const list = Array.isArray(filenames) ? filenames : [filenames];
@@ -17,7 +17,12 @@ export default function VideoModal({ filenames, title, onClose, startIdx = 0 }) 
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose, idx, list.length]);
 
-  const videoUrl = `${B2_BASE}/${encodeURIComponent(list[idx])}.mp4`;
+  // Filename is either "basename" (group stage → add 01_GROUP_STAGE/) or "folder/basename" (KO)
+  const raw = list[idx];
+  const slashIdx = raw.indexOf('/');
+  const folder = slashIdx !== -1 ? raw.slice(0, slashIdx) : '01_GROUP_STAGE';
+  const name   = slashIdx !== -1 ? raw.slice(slashIdx + 1) : raw;
+  const videoUrl = `${B2_BASE}/${folder}/${encodeURIComponent(name)}.mp4`;
 
   return (
     <div className={styles.overlay}>

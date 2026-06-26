@@ -159,21 +159,27 @@ const R32_SLOTS = [
   })),
 ];
 
+// Add stages here as real match data becomes available
+export const STAGES_WITH_DATA = ['r32'];
+
 const TABS = [
   { id: 'gs',    label: 'Groups' },
   { id: 'r32',   label: 'R32' },
   { id: 'r16',   label: 'R16' },
   { id: 'qf',    label: 'QF' },
-  { id: 'sf',    label: 'SF' },
-  { id: 'final', label: 'Final' },
+  { id: 'sf',    label: 'SF · Final' },
 ];
 
-export default function KnockoutPage() {
+export default function KnockoutPage({ stage: stageProp }) {
   const scrollRef = useRef(null);
   const itemRefs  = useRef({});
   const [activeId, setActiveId] = useState(null);
   const [video, setVideo] = useState(null);
-  const [tab, setTab] = useState('r32');
+  const [tab, setTab] = useState(stageProp ?? 'r32');
+  const controlled = !!stageProp;
+
+  // Sync if parent changes the stage
+  useEffect(() => { if (stageProp) setTab(stageProp); }, [stageProp]);
 
   const liveMatches    = R32_SLOTS.filter(m => m.isLive);
   const recentFinished = R32_SLOTS.filter(m => m.isFinished);
@@ -220,19 +226,22 @@ export default function KnockoutPage() {
 
   return (
     <>
-      <div className={styles.header}>
-        <span className={styles.badge}>PREVIEW</span>
-      </div>
-
-      <div className={styles.tabBar}>
-        {TABS.map(t => (
-          <button
-            key={t.id}
-            className={`${styles.tab} ${tab === t.id ? styles.tabActive : ''}`}
-            onClick={() => t.id === 'gs' ? (window.location.href = '/') : setTab(t.id)}
-          >{t.label}</button>
-        ))}
-      </div>
+      {!controlled && (
+        <>
+          <div className={styles.header}>
+            <span className={styles.badge}>PREVIEW</span>
+          </div>
+          <div className={styles.tabBar}>
+            {TABS.map(t => (
+              <button
+                key={t.id}
+                className={`${styles.tab} ${tab === t.id ? styles.tabActive : ''}`}
+                onClick={() => t.id === 'gs' ? (window.location.href = '/') : setTab(t.id)}
+              >{t.label}</button>
+            ))}
+          </div>
+        </>
+      )}
 
       {tabContent ?? (
       <div className={styles.slotContainer} ref={scrollRef}>
