@@ -4,7 +4,7 @@ import Feed from './components/Feed/Feed';
 import StatsPage from './components/StatsPage/StatsPage';
 import StandingsPage from './components/StandingsPage/StandingsPage';
 import AdminPage from './components/AdminPage/AdminPage';
-import KnockoutPage, { STAGES_WITH_DATA } from './components/KnockoutPage/KnockoutPage';
+import KnockoutPage from './components/KnockoutPage/KnockoutPage';
 import KnockoutStatsPage from './components/KnockoutStatsPage/KnockoutStatsPage';
 import DrinksTicker from './components/DrinksTicker/DrinksTicker';
 import AlarmModal from './components/AlarmModal/AlarmModal';
@@ -28,8 +28,8 @@ const ALL_STAGES = [
   { id: 'qf',     label: 'QF' },
   { id: 'sf',     label: 'SF · Final' },
 ];
-const STAGES = ALL_STAGES.filter(s => s.id === 'groups' || STAGES_WITH_DATA.includes(s.id));
-const KO_ROUNDS = new Set(['R32', 'R16', 'QF', 'SF', '3P', 'FIN']);
+const KO_ROUNDS    = new Set(['R32', 'R16', 'QF', 'SF', '3P', 'FIN']);
+const TAB_FOR_ROUND = { R32: 'r32', R16: 'r16', QF: 'qf', SF: 'sf', FIN: 'sf', '3P': 'sf' };
 
 // Apply theme variable set when ?theme=a (or other future themes)
 if (THEME_PARAM) document.documentElement.dataset.theme = THEME_PARAM;
@@ -91,6 +91,8 @@ export default function App() {
   const ago = useAgo(lastUpdated);
 
   const groupMatches = matches.filter(m => !KO_ROUNDS.has(m.round));
+  const koTabsPresent = new Set(matches.map(m => TAB_FOR_ROUND[m.round]).filter(Boolean));
+  const stages = ALL_STAGES.filter(s => s.id === 'groups' || koTabsPresent.has(s.id));
 
   // Auto-detect current stage: if all GROUP games done → R32
   useEffect(() => {
@@ -175,7 +177,7 @@ export default function App() {
         {!loading && activeTab === 'matches' && (
           <>
             <div className={styles.stageTabs}>
-              {STAGES.map(s => (
+              {stages.map(s => (
                 <button
                   key={s.id}
                   className={`${styles.stageTab} ${matchStage === s.id ? styles.stageTabActive : ''}`}
@@ -185,7 +187,7 @@ export default function App() {
             </div>
             {matchStage === 'groups'
               ? <Feed matches={groupMatches} videoMap={videoMap} koVideos={koVideos} />
-              : <KnockoutPage stage={matchStage} />
+              : <KnockoutPage stage={matchStage} matches={matches} koVideos={koVideos} />
             }
           </>
         )}
