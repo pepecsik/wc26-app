@@ -203,7 +203,10 @@ export default function App() {
                 onClick={() => setStatsView('draw')}
               >Draw Board</button>
             </div>
-            <KnockoutStatsPage realPlayers={players} view={statsView} matches={matches} koVideos={koVideos} ownerMap={ownerMap} />
+            {statsView === 'leaderboard'
+              ? <StatsPage players={players} />
+              : <KnockoutStatsPage matches={matches} koVideos={koVideos} ownerMap={ownerMap} />
+            }
           </>
         )}
         {!loading && activeTab === 'shame' && <WallOfShame matches={matches} videoMap={videoMap} />}
