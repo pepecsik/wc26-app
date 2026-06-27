@@ -19,16 +19,17 @@ export default function VideoCountdown({ kickoff, drinkers, cardStyles, hospital
 
   const s = cardStyles;
 
+  if (hospitalPass) {
+    return (
+      <div className={`${s.countdown} ${s.countdownOverdue}`}>
+        <span className={s.alarmLabel}>🏥 HOSPITAL EXTENSION</span>
+        <span className={s.alarmName}>Timbo checked himself into the hospital.</span>
+        <span className={s.alarmSub}>We granted him extra time. We're still waiting though.</span>
+      </div>
+    );
+  }
+
   if (remaining <= 0) {
-    if (hospitalPass) {
-      return (
-        <div className={`${s.countdown} ${s.countdownOverdue}`}>
-          <span className={s.alarmLabel}>🏥 OVERDUE — HOSPITAL EXTENSION</span>
-          <span className={s.alarmName}>Timbo checked himself into the hospital.</span>
-          <span className={s.alarmSub}>We granted him extra time. We're still waiting though.</span>
-        </div>
-      );
-    }
     const names = drinkers.split(' & ');
     const bitch = names.length === 1 ? 'BITCH' : 'BITCHES';
     const nameStr = names.length === 1 ? names[0] : names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
@@ -47,15 +48,6 @@ export default function VideoCountdown({ kickoff, drinkers, cardStyles, hospital
 
   if (isAlarm) {
     const timeStr = h > 0 ? `${h}h ${m}m ${sec}s` : `${m}m ${sec}s`;
-    if (hospitalPass) {
-      return (
-        <div className={`${s.countdown} ${s.countdownAlarm}`}>
-          <span className={s.alarmLabel}>🏥 {timeStr}</span>
-          <span className={s.alarmName}>Timbo checked himself into the hospital.</span>
-          <span className={s.alarmSub}>We're still waiting though...</span>
-        </div>
-      );
-    }
     return (
       <div className={`${s.countdown} ${s.countdownAlarm}`}>
         <span className={s.alarmLabel}>🚨 {timeStr}</span>
@@ -65,13 +57,6 @@ export default function VideoCountdown({ kickoff, drinkers, cardStyles, hospital
   }
 
   const timeStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
-  if (hospitalPass) {
-    return (
-      <div className={s.countdown}>
-        🏥 {drinkers} — Hospital Extension · still waiting
-      </div>
-    );
-  }
   return (
     <div className={s.countdown}>
       🎬 {drinkers} • {timeStr} left to send a video
