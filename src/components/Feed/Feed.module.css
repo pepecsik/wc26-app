@@ -3,7 +3,7 @@
   min-height: 0;
   overflow-y: scroll;
   scrollbar-width: none;
-  padding: 35vh 14px 55vh;
+  padding: 35vh 14px 70vh;
 }
 .slotContainer::-webkit-scrollbar { display: none; }
 
