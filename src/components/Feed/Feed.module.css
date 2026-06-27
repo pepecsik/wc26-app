@@ -2,15 +2,12 @@
   flex: 1;
   min-height: 0;
   overflow-y: scroll;
-  scroll-snap-type: y mandatory;
   scrollbar-width: none;
-  padding: 30vh 14px 50vh;
+  padding: 35vh 14px 55vh;
 }
 .slotContainer::-webkit-scrollbar { display: none; }
 
 .slotItem {
-  scroll-snap-align: center;
-  scroll-snap-stop: always;
   transition: transform 0.3s ease, opacity 0.3s ease;
   transform-origin: center;
   margin: 8px 0;
