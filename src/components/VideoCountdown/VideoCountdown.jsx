@@ -68,9 +68,7 @@ export default function VideoCountdown({ kickoff, drinkers, cardStyles, hospital
   if (hospitalPass) {
     return (
       <div className={s.countdown}>
-        <span className={s.alarmLabel}>🏥 HOSPITAL EXTENSION</span>
-        <span className={s.alarmName}>Timbo checked himself into the hospital.</span>
-        <span className={s.alarmSub}>We're still waiting though...</span>
+        🏥 {drinkers} — Hospital Extension · still waiting
       </div>
     );
   }
