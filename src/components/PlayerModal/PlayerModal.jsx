@@ -3,11 +3,16 @@ import styles from './PlayerModal.module.css';
 import { TEAM_MAP } from '../../data/teamMap';
 import VideoModal from '../VideoModal/VideoModal';
 
+function emojiForDrinks(emoji, drinks) {
+  const cnt = Math.max(1, Math.floor(drinks || 1));
+  return [...emoji].length >= cnt ? emoji : emoji.repeat(cnt);
+}
+
 function formatDate(date) {
   return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
-export default function PlayerModal({ player, onClose }) {
+export default function PlayerModal({ player, onClose, ownerMap = {}, aliveCodes = new Set() }) {
   const [playVideo, setPlayVideo] = useState(null);
 
   useEffect(() => {
@@ -45,18 +50,29 @@ export default function PlayerModal({ player, onClose }) {
 
         {/* Teams */}
         <div className={styles.teams}>
-          {player.teams.map(code => {
+          {(player.teams || []).map(code => {
             const t = TEAM_MAP[code] ?? { flag: '🏳️', full: code };
-            const isPast    = player.activeTeamCode && code !== player.activeTeamCode;
-            const isCurrent = player.activeTeamCode && code === player.activeTeamCode;
+            const dimmed = aliveCodes.size > 0 && !aliveCodes.has(code);
             return (
-              <div key={code} className={`${styles.teamChip} ${isPast ? styles.teamChipPast : ''}`}>
+              <div key={code} className={`${styles.teamChip} ${dimmed ? styles.teamChipPast : ''}`}>
                 <span className={styles.teamFlag}>{t.flag}</span>
                 <span className={styles.teamName}>{t.full}</span>
-                {isCurrent && <span className={styles.teamChipDot} />}
+                <span className={styles.teamChipOG}>OG</span>
               </div>
             );
           })}
+          {Object.entries(ownerMap)
+            .filter(([, owners]) => owners.some(o => o.name === player.name))
+            .map(([code]) => {
+              const t = TEAM_MAP[code] ?? { flag: '🏳️', full: code };
+              const dimmed = aliveCodes.size > 0 && !aliveCodes.has(code);
+              return (
+                <div key={code} className={`${styles.teamChip} ${dimmed ? styles.teamChipPast : ''}`}>
+                  <span className={styles.teamFlag}>{t.flag}</span>
+                  <span className={styles.teamName}>{t.full}</span>
+                </div>
+              );
+            })}
         </div>
 
         {/* Note */}
@@ -121,7 +137,7 @@ export default function PlayerModal({ player, onClose }) {
                     className={styles.videoBtn}
                     onClick={() => m.myVideo && setPlayVideo({ filenames: [m.myVideo], title: `${my.flag} vs ${opp.flag}` })}
                   >
-                    ▶ <span className={styles.videoBtnEmoji}>{m.myEmoji || '🍺'}{m.myDrinkCount % 1 === 0.5 ? ' +½' : ''}</span>
+                    ▶ <span className={styles.videoBtnEmoji}>{emojiForDrinks(m.myEmoji || '🍺', m.myDrinkCount)}{m.myDrinkCount % 1 === 0.5 ? ' +½' : ''}</span>
                   </button>
                   {m.myVideo2 && (
                     <button
@@ -154,7 +170,7 @@ export default function PlayerModal({ player, onClose }) {
                   >
                     <video className={styles.videoThumb} src={m.videoUrl} preload="metadata" muted playsInline />
                     <div className={styles.videoOverlay}>
-                      <span className={styles.videoEmoji}>{m.myEmoji || '🍺'}{m.myDrinkCount % 1 === 0.5 ? ' +½' : ''}</span>
+                      <span className={styles.videoEmoji}>{emojiForDrinks(m.myEmoji || '🍺', m.myDrinkCount)}{m.myDrinkCount % 1 === 0.5 ? ' +½' : ''}</span>
                       <span className={styles.videoPlay}>▶</span>
                       <span className={styles.videoLabel}>{label}</span>
                     </div>

@@ -27,13 +27,22 @@ export default function KnockoutMatchCard({ match, isFocus, onVideoOpen }) {
 
   // All uploaded videos from this match (h side first), in order — for left/right browsing
   const allMatchVideos = [
-    ...hPlayers.filter(p => p.videoFilename).map(p => p.videoFilename),
-    ...aPlayers.filter(p => p.videoFilename).map(p => p.videoFilename),
+    ...hPlayers.filter(p => p.videoFilename).flatMap(p => [p.videoFilename, p.videoFilename2].filter(Boolean)),
+    ...aPlayers.filter(p => p.videoFilename).flatMap(p => [p.videoFilename, p.videoFilename2].filter(Boolean)),
   ];
 
+  function emojiForDrinks(emoji, drinks) {
+    const cnt = Math.max(1, Math.floor(drinks || 1));
+    const arr = [...emoji];
+    if (arr.length >= cnt) return emoji;
+    const pad = arr[arr.length - 1] || '🍺';
+    while (arr.length < cnt) arr.push(pad);
+    return arr.join('');
+  }
+
   // Drink emoji banner
-  const hEmojis = hPlayers.filter(p => p.videoFilename && p.drinkEmoji).map(p => p.drinkEmoji).join('');
-  const aEmojis = aPlayers.filter(p => p.videoFilename && p.drinkEmoji).map(p => p.drinkEmoji).join('');
+  const hEmojis = hPlayers.filter(p => p.videoFilename && p.drinkEmoji).map(p => emojiForDrinks(p.drinkEmoji, p.drinks)).join('');
+  const aEmojis = aPlayers.filter(p => p.videoFilename && p.drinkEmoji).map(p => emojiForDrinks(p.drinkEmoji, p.drinks)).join('');
   const hasEmojis = hEmojis || aEmojis;
 
   // Upload + drink counter per side (loser/draw only)
@@ -46,11 +55,9 @@ export default function KnockoutMatchCard({ match, isFocus, onVideoOpen }) {
 
   const hDrinkTotal = hIsLoser
     ? hPlayers.reduce((sum, p) => sum + (p.videoFilename && p.drinks ? p.drinks : 0), 0)
-      + (sideBetDrinks > 0 && hUploaded > 0 ? sideBetDrinks * hUploaded : 0)
     : 0;
   const aDrinkTotal = aIsLoser
     ? aPlayers.reduce((sum, p) => sum + (p.videoFilename && p.drinks ? p.drinks : 0), 0)
-      + (sideBetDrinks > 0 && aUploaded > 0 ? sideBetDrinks * aUploaded : 0)
     : 0;
 
   const hCounter = isFinished && hIsLoser ? { uploaded: hUploaded, total: hTotal, drinkTotal: hDrinkTotal } : null;

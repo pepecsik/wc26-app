@@ -35,21 +35,42 @@ function parse(csv) {
   if (lines.length < 2) return {};
   const headers = parseCsvLine(lines[0]).map(h => h.replace(/^"|"$/g, '').trim());
   const map = {};
+  const extras = {};
   lines.slice(1).forEach(line => {
     const cols = parseCsvLine(line);
     const row  = Object.fromEntries(headers.map((h, i) => [h, (cols[i] ?? '').trim()]));
     const matchKey = row['Match'] || '';
     const owner    = row['Owner'] || '';
     if (!matchKey || !owner) return;
-    if (!map[matchKey]) map[matchKey] = {};
-    const round = row['Round'] || '';
-    map[matchKey][owner] = {
-      filename: row['Filename'] || '',
-      round,
-      folder:   ROUND_FOLDER[round] || '02_R32',
-      drinks:   row['Drinks'] !== '' ? Number(row['Drinks']) : null,
-      emoji:    row['Emoji'] || '',
-    };
+    if (owner.endsWith('_2')) {
+      const base = owner.slice(0, -2);
+      if (!extras[matchKey]) extras[matchKey] = {};
+      extras[matchKey][base] = {
+        filename: row['Filename'] || '',
+        emoji:    row['Emoji'] || '',
+        drinks:   row['Drinks'] !== '' ? Number(row['Drinks']) : null,
+      };
+    } else {
+      if (!map[matchKey]) map[matchKey] = {};
+      const round = row['Round'] || '';
+      map[matchKey][owner] = {
+        filename: row['Filename'] || '',
+        round,
+        folder:   ROUND_FOLDER[round] || '02_R32',
+        drinks:   row['Drinks'] !== '' ? Number(row['Drinks']) : null,
+        emoji:    row['Emoji'] || '',
+      };
+    }
+  });
+  Object.entries(extras).forEach(([matchKey, ownerExtras]) => {
+    if (!map[matchKey]) return;
+    Object.entries(ownerExtras).forEach(([base, extra]) => {
+      if (map[matchKey][base]) {
+        map[matchKey][base].filename2 = extra.filename;
+        map[matchKey][base].emoji2    = extra.emoji;
+        map[matchKey][base].drinks2   = extra.drinks;
+      }
+    });
   });
   return map;
 }

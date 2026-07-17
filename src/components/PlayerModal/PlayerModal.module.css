@@ -124,6 +124,28 @@
 
 .teamChipPast { opacity: 0.35; }
 
+.teamChipOG {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  border-radius: 3px;
+  padding: 1px 4px;
+  flex-shrink: 0;
+}
+
+.teamChipRedraw {
+  opacity: 0.4;
+  border-style: dashed;
+}
+
+.teamChipLabel {
+  font-size: 10px;
+  color: rgba(255,255,255,0.45);
+  font-weight: 700;
+}
+
 .teamChipDot {
   width: 6px;
   height: 6px;

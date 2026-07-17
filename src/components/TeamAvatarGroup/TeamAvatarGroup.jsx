@@ -46,6 +46,7 @@ export default function TeamAvatarGroup({ players = [], state = 'neutral', isLiv
   const size = count <= 1 ? 'L' : count <= 4 ? 'M' : count <= 9 ? 'S' : 'XS';
   const isShaking = isLive && state === 'losing';
   const isLoserSide = state === 'losing' || state === 'draw';
+  const isWinner = !isLive && state === 'winning';
   const allDone = isLoserSide && count > 0 && players.every(p => !!p.videoFilename);
 
   if (count === 0) {
@@ -58,6 +59,7 @@ export default function TeamAvatarGroup({ players = [], state = 'neutral', isLiv
 
   return (
     <div className={`${styles.groupWrap} ${isShaking ? styles.shake : ''} ${allDone ? styles.allDone : ''}`}>
+      {isWinner && <span className={styles.crown}>👑</span>}
       <div className={styles.group} style={{ '--cols': cols }}>
         {players.map((p, i) => {
           const startIdx = allMatchVideos.indexOf(p.videoFilename);
@@ -65,7 +67,7 @@ export default function TeamAvatarGroup({ players = [], state = 'neutral', isLiv
             <MiniAvatar
               key={p.name}
               player={p}
-              isOriginal={i === 0}
+              isOriginal={i === 0 && count > 1}
               state={state}
               size={size}
               onVideoClick={() => onVideoOpen?.(allMatchVideos, p.name, startIdx >= 0 ? startIdx : 0)}
@@ -79,9 +81,6 @@ export default function TeamAvatarGroup({ players = [], state = 'neutral', isLiv
       {counter && (
         <div className={styles.counter}>
           <span className={styles.counterVideos}>{counter.uploaded}/{counter.total} ✓</span>
-          {counter.drinkTotal > 0 && (
-            <span className={styles.counterDrinks}>🍺 {counter.drinkTotal}</span>
-          )}
         </div>
       )}
     </div>

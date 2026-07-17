@@ -159,13 +159,42 @@
 }
 
 .standingsTitle {
-  padding: 18px 16px 4px;
+  padding: 18px 16px 10px;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: rgba(255,255,255,0.35);
   text-align: center;
+}
+
+.standingsTabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 12px 10px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+  margin: 0 12px 8px;
+  padding: 3px;
+}
+
+.standingsTabBtn {
+  flex: 1;
+  padding: 7px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.standingsTabActive {
+  background: var(--accent);
+  color: #fff;
 }
 
 .updatedPill {
@@ -193,6 +222,7 @@
 /* ── Stage sub-tabs (under Matches) ── */
 .stageTabs {
   display: flex;
+  justify-content: center;
   gap: 6px;
   padding: 10px 12px 8px;
   overflow-x: auto;

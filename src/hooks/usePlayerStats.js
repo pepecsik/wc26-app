@@ -39,14 +39,16 @@ export function usePlayerStats(matches, videoMap) {
               if (uploaded) {
                 myVideo = isHome ? video.filename : video.filename2;
                 myVideo2 = isHome ? (video.filename3 || null) : (video.filename4 || null);
-                myDrinkCount = isHome ? (video.drinks1 ?? 1) : (video.drinks2 ?? 1);
+                myDrinkCount = isHome
+                  ? (video.drinks1 ?? 1) + (video.drinks3 || 0)
+                  : (video.drinks2 ?? 1) + (video.drinks4 || 0);
               }
             } else {
               myVideo = video.filename;
               myVideo2 = video.filename3 || null;
               myDrinkCount = isHome
-                ? (video.drinks1 ?? 1)
-                : (video.drinks2 ?? video.drinks1 ?? 1);
+                ? (video.drinks1 ?? 1) + (video.drinks3 || 0)
+                : (video.drinks2 ?? video.drinks1 ?? 1) + (video.drinks3 || 0);
             }
             if (myState === 'draw') {
               myEmoji  = isHome ? (video.emoji1 || '') : (video.emoji2 || '');

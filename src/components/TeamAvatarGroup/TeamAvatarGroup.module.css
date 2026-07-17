@@ -58,6 +58,17 @@
   height: 80px;
 }
 
+.crown {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .shake { animation: shake 0.5s ease-in-out infinite; }
 
 @keyframes shake {
@@ -79,8 +90,8 @@
   min-width: 0;
 }
 
-/* Original owner: gold border */
-.avatar.original { border-color: rgba(255,215,0,0.55); border-width: 2px; }
+/* Original owner: green border (consistent with alive flags in leaderboard) */
+.avatar.original { border-color: rgba(var(--accent-rgb), 0.7); border-width: 2px; }
 
 .avatar.loser  { border-color: #ff3b3b !important; box-shadow: 0 0 6px rgba(255,59,59,0.35); }
 .avatar.winner { border-color: rgba(255,215,0,0.55); box-shadow: 0 0 6px rgba(255,215,0,0.25); }

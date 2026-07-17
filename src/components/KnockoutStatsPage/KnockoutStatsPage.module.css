@@ -265,12 +265,47 @@ thead tr {
 .rankUp    { color: var(--accent); }
 .rankDown  { color: #ff3b3b; }
 
-/* ── Draw Board — Standings-style 2-col grid ── */
+/* ── Draw Board ── */
+.drawBoardWrap {
+  padding: 0 0 32px;
+}
+
+.drawSectionHeader {
+  padding: 14px 14px 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.drawSectionDivider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 14px 12px;
+}
+
+.drawSectionLine {
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+}
+
+.drawSectionLabel {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  white-space: nowrap;
+}
+
 .drawBoard {
-  padding: 12px 12px 32px;
+  padding: 0 12px 4px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
   align-items: start;
 }
 
@@ -279,6 +314,14 @@ thead tr {
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   overflow: hidden;
+}
+
+.drawTeamCardAlive {
+  border-color: rgba(255,255,255,0.1);
+}
+
+.drawTeamCardDimmed {
+  opacity: 0.45;
 }
 
 .drawHeader {

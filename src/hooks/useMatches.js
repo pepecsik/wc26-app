@@ -90,7 +90,17 @@ function rowToMatch(row, index) {
   if (hasScore) {
     if (scoreHome > scoreAway)      { hState = 'winning'; aState = 'losing'; }
     else if (scoreAway > scoreHome) { aState = 'winning'; hState = 'losing'; }
-    else                            { hState = 'draw';    aState = 'draw';   }
+    else {
+      const round    = row['Round'] || '';
+      const koWinner = row['KO Winner'] || '';
+      const isKO     = ['R32','R16','QF','SF','3P','FIN'].includes(round);
+      if (isKO && koWinner) {
+        hState = koWinner === hCode ? 'winning' : 'losing';
+        aState = koWinner === aCode ? 'winning' : 'losing';
+      } else {
+        hState = 'draw'; aState = 'draw';
+      }
+    }
   }
 
   const sideBetDrinks = row['Side Bet Drinks'] !== '' ? Number(String(row['Side Bet Drinks']).replace(',', '.')) : 0;

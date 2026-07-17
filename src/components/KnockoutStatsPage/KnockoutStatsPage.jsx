@@ -4,103 +4,112 @@ import { TEAM_MAP } from '../../data/teamMap';
 
 const KO_SET = new Set(['R32', 'R16', 'QF', 'SF', '3P', 'FIN']);
 
-function buildDrawData(matches, ownerMap) {
-  const koFinished = matches.filter(m => KO_SET.has(m.round) && m.isFinished);
-
-  // Teams eliminated in a KO match
-  const eliminated = {};
-  koFinished.forEach(m => {
-    if (m.hState === 'losing') eliminated[m.hCode] = true;
-    if (m.aState === 'losing') eliminated[m.aCode] = true;
-  });
-
-  const isAlive = code => code && !eliminated[code];
-
-  return PARTICIPANTS.map(p => {
-    const origCodes    = p.teams || [];
-    const redrawnCodes = Object.entries(ownerMap)
-      .filter(([, owners]) => owners.some(o => o.name === p.name))
-      .map(([code]) => code);
-
-    const allTeams = [
-      ...origCodes.map(c => ({ code: c, type: 'o' })),
-      ...redrawnCodes.map(c => ({ code: c, type: 'r' })),
-    ];
-
-    const aliveTeams = allTeams.filter(t => isAlive(t.code));
-    const activeTeam = aliveTeams[0] || allTeams[allTeams.length - 1] || { code: null, type: 'o' };
-
-    return {
-      ...p,
-      history:         allTeams,
-      activeTeam,
-      activeTeamCode:  activeTeam.code,
-      isAlive:         aliveTeams.length > 0,
-      isRedrawn:       redrawnCodes.length > 0,
-    };
-  });
-}
-
-function DrawBoard({ players }) {
-  const alive      = players.filter(p => p.isAlive);
-  const teamCodes  = [...new Set(alive.map(p => p.activeTeam?.code).filter(Boolean))];
-
-  if (teamCodes.length === 0) {
-    return <div className={styles.comingSoon}>Redraws not yet finalised</div>;
-  }
-
-  const byTeam = {};
-  teamCodes.forEach(code => {
-    byTeam[code] = alive
-      .filter(p => p.activeTeam?.code === code)
-      .sort((a, b) => (a.activeTeam.type === 'o') === (b.activeTeam.type === 'o') ? 0 : a.activeTeam.type === 'o' ? -1 : 1);
-  });
-  const sortedCodes = [...teamCodes].sort((a, b) => byTeam[b].length - byTeam[a].length);
+function TeamCard({ code, dimmed, ownerMap }) {
+  const team = TEAM_MAP[code];
+  const ogOwners = PARTICIPANTS.filter(p => p.teams.includes(code));
+  const redrawnOwners = (ownerMap[code] || []).filter(
+    o => !ogOwners.some(p => p.name === o.name)
+  );
 
   return (
-    <div className={styles.drawBoard}>
-      {sortedCodes.map(code => {
-        const team        = TEAM_MAP[code];
-        const teamPlayers = byTeam[code];
-        return (
-          <div key={code} className={styles.drawTeamCard}>
-            <div className={styles.drawHeader}>
-              <span className={styles.drawFlag}>{team?.flag}</span>
-              <span className={styles.drawTeamName}>{team?.full ?? code}</span>
-              <span className={styles.drawCount}>{teamPlayers.length} {teamPlayers.length === 1 ? 'player' : 'players'}</span>
-            </div>
-            <div className={styles.drawPlayers}>
-              {teamPlayers.map(p => {
-                const isOG      = p.activeTeam.type === 'o';
-                const teamIdx   = p.history.findIndex(t => t.code === p.activeTeam.code);
-                const drawnFrom = !isOG && teamIdx > 0 ? p.history[teamIdx - 1]?.out : null;
-                return (
-                  <div key={p.name} className={`${styles.drawPlayer} ${isOG ? styles.drawPlayerOG : ''}`}>
-                    {p.photo
-                      ? <img src={p.photo} alt={p.name} className={styles.drawAvatar} />
-                      : <div className={styles.drawAvatarInit} style={{ background: p.color }}>{p.initials}</div>
-                    }
-                    <span className={styles.drawName}>{p.name}</span>
-                    {isOG
-                      ? <span className={styles.drawOGBadge}>OG</span>
-                      : drawnFrom && <span className={styles.drawSince}>since {drawnFrom}</span>
-                    }
-                  </div>
-                );
-              })}
-            </div>
+    <div className={`${styles.drawTeamCard} ${dimmed ? styles.drawTeamCardDimmed : styles.drawTeamCardAlive}`}>
+      <div className={styles.drawHeader}>
+        <span className={styles.drawFlag}>{team?.flag ?? '🏳️'}</span>
+        <span className={styles.drawTeamName}>{team?.full ?? code}</span>
+        {redrawnOwners.length > 0 && (
+          <span className={styles.drawCount}>+{redrawnOwners.length}</span>
+        )}
+      </div>
+      <div className={styles.drawPlayers}>
+        {ogOwners.map(p => (
+          <div key={p.name} className={`${styles.drawPlayer} ${styles.drawPlayerOG}`}>
+            {p.photo
+              ? <img src={p.photo} alt={p.name} className={styles.drawAvatar} />
+              : <div className={styles.drawAvatarInit} style={{ background: p.color }}>{p.initials}</div>
+            }
+            <span className={styles.drawName}>{p.name}</span>
+            <span className={styles.drawOGBadge}>OG</span>
           </div>
-        );
-      })}
+        ))}
+        {redrawnOwners.map(o => (
+          <div key={o.name} className={styles.drawPlayer}>
+            {o.photo
+              ? <img src={o.photo} alt={o.name} className={styles.drawAvatar} />
+              : <div className={styles.drawAvatarInit} style={{ background: o.color }}>{o.initials}</div>
+            }
+            <span className={styles.drawName}>{o.name}</span>
+            <span className={styles.drawSince}>↩ redraw</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DrawBoard({ matches, ownerMap }) {
+  const koMatches = matches.filter(m => KO_SET.has(m.round));
+  const koTeamCodes = new Set(koMatches.flatMap(m => [m.hCode, m.aCode]).filter(Boolean));
+  const eliminatedInKO = new Set();
+  koMatches.filter(m => m.isFinished).forEach(m => {
+    if (m.hState === 'losing') eliminatedInKO.add(m.hCode);
+    if (m.aState === 'losing') eliminatedInKO.add(m.aCode);
+  });
+  const aliveCodes = new Set([...koTeamCodes].filter(c => !eliminatedInKO.has(c)));
+  const hasKO = koTeamCodes.size > 0;
+
+  const allCodes = Object.keys(TEAM_MAP);
+
+  function ownerCount(code) {
+    const og = PARTICIPANTS.filter(p => p.teams.includes(code)).length;
+    const extra = (ownerMap[code] || []).filter(
+      o => !PARTICIPANTS.some(p => p.teams.includes(code) && p.name === o.name)
+    ).length;
+    return og + extra;
+  }
+
+  const sortCodes = codes => [...codes].sort((a, b) => {
+    const diff = ownerCount(b) - ownerCount(a);
+    return diff !== 0 ? diff : (TEAM_MAP[a]?.full || a).localeCompare(TEAM_MAP[b]?.full || b);
+  });
+
+  const aliveSectionCodes     = sortCodes(hasKO ? allCodes.filter(c => aliveCodes.has(c)) : allCodes);
+  const eliminatedSectionCodes = hasKO ? sortCodes(allCodes.filter(c => !aliveCodes.has(c))) : [];
+
+  return (
+    <div className={styles.drawBoardWrap}>
+      {hasKO && (
+        <div className={styles.drawSectionHeader}>
+          Still in the tournament · {aliveCodes.size} teams
+        </div>
+      )}
+      <div className={styles.drawBoard}>
+        {aliveSectionCodes.map(code => (
+          <TeamCard key={code} code={code} dimmed={false} ownerMap={ownerMap} />
+        ))}
+      </div>
+
+      {eliminatedSectionCodes.length > 0 && (
+        <>
+          <div className={styles.drawSectionDivider}>
+            <div className={styles.drawSectionLine} />
+            <span className={styles.drawSectionLabel}>Knocked Out</span>
+            <div className={styles.drawSectionLine} />
+          </div>
+          <div className={styles.drawBoard}>
+            {eliminatedSectionCodes.map(code => (
+              <TeamCard key={code} code={code} dimmed={true} ownerMap={ownerMap} />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
 export default function KnockoutStatsPage({ matches = [], ownerMap = {} }) {
-  const players = buildDrawData(matches, ownerMap);
   return (
     <div className={styles.page}>
-      <DrawBoard players={players} />
+      <DrawBoard matches={matches} ownerMap={ownerMap} />
     </div>
   );
 }

@@ -54,12 +54,14 @@ export function useSheetData() {
         const filename4 = row['Generated Extra Filename 4'] || '';
         const drinks1 = row['Drinks 1'] !== '' ? Number(String(row['Drinks 1']).replace(',', '.')) : null;
         const drinks2 = row['Drinks 2'] !== '' ? Number(String(row['Drinks 2']).replace(',', '.')) : null;
+        const drinks3 = row['Drinks 3'] != null && row['Drinks 3'] !== '' ? Number(String(row['Drinks 3']).replace(',', '.')) : null;
+        const drinks4 = row['Drinks 4'] != null && row['Drinks 4'] !== '' ? Number(String(row['Drinks 4']).replace(',', '.')) : null;
         const emoji1 = row['Emoji 1'] || '';
         const emoji2 = row['Emoji 2'] || '';
         const emoji3 = row['Emoji 3'] || '';
         const emoji4 = row['Emoji 4'] || '';
         if (home && away) {
-          map[`${home}-${away}`] = { filename, filename2, filename3, filename4, drinks1, drinks2, emoji1, emoji2, emoji3, emoji4 };
+          map[`${home}-${away}`] = { filename, filename2, filename3, filename4, drinks1, drinks2, drinks3, drinks4, emoji1, emoji2, emoji3, emoji4 };
         }
       });
       setVideoMap(map);

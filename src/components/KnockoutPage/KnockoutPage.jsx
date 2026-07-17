@@ -41,7 +41,8 @@ export default function KnockoutPage({ stage: stageProp, matches = [], koVideos 
       const kv = kvMap[owner.name];
       return {
         ...owner,
-        videoFilename: kv?.filename ? `${kv.folder}/${kv.filename}` : null,
+        videoFilename:  kv?.filename  ? `${kv.folder}/${kv.filename}`  : null,
+        videoFilename2: kv?.filename2 ? `${kv.folder}/${kv.filename2}` : null,
         drinkEmoji:    kv?.emoji || '',
         drinks:        kv?.drinks ?? 0,
       };

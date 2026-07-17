@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import styles from './StatsPage.module.css';
 import PlayerModal from '../PlayerModal/PlayerModal';
+import StatHistoryModal from '../StatHistoryModal/StatHistoryModal';
 import { TEAM_MAP } from '../../data/teamMap';
+import { PARTICIPANTS } from '../../data/participants';
 
 function MiniAvatar({ p }) {
   return p.photo
@@ -9,28 +11,110 @@ function MiniAvatar({ p }) {
     : <div className={styles.miniAvatarInitials} style={{ background: p.color }}>{p.initials}</div>;
 }
 
-function StatCard({ emoji, label, children }) {
+const STAT_KEY = {
+  'Most Drinks': 'drinks',
+  'Win Streak':  'wStreak',
+  'Drink Streak': 'dStreak',
+};
+
+function StatCard({ emoji, label, children, className, onClick }) {
+  const clickable = !!onClick;
   return (
-    <div className={styles.statCard}>
-      <div className={styles.statCardLabel}>{emoji} {label}</div>
+    <div
+      className={[
+        styles.statCard,
+        className ?? '',
+        clickable ? styles.statCardClickable : '',
+      ].filter(Boolean).join(' ')}
+      onClick={onClick}
+    >
+      <div className={styles.statCardLabel}>
+        {emoji} {label}
+        {clickable && <span className={styles.statCardChart}>📈</span>}
+      </div>
       <div className={styles.statCardBody}>{children}</div>
     </div>
   );
 }
 
-function FunStats({ players }) {
+function drinkStreak(p) {
+  const finished = [...p.matches]
+    .filter(m => m.isFinished)
+    .sort((a, b) => b.kickoff - a.kickoff);
+  let n = 0;
+  for (const m of finished) {
+    if (m.myState === 'losing' || m.myState === 'draw') n++;
+    else break;
+  }
+  return n;
+}
+
+function FunStats({ players, ownerMap = {}, onHistoryOpen }) {
   const hasFinished = players.some(p => p.matches.some(m => m.isFinished));
   if (!hasFinished) return null;
 
   const totalDrinks     = players.reduce((s, p) => s + p.drinks, 0);
   const totalDrinksDone = players.reduce((s, p) => s + p.drinksDone, 0);
   const totalSideBet    = players.reduce((s, p) => s + (p.sideBetDrinkCount ?? 0) + (p.bonusDrinks ?? 0) + (p.extraVideoDrinks ?? 0), 0);
-  const maxDrinks    = Math.max(...players.map(p => p.drinksDone));
-  const topDrinkers  = maxDrinks > 0 ? players.filter(p => p.drinksDone === maxDrinks) : [];
-  const cleanPlayers = players.filter(p => p.drinks === 0 && p.matches.some(m => m.isFinished));
-  const maxStreak    = Math.max(...players.map(p => p.streak));
-  const topStreakers  = maxStreak > 0 ? players.filter(p => p.streak === maxStreak) : [];
-  const debtPlayers  = players.filter(p => p.videoDebt > 0).sort((a, b) => b.videoDebt - a.videoDebt);
+
+  // Cache drinkStreak so we don't recompute per render
+  const dStreakVal = Object.fromEntries(players.map(p => [p.name, drinkStreak(p)]));
+
+  const redrawnCounts = {};
+  Object.values(ownerMap).forEach(owners => {
+    owners.forEach(o => { redrawnCounts[o.name] = (redrawnCounts[o.name] || 0) + 1; });
+  });
+
+  // naturalCount = default rows shown (tied-for-top for streak/drinks; full list for debt)
+  const maxDrinks      = Math.max(0, ...players.map(p => p.drinksDone));
+  const maxStreak      = Math.max(0, ...players.map(p => p.streak));
+  const maxDrinkStreak = Math.max(0, ...players.map(p => dStreakVal[p.name]));
+  const maxRedraws     = Math.max(0, ...players.map(p => redrawnCounts[p.name] || 0));
+
+  const cardDefs = [
+    {
+      emoji: '🍺', label: 'Most Drinks',
+      items: [...players].filter(p => p.drinksDone > 0).sort((a, b) => b.drinksDone - a.drinksDone),
+      naturalCount: players.filter(p => p.drinksDone === maxDrinks && maxDrinks > 0).length,
+      val: p => `${p.drinksDone}x`,
+    },
+    {
+      emoji: '🔥', label: 'Win Streak',
+      items: [...players].filter(p => p.streak > 0).sort((a, b) => b.streak - a.streak),
+      naturalCount: players.filter(p => p.streak === maxStreak && maxStreak > 0).length,
+      val: p => `${p.streak} in a row`,
+    },
+    {
+      emoji: '🎬', label: 'Video Debt',
+      items: [...players].filter(p => p.videoDebt > 0).sort((a, b) => b.videoDebt - a.videoDebt),
+      val: p => `owes ${p.videoDebt}`,
+    },
+    {
+      emoji: '🍻', label: 'Drink Streak',
+      items: [...players].filter(p => dStreakVal[p.name] > 0).sort((a, b) => dStreakVal[b.name] - dStreakVal[a.name]),
+      naturalCount: players.filter(p => dStreakVal[p.name] === maxDrinkStreak && maxDrinkStreak > 0).length,
+      val: p => `${dStreakVal[p.name]} in a row`,
+    },
+    {
+      emoji: '🔀', label: 'Most Redraws',
+      items: [...players].filter(p => redrawnCounts[p.name] > 0).sort((a, b) => redrawnCounts[b.name] - redrawnCounts[a.name]),
+      naturalCount: players.filter(p => (redrawnCounts[p.name] || 0) === maxRedraws && maxRedraws > 0).length,
+      val: p => `${redrawnCounts[p.name]}×`,
+    },
+  ].map(c => ({ ...c, naturalCount: c.naturalCount ?? c.items.length }));
+
+  // Only cards with data, sorted ascending by natural size → small cards pair with small cards
+  const cards = cardDefs
+    .filter(c => c.items.length > 0)
+    .sort((a, b) => a.naturalCount - b.naturalCount);
+
+  // Each pair: shorter card fills up with runners-up to match its neighbour's naturalCount
+  const showCounts = cards.map(c => c.naturalCount);
+  for (let i = 0; i + 1 < cards.length; i += 2) {
+    const pairMax = Math.max(cards[i].naturalCount, cards[i + 1].naturalCount);
+    showCounts[i]     = Math.min(cards[i].items.length, pairMax);
+    showCounts[i + 1] = Math.min(cards[i + 1].items.length, pairMax);
+  }
 
   return (
     <div className={styles.funStats}>
@@ -44,63 +128,25 @@ function FunStats({ players }) {
       )}
 
       <div className={styles.statGrid}>
-        {topDrinkers.length > 0 && (
-          <StatCard emoji="🍺" label="Most Drinks">
+        {cards.map(({ emoji, label, items, val }, i) => (
+          <StatCard
+            key={label}
+            emoji={emoji}
+            label={label}
+            className={cards.length % 2 === 1 && i === cards.length - 1 ? styles.statCardFull : undefined}
+            onClick={STAT_KEY[label] && onHistoryOpen ? () => onHistoryOpen(STAT_KEY[label]) : undefined}
+          >
             <div className={styles.statCardDebt}>
-              {topDrinkers.map(p => (
+              {items.slice(0, showCounts[i]).map(p => (
                 <div key={p.name} className={styles.debtRow}>
                   <MiniAvatar p={p} />
                   <span className={styles.statCardName}>{p.name}</span>
-                  <span className={styles.statCardVal}>{p.drinksDone}x</span>
+                  <span className={styles.statCardVal}>{val(p)}</span>
                 </div>
               ))}
             </div>
           </StatCard>
-        )}
-
-        {cleanPlayers.length > 0 && (
-          <StatCard emoji="😇" label="Still Clean">
-            <div className={styles.statCardDebt}>
-              {cleanPlayers.map(p => (
-                <div key={p.name} className={styles.debtRow}>
-                  <MiniAvatar p={p} />
-                  <span className={styles.statCardName}>{p.name}</span>
-                  <span className={styles.statCardVal}>
-                    {p.teams.map(code => (TEAM_MAP[code]?.flag ?? '')).join(' ')}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </StatCard>
-        )}
-
-        {topStreakers.length > 0 && (
-          <StatCard emoji="🔥" label="Win Streak">
-            <div className={styles.statCardDebt}>
-              {topStreakers.map(p => (
-                <div key={p.name} className={styles.debtRow}>
-                  <MiniAvatar p={p} />
-                  <span className={styles.statCardName}>{p.name}</span>
-                  <span className={styles.statCardVal}>{p.streak} in a row</span>
-                </div>
-              ))}
-            </div>
-          </StatCard>
-        )}
-
-        {debtPlayers.length > 0 && (
-          <StatCard emoji="🎬" label="Video Debt">
-            <div className={styles.statCardDebt}>
-              {debtPlayers.map(p => (
-                <div key={p.name} className={styles.debtRow}>
-                  <MiniAvatar p={p} />
-                  <span className={styles.statCardName}>{p.name}</span>
-                  <span className={styles.statCardVal}>owes {p.videoDebt}</span>
-                </div>
-              ))}
-            </div>
-          </StatCard>
-        )}
+        ))}
       </div>
     </div>
   );
@@ -128,9 +174,10 @@ function rankPlayers(players) {
   });
 }
 
-export default function StatsPage({ players, aliveCodes = new Set() }) {
-  const [selected, setSelected] = useState(null);
-  const ranked = rankPlayers(players);
+export default function StatsPage({ players, aliveCodes = new Set(), ownerMap = {} }) {
+  const [selected, setSelected]       = useState(null);
+  const [historyModal, setHistoryModal] = useState(null);
+  const ranked = useMemo(() => rankPlayers(players), [players]);
 
   const [arrows, setArrows] = useState({});
 
@@ -172,7 +219,7 @@ export default function StatsPage({ players, aliveCodes = new Set() }) {
 
   return (
     <div className={styles.page}>
-      <FunStats players={ranked} />
+      <FunStats players={ranked} ownerMap={ownerMap} onHistoryOpen={setHistoryModal} />
       <table className={styles.table}>
         <thead>
           <tr>
@@ -205,11 +252,24 @@ export default function StatsPage({ players, aliveCodes = new Set() }) {
                   <div className={styles.playerNameBlock}>
                     <span className={styles.playerName}>{p.name}</span>
                     <span className={styles.teamFlags}>
-                      {p.teams.map(code => (
-                        <span key={code} className={aliveCodes.has(code) ? styles.flagAlive : ''}>
-                          {TEAM_MAP[code]?.flag ?? ''}
-                        </span>
-                      ))}
+                      {(() => {
+                        const hasKO = aliveCodes.size > 0;
+                        const ogCodes = new Set(PARTICIPANTS.find(p2 => p2.name === p.name)?.teams || []);
+                        const redrawnCodes = Object.entries(ownerMap)
+                          .filter(([, owners]) => owners.some(o => o.name === p.name))
+                          .map(([code]) => code);
+                        const displayCodes = hasKO
+                          ? [
+                              ...(p.teams || []).filter(c => aliveCodes.has(c)),
+                              ...redrawnCodes.filter(c => aliveCodes.has(c) && !ogCodes.has(c)),
+                            ]
+                          : (p.teams || []);
+                        return displayCodes.map(code => (
+                          <span key={code} className={ogCodes.has(code) ? styles.flagAlive : ''}>
+                            {TEAM_MAP[code]?.flag ?? ''}
+                          </span>
+                        ));
+                      })()}
                     </span>
                   </div>
                 </div>
@@ -224,7 +284,14 @@ export default function StatsPage({ players, aliveCodes = new Set() }) {
         </tbody>
       </table>
 
-      {selected && <PlayerModal player={selected} onClose={() => setSelected(null)} />}
+      {selected && <PlayerModal player={selected} onClose={() => setSelected(null)} ownerMap={ownerMap} aliveCodes={aliveCodes} />}
+      {historyModal && (
+        <StatHistoryModal
+          players={ranked}
+          initialStat={historyModal}
+          onClose={() => setHistoryModal(null)}
+        />
+      )}
     </div>
   );
 }

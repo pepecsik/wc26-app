@@ -5,6 +5,7 @@ import { useSheetData } from '../../hooks/useSheetData';
 import { useTeamOwners } from '../../hooks/useTeamOwners';
 import { useKOVideos } from '../../hooks/useKOVideos';
 import { TEAM_MAP } from '../../data/teamMap';
+import { PARTICIPANTS } from '../../data/participants';
 
 const ADMIN_PASSWORD = import.meta.env.VITE_API_KEY;
 
@@ -311,15 +312,17 @@ function ReuploadCard({ match: m, vi, folder }) {
   );
 }
 
-function KOUploadSlot({ match, owner, loserCode, folder }) {
+function KOUploadSlot({ match, owner, loserCode, folder, isExtra = false, existingFilename = '' }) {
   const loserTeam = TEAM_MAP[loserCode] ?? { flag: '🏳️' };
   const [file, setFile]             = useState(null);
-  const [drinkCount, setDrinkCount] = useState(1);
+  const [drinkCount, setDrinkCount] = useState(isExtra ? 1 : Math.round(1 + (match.sideBetDrinks || 0)));
   const [drinkEmojis, setDrinkEmojis] = useState(['🍺']);
   const [status, setStatus]         = useState('idle');
   const [progress, setProgress]     = useState(0);
   const [uploadedFilename, setUploadedFilename] = useState('');
   const [errorMsg, setErrorMsg]     = useState('');
+
+  const ownerName = isExtra ? owner.name + '_2' : owner.name;
 
   async function handleUpload() {
     if (!file) return;
@@ -330,7 +333,7 @@ function KOUploadSlot({ match, owner, loserCode, folder }) {
       const prepRes = await fetch('/.netlify/functions/prepare-ko-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ home: match.hCode, away: match.aCode, ownerName: owner.name, drinkCount, emoji: drinkEmojis.join('') }),
+        body: JSON.stringify({ home: match.hCode, away: match.aCode, ownerName, drinkCount, emoji: drinkEmojis.join('') }),
       });
       const prep = await prepRes.json();
       if (prep.error) throw new Error(prep.error);
@@ -401,8 +404,46 @@ function KOUploadSlot({ match, owner, loserCode, folder }) {
           </div>
         </div>
       )}
+      {existingFilename && status === 'idle' && (
+        <div className={styles.doneName}>replaces: {existingFilename}.mp4</div>
+      )}
       {status === 'done' && <div className={styles.doneName}>{uploadedFilename}.mp4</div>}
       {status === 'error' && <div className={styles.slotError}>{errorMsg}</div>}
+    </div>
+  );
+}
+
+function KOExtraVideoSection({ match, owner, loserCode, folder, existingFilename }) {
+  const [show, setShow] = useState(false);
+  if (existingFilename) {
+    return <KOUploadSlot match={match} owner={owner} loserCode={loserCode} folder={folder} isExtra existingFilename={existingFilename} />;
+  }
+  if (!show) {
+    return <button className={styles.extraVideoBtn} onClick={() => setShow(true)}>+ Add extra video for {owner.name}</button>;
+  }
+  return <KOUploadSlot match={match} owner={owner} loserCode={loserCode} folder={folder} isExtra />;
+}
+
+function KOReuploadCard({ match: m, loserCode, uploadedOwners, kv, folder }) {
+  const hTeam = TEAM_MAP[m.hCode] ?? { flag: '🏳️', full: m.hCode };
+  const aTeam = TEAM_MAP[m.aCode] ?? { flag: '🏳️', full: m.aCode };
+  const loserTeam = TEAM_MAP[loserCode] ?? { flag: '🏳️' };
+  return (
+    <div className={styles.matchCard}>
+      <div className={styles.matchHeader}>
+        <span className={styles.matchScore}>
+          {hTeam.flag} {m.hCode} {m.hGoals}–{m.aGoals} {m.aCode} {aTeam.flag}
+        </span>
+        <span className={styles.matchMeta}>{m.round} · FT · {loserTeam.flag} loses</span>
+      </div>
+      <div className={styles.slots}>
+        {uploadedOwners.map(owner => (
+          <div key={owner.name}>
+            <KOUploadSlot match={m} owner={owner} loserCode={loserCode} folder={folder} existingFilename={kv[owner.name]?.filename || ''} />
+            <KOExtraVideoSection match={m} owner={owner} loserCode={loserCode} folder={folder} existingFilename={kv[owner.name]?.filename2 || ''} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -434,41 +475,67 @@ function KOPendingCard({ match: m, loserCode, pendingOwners, folder }) {
 }
 
 // Teams tab uses 'Participant' and 'Team 1' … 'Team 8' (with spaces)
-const REDRAW_SLOTS = [
-  { slot: 3, label: 'R32' },
-  { slot: 4, label: 'R16' },
-  { slot: 5, label: 'QF'  },
-  { slot: 6, label: 'SF'  },
-  { slot: 7, label: 'SF2' },
-  { slot: 8, label: '+1'  },
-];
+const ROUND_TO_SLOT  = { r32: 3, r16: 4, qf: 5, sf: 6 };
+const ROUND_TO_CODES = {
+  r32: new Set(['R32']),
+  r16: new Set(['R16']),
+  qf:  new Set(['QF']),
+  sf:  new Set(['SF', '3P', 'FIN']),
+};
 
-function PlayerReDrawRow({ row }) {
-  const playerName = (row['Participant'] || '').trim();
+function TeamPicker({ aliveTeams, value, onSelect }) {
+  const [open, setOpen] = useState(false);
 
-  const initVals = Object.fromEntries(
-    REDRAW_SLOTS.map(({ slot }) => [slot, (row[`Team ${slot}`] || '').trim().toUpperCase()])
+  const options = [...aliveTeams]
+    .map(code => ({ code, ...(TEAM_MAP[code] ?? { flag: '🏳️', full: code }) }))
+    .sort((a, b) => a.full.localeCompare(b.full));
+
+  const selected = value ? TEAM_MAP[value] : null;
+
+  return (
+    <>
+      <button className={styles.teamPickBtn} onClick={() => setOpen(true)}>
+        {selected ? `${selected.flag} ${value}` : '＋ pick'}
+      </button>
+      {open && (
+        <div className={styles.teamPickOverlay} onClick={() => setOpen(false)}>
+          <div className={styles.teamPickSheet} onClick={e => e.stopPropagation()}>
+            <div className={styles.teamPickTitle}>Select new team</div>
+            {options.map(({ code, flag, full }) => (
+              <button
+                key={code}
+                className={`${styles.teamPickRow} ${value === code ? styles.teamPickRowActive : ''}`}
+                onClick={() => { onSelect(code); setOpen(false); }}
+              >
+                <span className={styles.teamPickFlag}>{flag}</span>
+                <span className={styles.teamPickName}>{full}</span>
+                <span className={styles.teamPickCode}>{code}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
   );
-  const [vals, setVals] = useState(initVals);
+}
+
+function PlayerReDrawRow({ row, slot, aliveTeams }) {
+  const playerName = (row['Participant'] || '').trim();
+  const initVal = (row[`Team ${slot}`] || '').trim().toUpperCase();
+  const [val, setVal] = useState(initVal);
   const [status, setStatus] = useState('idle');
 
   async function save() {
-    const slots = REDRAW_SLOTS
-      .map(({ slot }) => ({ slot, teamCode: vals[slot] }))
-      .filter(({ slot, teamCode }) => teamCode !== initVals[slot]);
-
-    if (slots.length === 0) return;
+    if (!val || val === initVal) return;
     setStatus('saving');
     try {
-      for (const { slot, teamCode } of slots) {
-        const res = await fetch('/.netlify/functions/save-redraw', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ player: playerName, slot, teamCode }),
-        });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-      }
+      const res = await fetch('/.netlify/functions/save-redraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player: playerName, slot, teamCode: val }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
       setStatus('done');
       setTimeout(() => setStatus('idle'), 2000);
     } catch (err) {
@@ -487,20 +554,11 @@ function PlayerReDrawRow({ row }) {
         <span className={styles.reDrawOG}>{t1.flag} {row['Team 1']} · {t2.flag} {row['Team 2']}</span>
       </div>
       <div className={styles.reDrawSlots}>
-        {REDRAW_SLOTS.map(({ slot, label }) => (
-          <input
-            key={slot}
-            className={styles.teamInput}
-            placeholder={label}
-            value={vals[slot]}
-            maxLength={3}
-            onChange={e => setVals(prev => ({ ...prev, [slot]: e.target.value.toUpperCase() }))}
-          />
-        ))}
+        <TeamPicker aliveTeams={aliveTeams} value={val} onSelect={setVal} />
         <button
           className={`${styles.saveRowBtn} ${status === 'done' ? styles.saveRowDone : ''}`}
           onClick={save}
-          disabled={status === 'saving'}
+          disabled={status === 'saving' || !val}
         >
           {status === 'saving' ? '…' : status === 'done' ? '✓' : 'Save'}
         </button>
@@ -509,9 +567,8 @@ function PlayerReDrawRow({ row }) {
   );
 }
 
-const TEAM_COLS = ['Team 1', 'Team 2', 'Team 3', 'Team 4', 'Team 5', 'Team 6', 'Team 7', 'Team 8'];
 
-function ReDrawPanel({ matches }) {
+function ReDrawPanel({ matches, round }) {
   const { rows } = useTeamOwners();
 
   if (rows.length === 0) {
@@ -519,38 +576,52 @@ function ReDrawPanel({ matches }) {
       <div className={styles.notPublished}>
         <p>Teams tab not published yet.</p>
         <p>In Google Sheets: <strong>File → Share → Publish to web</strong> → select <strong>Teams</strong> sheet → <strong>CSV</strong> → Publish.</p>
-        <p>Then add columns <strong>Team3</strong>, <strong>Team4</strong>, <strong>Team5</strong> (headers in row 1).</p>
+        <p>Then add columns <strong>Team 3</strong>, <strong>Team 4</strong> … <strong>Team 8</strong> (headers in row 1).</p>
       </div>
     );
   }
 
-  const koMatches = matches.filter(m => KO_ROUNDS.has(m.round));
+  const slot = ROUND_TO_SLOT[round] ?? 3;
+  const roundCodeSet = ROUND_TO_CODES[round] ?? new Set(['R32']);
+  const roundMatches = matches.filter(m => roundCodeSet.has(m.round));
 
-  if (koMatches.length === 0) {
-    return <div className={styles.empty}>Redraws happen after the group stage — no KO matches scheduled yet.</div>;
+  if (roundMatches.length === 0) {
+    return <div className={styles.empty}>No {round.toUpperCase()} matches scheduled yet.</div>;
   }
 
-  // Build the set of all KO teams and which ones are eliminated
-  const allKOTeams = new Set(koMatches.flatMap(m => [m.hCode, m.aCode]));
-  const eliminatedTeams = new Set();
-  koMatches.forEach(m => {
+  // All teams in this round's fixture
+  const roundTeams = new Set(roundMatches.flatMap(m => [m.hCode, m.aCode]).filter(Boolean));
+
+  // Teams already eliminated within this round (lost a finished match)
+  const eliminatedInRound = new Set();
+  roundMatches.forEach(m => {
     if (!m.isFinished) return;
-    if (m.hState === 'losing') eliminatedTeams.add(m.hCode);
-    if (m.aState === 'losing') eliminatedTeams.add(m.aCode);
+    if (m.hState === 'losing') eliminatedInRound.add(m.hCode);
+    if (m.aState === 'losing') eliminatedInRound.add(m.aCode);
   });
+  const aliveTeams = new Set([...roundTeams].filter(c => !eliminatedInRound.has(c)));
 
-  // A team is active if it appears in any KO match AND hasn't lost one
-  function isTeamActive(code) {
-    if (!code) return false;
-    const c = code.trim().toUpperCase();
-    return allKOTeams.has(c) && !eliminatedTeams.has(c);
+  // A player needs a redraw if none of their teams (OG + any prior redraws) are in this round
+  const rowByName = Object.fromEntries(rows.map(r => [(r['Participant'] || '').trim(), r]));
+
+  function playerHasTeamInRound(p) {
+    const row = rowByName[p.name] || {};
+    if (p.teams.some(t => roundTeams.has(t.trim().toUpperCase()))) return true;
+    for (let s = 3; s < slot; s++) {
+      const c = (row[`Team ${s}`] || '').trim().toUpperCase();
+      if (c && roundTeams.has(c)) return true;
+    }
+    return false;
   }
 
-  // Only show players who have no active team remaining
-  const reDrawRows = rows.filter(row => {
-    const teams = TEAM_COLS.map(col => (row[col] || '').trim().toUpperCase()).filter(Boolean);
-    return teams.length > 0 && !teams.some(isTeamActive);
-  });
+  const reDrawRows = PARTICIPANTS
+    .filter(p => !playerHasTeamInRound(p))
+    .map(p => ({
+      ...(rowByName[p.name] || {}),
+      'Participant': p.name,
+      'Team 1': p.teams[0] || '',
+      'Team 2': p.teams[1] || '',
+    }));
 
   if (reDrawRows.length === 0) {
     return <div className={styles.empty}>No redraws needed — all players still have an active team 🎉</div>;
@@ -559,10 +630,10 @@ function ReDrawPanel({ matches }) {
   return (
     <div className={styles.reDrawList}>
       <div className={styles.reDrawHeader}>
-        <span className={styles.reDrawCol}>Player</span>
-        <span className={styles.reDrawColRight}>R32 · R16 · QF redraw codes</span>
+        <span className={styles.reDrawCol}>Player · eliminated teams</span>
+        <span className={styles.reDrawColRight}>{round.toUpperCase()} new team</span>
       </div>
-      {reDrawRows.map(row => <PlayerReDrawRow key={row['Participant']} row={row} />)}
+      {reDrawRows.map(row => <PlayerReDrawRow key={row['Participant']} row={row} slot={slot} aliveTeams={aliveTeams} />)}
     </div>
   );
 }
@@ -774,10 +845,10 @@ export default function AdminPage() {
         ))
       )}
 
-      {tab === 'reupload' && (() => {
+      {tab === 'reupload' && round === 'groups' && (() => {
         const done = matches
           .filter(m => {
-            if (!m.isFinished) return false;
+            if (!m.isFinished || KO_ROUNDS.has(m.round)) return false;
             const vi = videoMap[`${m.hCode}-${m.aCode}`];
             if (!vi?.filename) return false;
             if (m.hState === 'draw') return !!vi?.filename2;
@@ -788,7 +859,25 @@ export default function AdminPage() {
         return done.map(m => <ReuploadCard key={m.id} match={m} vi={videoMap[`${m.hCode}-${m.aCode}`]} folder={folder} />);
       })()}
 
-      {tab === 'redraw' && <ReDrawPanel matches={matches} />}
+      {tab === 'reupload' && round !== 'groups' && (() => {
+        const done = matches
+          .filter(m => m.isFinished && ROUND_MATCH_FILTER[round]?.(m))
+          .filter(m => Object.keys(koVideos[`${m.hCode}-${m.aCode}`] || {}).length > 0)
+          .sort((a, b) => b.kickoff - a.kickoff);
+        if (done.length === 0) return <div className={styles.empty}>No uploaded {ROUNDS.find(r => r.id === round)?.label} videos yet</div>;
+        return done.map(m => {
+          const kv = koVideos[`${m.hCode}-${m.aCode}`] || {};
+          const isLosingH = m.hState === 'losing';
+          const loserCode = isLosingH ? m.hCode : m.aCode;
+          const loserOwners = isLosingH
+            ? [m.hOwner, ...(m.hCoOwners || [])].filter(Boolean)
+            : [m.aOwner, ...(m.aCoOwners || [])].filter(Boolean);
+          const uploadedOwners = loserOwners.filter(o => kv[o.name]);
+          return <KOReuploadCard key={`${m.hCode}-${m.aCode}`} match={m} loserCode={loserCode} uploadedOwners={uploadedOwners} kv={kv} folder={folder} />;
+        });
+      })()}
+
+      {tab === 'redraw' && <ReDrawPanel matches={matches} round={round} />}
     </div>
   );
 }

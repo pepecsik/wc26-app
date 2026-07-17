@@ -1,0 +1,181 @@
+.wrap {
+  overflow: hidden;
+}
+
+.scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  padding: 4px 12px 20px;
+}
+.scroll::-webkit-scrollbar { display: none; }
+
+/* Round label header row */
+.hdrRow {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  margin-bottom: 6px;
+}
+
+.hdr {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  text-align: center;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Main bracket row */
+.bracket {
+  display: flex;
+  align-items: flex-start;
+  width: max-content;
+}
+
+/* A single round column */
+.col {
+  display: flex;
+  flex-direction: column;
+  width: 88px;
+  flex-shrink: 0;
+}
+
+/* Vertical slot that holds one match card, centered */
+.slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Connector SVG */
+.connSvg {
+  flex-shrink: 0;
+}
+
+/* Match card */
+.card {
+  width: 88px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cardLive {
+  border-color: rgba(25,163,84,0.5);
+}
+
+.cardDone {
+  border-color: rgba(255,255,255,0.1);
+}
+
+.cardTbd {
+  opacity: 0.3;
+}
+
+/* Team row inside a card */
+.trow {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 5px;
+  min-height: 25px;
+}
+
+.trowWin {
+  background: rgba(25,163,84,0.1);
+}
+
+.trowLose {
+  opacity: 0.45;
+}
+
+.tflag {
+  font-size: 11px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.tinfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tcode {
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.towner {
+  font-size: 8px;
+  color: rgba(255,255,255,0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.1;
+}
+
+.tscore {
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.45);
+  min-width: 10px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.tscoreWin {
+  color: #19a354;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  position: relative;
+}
+
+.cardStatus {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.45);
+  background: rgba(0,0,0,0.7);
+  padding: 0 3px;
+  border-radius: 3px;
+  line-height: 14px;
+}
+
+/* Final / center column */
+.finalCol {
+  width: 88px;
+  height: 480px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.p3Lbl {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  text-align: center;
+  margin-bottom: 4px;
+}

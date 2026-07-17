@@ -128,7 +128,7 @@ export default function MatchCard({ match, videoInfo, koVideos = {}, isFocus, on
           state={hState} matchState={matchState} isFocus={isFocus}
           hasVideo={hHasVideo} hasVideo2={hHasVideo2}
           onVideoClick={() => onVideoOpen(hFilenames, videoTitle)}
-          drinkEmoji={videoInfo?.emoji1 || ''}
+          drinkEmoji={(videoInfo?.emoji1 || '') + (videoInfo?.emoji3 || '')}
           sideBetDrinks={sideBetDrinks}
           sideBetEmoji={sideBetEmoji}
         />
@@ -183,7 +183,7 @@ export default function MatchCard({ match, videoInfo, koVideos = {}, isFocus, on
           state={aState} matchState={matchState} isFocus={isFocus}
           hasVideo={aHasVideo} hasVideo2={aHasVideo2}
           onVideoClick={() => onVideoOpen(aFilenames, videoTitle)}
-          drinkEmoji={aState === 'draw' ? (videoInfo?.emoji2 || '') : (videoInfo?.emoji1 || '')}
+          drinkEmoji={aState === 'draw' ? (videoInfo?.emoji2 || '') + (videoInfo?.emoji4 || '') : (videoInfo?.emoji1 || '') + (videoInfo?.emoji3 || '')}
           sideBetDrinks={sideBetDrinks}
           sideBetEmoji={sideBetEmoji}
         />
